@@ -18,18 +18,6 @@ export_nmr <- function(data,filename,scan_number=NA) {
 	}
 }
 
-#' Export echem data
-#'
-#' This function is used to export echem data as a csv file.
-#' @param echem The echem data object
-#' @param filename The path to the file (ending in .csv)
-#' @return None
-#' @export
-#' @examples
-#' export_echem(echem,"/path/to/file.csv")
-export_echem <- function(echem,filename) {
-	write.table(echem,filename,sep=",",row.names =FALSE)
-}
 
 #' Export fit results
 #'
