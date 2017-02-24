@@ -31,7 +31,7 @@
 #' plotNMR2D(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
 plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval=200,xMinorTickInterval=50,y_trunc=Inf,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE) {
   load_or_install("plotrix")
-    n=ncol(nmrdata) 
+    n=ncol(nmrdata)
     x=nmrdata[,1] #ppm
     offsets=as.numeric(names(nmrdata)[2:length(nmrdata)])
     #convert offsets in hours to plot coordinates
@@ -48,25 +48,18 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
 
     if(plot.colour) {
       if(any(is.na(plot.colour.ranges))) {
-        plot.colour.ranges=xrange
+        plot.colour.ranges=list(xrange)
       }
       col_ranges=plot.colour.yranges
       if(any(col_ranges=='auto')) {
+        col_ranges=list()
         for(r in plot.colour.ranges) {
-          crange=c(Inf,-Inf)
           for(i in n:2) {
-            cy=nmrdata[,i][x>r[[1]]&x<r[[2]]]
+            cy=nmrdata[,i][x<r[[1]]&x>r[[2]]]
             mincy=min(cy)
             maxcy=max(cy)
-            if(mincy<crange[[1]]) {
-              if(mincy<plot.colour.min.intensity) {
-                mincy=plot.colour.min.intensity
-              }
-              crange[[1]]=signif(mincy,5)
-            }
-            if(maxcy>crange[[2]]) {
-              crange[[2]]=signif(maxcy,5)
-            }
+            crange[[1]]=signif(mincy,5)
+            crange[[2]]=signif(maxcy,5)
           }
           col_ranges=append(col_ranges,list(crange))
         }
@@ -87,18 +80,18 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
         ally=y
         for(r in 1:length(plot.colour.ranges)) {
           prx=plot.colour.ranges[[r]]
-          pry=y[x>prx[[1]]&x<prx[[2]]]
-          prx=x[x>prx[[1]]&x<prx[[2]]]
-      
+          pry=y[x<prx[[1]]&x>prx[[2]]]
+          prx=x[x<prx[[1]]&x>prx[[2]]]
+
           ally[allx %in% prx] <- NA
 
           cr=col_ranges[[r]]
-      
+
           cvar=pry-off
           cvar=signif(cvar,5)
           cvar[cvar<cr[[1]]]<-cr[[1]]
           cvar[cvar>cr[[2]]]<-cr[[2]]
-          
+
           cols=color.scale.nmr(cvar,c(0,0,0,1,1,1),c(0,0,1,1,0,0),c(0,1,0,0,1,0),xrange=cr)
           nseg=length(prx)-1
           segments(prx[1:nseg], pry[1:nseg], prx[2:(nseg + 1)], pry[2:(nseg + 1)], col = cols,lwd=lwd)
@@ -112,26 +105,26 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
       }
       if(shade_under){
         #add shading
-        polygon(c(x,x[length(x)]), c(y, y[1]), col=shade_col,border=NA) 
+        polygon(c(x,x[length(x)]), c(y, y[1]), col=shade_col,border=NA)
       }
     }
 
     #loop over truncation lines
     if(length(y_trunc_x_points)>0){
       for(i in 1:length(y_trunc_x_points)) {
-    
+
         #calculate parameters for sine wave
         xs=y_trunc_x_points[[i]]
         xcent=mean(xs)
         ycent=y_trunc/y_trunc_amp_div+y_trunc+y_trunc/y_trunc_label_offset_factor
-    
+
         #calculate parameters for white fill region
         xs2=c(xs[[1]],xs)
         xs2=append(xs2,xs[[length(xs)]])
         ys2=c(yrange[[2]],y_trunc,y_trunc,yrange[[2]])
         #fill with white
         polygon(xs2,ys2,col="white",border=NA)
-    
+
         #draw truncation line
         curve(sin(x*pi/y_trunc_sin_period)*y_trunc/y_trunc_amp_div+y_trunc,from=xs[[1]],to=xs[[2]],col=y_trunc_line_col,add=T,lwd=y_trunc_lwd)
         #add label
@@ -140,7 +133,7 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
     }
     #make plot pretty
     box()
-    
+
     if(show_axes) {
         ticksat=seq(xrange[[1]],xrange[[2]],xTickInterval*sign(xrange[[2]]-xrange[[1]]))
         minorTicksat=seq(xrange[[1]],xrange[[2]],xMinorTickInterval*sign(xrange[[2]]-xrange[[1]]))
@@ -188,8 +181,8 @@ color.scale.nmr <- function (x, cs1 = c(0, 1), cs2 = c(0, 1), cs3 = c(0, 1), alp
     xrange <- range(x, na.rm = TRUE)
     drop.extremes <- FALSE
   } else {
-    if (xrange[1] > min(x, na.rm = TRUE) || xrange[2] < max(x, 
-                                                            na.rm = TRUE)) 
+    if (xrange[1] > min(x, na.rm = TRUE) || xrange[2] < max(x,
+                                                            na.rm = TRUE))
       stop("An explicit range for x must include the range of x values.")
     x <- c(xrange, x)
     drop.extremes = TRUE
@@ -201,14 +194,14 @@ color.scale.nmr <- function (x, cs1 = c(0, 1), cs2 = c(0, 1), cs3 = c(0, 1), alp
     xstart <- xrange[1]
     xinc <- diff(xrange)/(ncs1 - 1)
     for (seg in 1:(ncs1 - 1)) {
-      segindex <- which((x >= xstart) & (x <= (xstart + 
+      segindex <- which((x >= xstart) & (x <= (xstart +
                                                  xinc)))
-      cs1s[segindex] <- rescale.nmr(x[segindex], cs1[c(seg, 
+      cs1s[segindex] <- rescale.nmr(x[segindex], cs1[c(seg,
                                                    seg + 1)])
       xstart <- xstart + xinc
     }
-    if (min(cs1s, na.rm = TRUE) < 0 || max(cs1s, na.rm = TRUE) > 
-        maxcs1) 
+    if (min(cs1s, na.rm = TRUE) < 0 || max(cs1s, na.rm = TRUE) >
+        maxcs1)
       cs1s <- rescale.nmr(cs1s, c(0, maxcs1))
   } else cs1s <- rep(cs1, ncolors)
   ncs2 <- length(cs2)
@@ -217,14 +210,14 @@ color.scale.nmr <- function (x, cs1 = c(0, 1), cs2 = c(0, 1), cs3 = c(0, 1), alp
     xstart <- xrange[1]
     xinc <- diff(xrange)/(ncs2 - 1)
     for (seg in 1:(ncs2 - 1)) {
-      segindex <- which((x >= xstart) & (x <= (xstart + 
+      segindex <- which((x >= xstart) & (x <= (xstart +
                                                  xinc)))
-      cs2s[segindex] <- rescale.nmr(x[segindex], cs2[c(seg, 
+      cs2s[segindex] <- rescale.nmr(x[segindex], cs2[c(seg,
                                                    seg + 1)])
       xstart <- xstart + xinc
     }
-    if (min(cs2s, na.rm = TRUE) < 0 || max(cs2s, na.rm = TRUE) > 
-        maxcs2) 
+    if (min(cs2s, na.rm = TRUE) < 0 || max(cs2s, na.rm = TRUE) >
+        maxcs2)
       cs2s <- rescale.nmr(cs2s, c(0, maxcs2))
   } else cs2s <- rep(cs2, ncolors)
   ncs3 <- length(cs3)
@@ -233,14 +226,14 @@ color.scale.nmr <- function (x, cs1 = c(0, 1), cs2 = c(0, 1), cs3 = c(0, 1), alp
     xstart <- xrange[1]
     xinc <- diff(xrange)/(ncs3 - 1)
     for (seg in 1:(ncs3 - 1)) {
-      segindex <- which((x >= xstart) & (x <= (xstart + 
+      segindex <- which((x >= xstart) & (x <= (xstart +
                                                  xinc)))
-      cs3s[segindex] <- rescale.nmr(x[segindex], cs3[c(seg, 
+      cs3s[segindex] <- rescale.nmr(x[segindex], cs3[c(seg,
                                                    seg + 1)])
       xstart <- xstart + xinc
     }
-    if (min(cs3s, na.rm = TRUE) < 0 || max(cs3s, na.rm = TRUE) > 
-        maxcs3) 
+    if (min(cs3s, na.rm = TRUE) < 0 || max(cs3s, na.rm = TRUE) >
+        maxcs3)
       cs3s <- rescale.nmr(cs3s, c(0, maxcs3))
   } else cs3s <- rep(cs3, ncolors)
   if (drop.extremes) {
@@ -250,9 +243,9 @@ color.scale.nmr <- function (x, cs1 = c(0, 1), cs2 = c(0, 1), cs3 = c(0, 1), alp
   }
   xdim <- dim(x)
   colors <- do.call(color.spec, list(cs1s, cs2s, cs3s, alpha = alpha))
-  if (!is.null(xdim)) 
+  if (!is.null(xdim))
     colors <- matrix(colors, nrow = xdim[1])
-  if (length(naxs)) 
+  if (length(naxs))
     colors[naxs] <- na.color
   return(colors)
 }
@@ -261,7 +254,7 @@ color.scale.nmr <- function (x, cs1 = c(0, 1), cs2 = c(0, 1), cs3 = c(0, 1), alp
 #'
 #' This function is a workaround for an issue with \code{\link[plotrix]{rescale}}.
 #' @keywords internal
-rescale.nmr <- function (x, newrange) 
+rescale.nmr <- function (x, newrange)
 {
   if (missing(x) | missing(newrange)) {
     usage.string <- paste("Usage: rescale(x,newrange)\n", "\twhere x is a numeric object and newrange is the new min and max\n", sep = "", collapse = "")
@@ -269,12 +262,12 @@ rescale.nmr <- function (x, newrange)
   }
   if (is.numeric(x) && is.numeric(newrange)) {
     xna <- is.na(x)
-    if (all(xna)) 
+    if (all(xna))
       return(x)
-    if (any(xna)) 
+    if (any(xna))
       xrange <- range(x[!xna])
     else xrange <- range(x)
-    if (xrange[1] == xrange[2]) 
+    if (xrange[1] == xrange[2])
       return(rep_len(newrange[[1]],length(x)))
     mfac <- (newrange[2] - newrange[1])/(xrange[2] - xrange[1])
     return(newrange[1] + (x - xrange[1]) * mfac)
