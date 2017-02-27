@@ -20,4 +20,3 @@ This function fits the data using the models defined previously.
 \examples{
 run_fit_for_data(fit, data)
 }
-

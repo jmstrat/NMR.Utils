@@ -25,4 +25,3 @@ read.NMR("/path/to/file.txt")
 read.NMR("/path/to/nmr/expName/expNo")
 read.NMR("/path/to/folder/")
 }
-

@@ -21,4 +21,3 @@ This function converts a list of models to a list of functions + model indexes.
 make_fitted_models(models,result_line)
 }
 \keyword{internal}
-

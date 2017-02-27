@@ -51,4 +51,3 @@ This function plots a single frame from the fit.
 plot_animation_frame(fit,data,echem,100,c(200,-200),c(0,2))
 }
 \keyword{internal}
-

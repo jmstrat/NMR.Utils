@@ -20,4 +20,3 @@ Reduces the number of scans in the data frame
 \examples{
 reduceScans(spectra,c(1,50))
 }
-

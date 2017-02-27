@@ -27,4 +27,3 @@ This function plots in-situ echem data.
 \examples{
 plotechem_vertical(data,V_range)
 }
-

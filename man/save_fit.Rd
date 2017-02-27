@@ -20,4 +20,3 @@ This function is used to save the fit as an R binary file. The resulting file ca
 \examples{
 save_fit(fit,"/path/to/file.R")
 }
-

@@ -24,4 +24,3 @@ This function phases (complex) NMR data.
 \examples{
 phase(data,45,0,0)
 }
-

@@ -19,4 +19,3 @@ The fit object
 \description{
 This function makes the fit run as a dynamic fit. For this to work effectively, there must be one scan per model peak that contains ONLY this peak in the region of interest (no overlap). Otherwise the model will have to be fully defined manually.
 }
-

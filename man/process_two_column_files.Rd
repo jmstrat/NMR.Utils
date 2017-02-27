@@ -19,4 +19,3 @@ This function attempts process 1D data files in a directory
 process_two_column_files(files)
 }
 \keyword{internal}
-

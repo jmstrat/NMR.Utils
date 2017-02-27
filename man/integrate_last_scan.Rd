@@ -21,4 +21,3 @@ This function fits the last fitted scan using the models defined previously. Add
 integrate_last_scan(fit)
 }
 \keyword{internal}
-

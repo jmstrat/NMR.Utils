@@ -24,4 +24,3 @@ export_nmr(data,"/path/to/file.csv")
 
 export_nmr(data,"/path/to/file.csv",scan_number=1)
 }
-

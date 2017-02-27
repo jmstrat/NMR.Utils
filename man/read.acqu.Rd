@@ -18,4 +18,3 @@ This function is read acquisition pararameters for NMR Data.
 \examples{
 read.acqu("/path/to/nmr/expName/expNo")
 }
-

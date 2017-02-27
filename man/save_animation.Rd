@@ -64,4 +64,3 @@ This function makes an animation for the fit.
 \examples{
 save_animation(fit,data,echem,c(200,-200),c(0,2))
 }
-

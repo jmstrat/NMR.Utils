@@ -30,4 +30,3 @@ pseudoVoigt(c(1:10),10,0,2,0.5)
 f=function(x) {pseudoVoigt(x,height=10,centre=0,hwhm=2,shape=0.5)}
 curve(f,from=-5,to=5)
 }
-

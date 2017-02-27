@@ -35,4 +35,3 @@ This function plots the integrated intensities of the fit and the deconvolution 
 \examples{
 plot_integrals(fit)
 }
-

@@ -20,4 +20,3 @@ This function adds a model object to a fit. The model must have all constraints 
 \examples{
 add_model_to_fit(fit,model)
 }
-

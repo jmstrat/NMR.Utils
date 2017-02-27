@@ -18,4 +18,3 @@ Analyses the baseline for NMR Spectra graphically. See \code{\link[baseline]{bas
 \examples{
 analyse_baseline(data)
 }
-

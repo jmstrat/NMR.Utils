@@ -19,4 +19,3 @@ This function is used to import NMR data.
 read.NMR1D("/path/to/file.txt")
 }
 \keyword{internal}
-

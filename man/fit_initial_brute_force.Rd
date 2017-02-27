@@ -32,4 +32,3 @@ This function runs many fits to sample the landscape for local minima.
 fit_initial_brute_force(models,x,y,formula,upper,lower)
 }
 \keyword{internal}
-

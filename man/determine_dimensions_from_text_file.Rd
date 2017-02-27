@@ -19,4 +19,3 @@ This function attempts to determine the dimension of a bruker text file by exami
 determine_dimensions_from_text_file("/path/to/file.txt")
 }
 \keyword{internal}
-

@@ -19,4 +19,3 @@ This function modifies the function for each model, adding default values for th
 fix_unconstrained_parameters(fit)
 }
 \keyword{internal}
-

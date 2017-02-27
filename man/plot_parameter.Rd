@@ -27,4 +27,3 @@ This function plots a parameter of the deconvolution for all frames in the fit.
 \examples{
 plot_parameter(fit,'height')
 }
-

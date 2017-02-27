@@ -19,4 +19,3 @@ This function plots in-situ echem data.
 \examples{
 plotinsitu(data,echem,xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)),V_range=c(0,2),alignment=align)
 }
-

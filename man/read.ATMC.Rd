@@ -22,4 +22,3 @@ Calculates offsets in hours from first scan based on ATMC log file
 \examples{
 read.ATMC("/path/to/file.txt")
 }
-

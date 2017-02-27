@@ -19,4 +19,3 @@ This function attempts to determine the type of a bruker text file
 determine_1d_file_type(file)
 }
 \keyword{internal}
-

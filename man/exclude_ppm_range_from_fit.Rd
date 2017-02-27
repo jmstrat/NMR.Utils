@@ -17,4 +17,3 @@ The fit object
 \description{
 This function excludes a ppm range from the fit.
 }
-

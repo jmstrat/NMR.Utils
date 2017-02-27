@@ -35,4 +35,3 @@ This function creates a fit that can contain models.
 \examples{
 new_fit()
 }
-

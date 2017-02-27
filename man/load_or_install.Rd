@@ -4,13 +4,17 @@
 \alias{load_or_install}
 \title{Load packages}
 \usage{
-load_or_install(x)
+load_or_install(package, optional = FALSE, github = NA)
 }
 \arguments{
-\item{x}{A (complex) dataframe of NMR data}
+\item{package}{The package name}
+
+\item{optional}{If FALSE then an error will be raised if the package cannot be loaded}
+
+\item{github}{If installing from cran fails try this github repository instead (see \code{\link[devtools]{install_github}})}
 }
 \value{
-None
+TRUE if the package was successfully loaded. FALSE if the package was unable to be loaded and optional=TRUE. Raises an error otherwise.
 }
 \description{
 This function will load a package, or install it if it isn't present. (Probably against all sorts of programming guidelines, but makes everything easier to install and run...)
@@ -19,4 +23,3 @@ This function will load a package, or install it if it isn't present. (Probably 
 load_or_install("baseline")
 }
 \keyword{internal}
-

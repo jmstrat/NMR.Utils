@@ -20,4 +20,3 @@ Corrects the baseline for NMR Spectra
 \examples{
 correct_baseline(data, method="modpolyfit",degree=1)
 }
-

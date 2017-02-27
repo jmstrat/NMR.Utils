@@ -30,4 +30,3 @@ This function fits a single scan using the models provided.
 fit_models_to_x_y(models, x, y)
 }
 \keyword{internal}
-

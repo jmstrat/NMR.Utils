@@ -21,4 +21,3 @@ Calculates offsets in hours from first scan based on ATMC log file
 read.ATMC1("/path/to/file.txt")
 }
 \keyword{internal}
-

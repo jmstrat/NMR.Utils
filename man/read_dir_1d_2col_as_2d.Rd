@@ -19,4 +19,3 @@ This function attempts combine 1D data files into a 2D spectrum
 read_dir_1d_2col_as_2d(files)
 }
 \keyword{internal}
-

@@ -72,4 +72,3 @@ This function plots 2D NMR Data.
 \examples{
 plotNMR2D(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
 }
-

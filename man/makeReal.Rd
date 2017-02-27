@@ -18,4 +18,3 @@ Removes imaginary component from NMR data
 \examples{
 makeReal(data)
 }
-

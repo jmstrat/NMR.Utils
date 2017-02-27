@@ -19,4 +19,3 @@ This function attempts to determine the ppm scale from a bruker text file by exa
 read_ppm_1D("/path/to/file.txt")
 }
 \keyword{internal}
-

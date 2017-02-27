@@ -20,4 +20,3 @@ This function creates a model to be fitted.
 \examples{
 new_model(pseudoVoigt, height=1e9,centre=-9.95,hwhm=2.1,shape=1)
 }
-

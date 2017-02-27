@@ -36,9 +36,9 @@ Values of the constraint parameter are thus:
 \item variable_range: c(value, min, max)
 }
 }
+
 \examples{
 add_constraint_to_model(model, "height", "range", c(0,1))
 add_constraint_to_model(model, "height", "vary", 0.5)
 add_constraint_to_model(model, "height", "variable_range", c(0.5,0,1))
 }
-

@@ -18,4 +18,3 @@ This function is used to load a fit saved using (\code{\link[NMR.Utils]{save_fit
 \examples{
 fit = load_fit("/path/to/file.R")
 }
-

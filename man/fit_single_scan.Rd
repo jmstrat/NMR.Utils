@@ -21,4 +21,3 @@ This function fits a single scan using the models defined previously.
 fit_single_scan(fit, data)
 }
 \keyword{internal}
-

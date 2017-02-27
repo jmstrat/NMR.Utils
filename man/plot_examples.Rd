@@ -49,4 +49,3 @@ This function plots the deconvolution for specified frames from the fit.
 \examples{
 plot_examples(fit,data,scans=seq(1:20,5),plot_offset=100000)
 }
-

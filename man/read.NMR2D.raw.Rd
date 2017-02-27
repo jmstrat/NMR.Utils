@@ -21,4 +21,3 @@ This function is used to import NMR data.
 read.NMR2D.raw("/path/to/nmr/expName/expNo")
 }
 \keyword{internal}
-

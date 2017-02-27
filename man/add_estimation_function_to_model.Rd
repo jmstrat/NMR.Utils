@@ -20,6 +20,7 @@ This function adds an estimation function to a model.
 The model function recieves the scan number, initial guess and xy data.
 It should return a list of parameter estimates (can be a sparse list)
 }
+
 \examples{
 #estimates the height of a peak based on the intensity at its (guessed) centre
 guess_height <- function(n,guess,xy) {
@@ -28,4 +29,3 @@ guess_height <- function(n,guess,xy) {
 }
 add_estimation_function_to_model(model, guess_height)
 }
-

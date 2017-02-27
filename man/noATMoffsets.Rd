@@ -22,4 +22,3 @@ Generates time offsets if spectra were acquired without ATM
 \examples{
 noATMoffsets(spectra,0.5)
 }
-

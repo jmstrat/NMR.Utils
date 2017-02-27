@@ -20,4 +20,3 @@ Stores the time offsets in the data frame
 \examples{
 storeOffsets(data,offsets)
 }
-

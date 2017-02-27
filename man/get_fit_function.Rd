@@ -19,4 +19,3 @@ This function creates a function representing the overall fit
 func=get_fit_function(models)
 }
 \keyword{internal}
-

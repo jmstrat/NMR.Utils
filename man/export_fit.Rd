@@ -20,4 +20,3 @@ This function is used to export the fit results as a csv file.
 \examples{
 export_fit(fit,"/path/to/file.csv")
 }
-

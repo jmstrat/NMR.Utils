@@ -22,4 +22,3 @@ This function plots some summary plots to show the fit.
 \examples{
 plot_fit(fit,data,echem)
 }
-
