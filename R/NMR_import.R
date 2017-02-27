@@ -11,70 +11,69 @@ read.acqu <- function(dir) {
     con=file(paste0(dir,"/acqus"),open='r')
     head0=readLines(con)
     close(con)
-    
-    n = 2:33
-    
     position = grep('^\\$\\$',head0)[[1]]
     acqu=list()
     acqu$file       = gsub("^\\$\\$ ","",head0[[position+1]])
-    
+
     get_pat <- function(pat) {
       gsub(pat,"",head0[grepl(pat,head0)])
     }
-    
-    acqu$aq_mod     = as.numeric(get_pat("^##\\$AQ_mod= "))
-    acqu$bytorda    = as.numeric(get_pat('##\\$BYTORDA= '))
-    acqu$cnst       = as.numeric(get_pat('##\\$CNST= '))
-    acqu$d          = as.numeric(get_pat('##\\$D= '))
-    acqu$de         = as.numeric(get_pat('##\\$DE= '))
-    acqu$decim      = as.numeric(get_pat('##\\$DECIM= '))
-    acqu$digmod     = as.numeric(get_pat('##\\$DIGMOD= '))
-    acqu$ds         = as.numeric(get_pat('##\\$DS= '))
-    acqu$dspfvs     = as.numeric(get_pat('##\\$DSPFVS= '))
-    acqu$fw         = as.numeric(get_pat('##\\$FW= '))
-    acqu$gpx        = as.numeric(get_pat('##\\$GPX= '))
-    acqu$gpy        = as.numeric(get_pat('##\\$GPY= '))
-    acqu$gpz        = as.numeric(get_pat('##\\$GPZ= '))
-    acqu$in_         = as.numeric(get_pat('##\\$IN= '))  ###extra underscore in r
-    acqu$inp        = as.numeric(get_pat('##\\$INP= '))
-    acqu$l          = as.numeric(get_pat('##\\$L= '))
-    acqu$nbl        = as.numeric(get_pat('##\\$NBL= '))
-    acqu$ns         = as.numeric(get_pat('##\\$NS= '))
-    acqu$o1         = as.numeric(get_pat('##\\$O1= '))
-    acqu$parmode    = as.numeric(get_pat('##\\$PARMODE= '))
-    acqu$pl         = as.numeric(get_pat('##\\$PL= '))
-    acqu$l          = as.numeric(get_pat('##\\$L= '))
+
+    acqu$aq_mod     = suppressWarnings(as.numeric(get_pat("^##\\$AQ_mod= ")))
+    acqu$bytorda    = suppressWarnings(as.numeric(get_pat('##\\$BYTORDA= ')))
+    acqu$cnst       = suppressWarnings(as.numeric(get_pat('##\\$CNST= ')))
+    acqu$d          = suppressWarnings(as.numeric(get_pat('##\\$D= ')))
+    acqu$de         = suppressWarnings(as.numeric(get_pat('##\\$DE= ')))
+    acqu$decim      = suppressWarnings(as.numeric(get_pat('##\\$DECIM= ')))
+    acqu$digmod     = suppressWarnings(as.numeric(get_pat('##\\$DIGMOD= ')))
+    acqu$ds         = suppressWarnings(as.numeric(get_pat('##\\$DS= ')))
+    acqu$dspfvs     = suppressWarnings(as.numeric(get_pat('##\\$DSPFVS= ')))
+    acqu$fw         = suppressWarnings(as.numeric(get_pat('##\\$FW= ')))
+    acqu$gpx        = suppressWarnings(as.numeric(get_pat('##\\$GPX= ')))
+    acqu$gpy        = suppressWarnings(as.numeric(get_pat('##\\$GPY= ')))
+    acqu$gpz        = suppressWarnings(as.numeric(get_pat('##\\$GPZ= ')))
+    acqu$in_        = suppressWarnings(as.numeric(get_pat('##\\$IN= ')))  ###extra underscore in r
+    acqu$inp        = suppressWarnings(as.numeric(get_pat('##\\$INP= ')))
+    acqu$l          = suppressWarnings(as.numeric(get_pat('##\\$L= ')))
+    acqu$nbl        = suppressWarnings(as.numeric(get_pat('##\\$NBL= ')))
+    acqu$ns         = suppressWarnings(as.numeric(get_pat('##\\$NS= ')))
+    acqu$o1         = suppressWarnings(as.numeric(get_pat('##\\$O1= ')))
+    acqu$parmode    = suppressWarnings(as.numeric(get_pat('##\\$PARMODE= ')))
+    acqu$pl         = suppressWarnings(as.numeric(get_pat('##\\$PL= ')))
+    acqu$l          = suppressWarnings(as.numeric(get_pat('##\\$L= ')))
     acqu$pulprog    = get_pat('##\\$PULPROG= ')
-    acqu$pulprog = substr(acqu$pulprog,2,nchar(acqu$pulprog)-1)
-    acqu$rg         = as.numeric(get_pat('##\\$RG='))
-    acqu$sfo1       = as.numeric(get_pat('##\\$SFO1='))
-    acqu$sw         = as.numeric(get_pat('##\\$SW='))
-    acqu$sw_h       = as.numeric(get_pat('##\\$SW_h='))
-    acqu$td = as.numeric(get_pat('##\\$TD='))
-    acqu$td[[2]] = 1
-    acqu$td[[3]] = 1
-    acqu$td[[4]] = 1
-    acqu$te         = as.numeric(get_pat('##$TE='))
-    acqu$vdlist    = get_pat('##$VDLIST= ')
-    acqu$vdlist = substr(acqu$vdlist,2,nchar(acqu$vdlist)-1)
-    acqu$vplist    = get_pat('##$VPLIST= ')
-    acqu$vplist = substr(acqu$vplist,2,nchar(acqu$vplist)-1)
-    acqu$vtlist    = get_pat('##$VTLIST=')
-    acqu$vtlist = substr(acqu$vtlist,2,nchar(acqu$vtlist)-1)
+    acqu$pulprog    = substr(acqu$pulprog,2,nchar(acqu$pulprog)-1)
+    acqu$rg         = suppressWarnings(as.numeric(get_pat('##\\$RG=')))
+    acqu$sfo1       = suppressWarnings(as.numeric(get_pat('##\\$SFO1=')))
+    acqu$sw         = suppressWarnings(as.numeric(get_pat('##\\$SW=')))
+    acqu$sw_h       = suppressWarnings(as.numeric(get_pat('##\\$SW_h=')))
+    acqu$td         = suppressWarnings(as.numeric(get_pat('##\\$TD=')))
+    acqu$td[[2]]    = 1
+    acqu$td[[3]]    = 1
+    acqu$td[[4]]    = 1
+    acqu$te         = suppressWarnings(as.numeric(get_pat('##$TE=')))
+    acqu$vdlist     = get_pat('##\\$VDLIST= ')
+    acqu$vdlist     = substr(acqu$vdlist,3,nchar(acqu$vdlist)-1)
+    acqu$vplist     = get_pat('##\\$VPLIST= ')
+    acqu$vplist     = substr(acqu$vplist,3,nchar(acqu$vplist)-1)
+    acqu$vtlist     = get_pat('##\\$VTLIST=')
+    acqu$vtlist     = substr(acqu$vtlist,3,nchar(acqu$vtlist)-1)
+    acqu$nuc1       = get_pat('##\\$NUC1=')
+    acqu$nuc1       = substr(acqu$nuc1,3,nchar(acqu$nuc1)-1)
   } else {
     stop('ERROR: Could not find "acqus"')
   }
-  
+
   if(acqu$parmode > 0) {
     if(file.exists(paste0(dir,"/acqu2s"))) {
       con=file(paste0(dir,"/acqu2s"),open='r')
       head0=readLines(con)
       close(con)
-      
+
       acqu$sw[[2]]         = as.numeric(get_pat('##\\$SW='))
       acqu$sw_h[[2]]       = as.numeric(get_pat('##\\$SW_h='))
       acqu$td[[2]]         = as.numeric(get_pat('##\\$TD='))
-      
+
       if(acqu$parmode > 1) {
         if(file.exists(paste0(dir,"/acqu3s"))) {
           con=file(paste0(dir,"/acqu3s"),open='r')
@@ -83,7 +82,7 @@ read.acqu <- function(dir) {
           acqu$sw[[3]]         = as.numeric(get_pat('##\\$SW='))
           acqu$sw_h[[3]]       = as.numeric(get_pat('##\\$SW_h='))
           acqu$td[[3]]         = as.numeric(get_pat('##\\$TD='))
-          
+
           if(acqu$parmode > 2) {
             if(file.exists(paste0(dir,"/acqu4s"))) {
               con=file(paste0(dir,"/acqu4s"),open='r')
@@ -99,7 +98,7 @@ read.acqu <- function(dir) {
         } else {
           stop('ERROR: Could not find "acqu3s"');
         }
-      }	  
+      }
     } else {
       stop('ERROR: Could not find "acqu2s"')
     }
@@ -122,7 +121,7 @@ read.acqu <- function(dir) {
 #' read.NMR("/path/to/nmr/expName/expNo")
 #' read.NMR("/path/to/folder/")
 read.NMR <- function(nmrfile,imaginary_file=NA) {
-  
+
   if(dir.exists(nmrfile)) {
     #File is a directory, determine whether it is a bruker folder or a normal folder
     #If there is a pdata folder, we process as raw data, otherwise we assume that it is a folder of text files
@@ -130,7 +129,7 @@ read.NMR <- function(nmrfile,imaginary_file=NA) {
       #we're working with raw data
       acqs = suppressWarnings(read.acqu(nmrfile))
       dim=acqs$parmode +1
-      
+
       if(dim==1) {
         stop("Cannot process raw data for 1D experiments, use topspin's export via File->Save as->Save data of currently displayed region in a text file instead. (This also allows for imaginary data).")
       } else if (dim==2) {
@@ -143,11 +142,11 @@ read.NMR <- function(nmrfile,imaginary_file=NA) {
       #Two options:
       #1) In-situ files saved as individual scans (e.g. if carrier frequency is changed during scan)
       #2) 1D spectrum with multiple carrier frequencies
-      
+
       #In order to determine which is which we have to inspect the ppm scale:
       #We assume case 1 if the ppm scale is identical for each scan
       #Otherwise we choose case 2
-      
+
       #Firstly we find all of the files
       files=list.files(nmrfile,pattern="*.txt",full.names=TRUE)
       files2=list.files(nmrfile,pattern="*.txt",full.names=FALSE)
@@ -157,10 +156,10 @@ read.NMR <- function(nmrfile,imaginary_file=NA) {
       if(length(files)==0) {
         stop("No files were found.")
       }
-      
+
       #Then we inspect the first file
       type=determine_1d_file_type(files[[1]])
-      
+
       if(type==1) {
         return(process_one_column_files(files))
       } else if(type==2) {
@@ -171,9 +170,9 @@ read.NMR <- function(nmrfile,imaginary_file=NA) {
     }
   }
   #We're working with a text file
-  
+
   dim=determine_dimensions_from_text_file(nmrfile)
-  
+
   if(dim==1) {
     return(read.NMR1D(nmrfile))
   } else if(dim==2) {
@@ -202,7 +201,7 @@ determine_1d_file_type <- function(file) {
     close(con)
     #Extract lines
     l1=lines[[1]]
-    
+
     if(grepl("^# File created", l1)) {
       return(1)
     } else if(grepl("^ppm scale", l1)) {
@@ -226,11 +225,11 @@ determine_1d_file_type <- function(file) {
 process_two_column_files <- function(files) {
   #Must be 1D
   #At this point we assume that all the text files in the folder are 1D NMR files.
-  
+
   #Now we extract ppm scales for the first two files
   ppm1=read.table(files[[1]],skip=3)[,1]
   ppm2=read.table(files[[2]],skip=3)[,1]
-  
+
   #Are they the same?
   if(all(ppm1==ppm2)) {
     #Assume case 1
@@ -253,20 +252,20 @@ process_two_column_files <- function(files) {
 process_one_column_files <- function(files) {
   #Get dimensions
   dim=determine_dimensions_from_text_file(files[[1]])
-  
+
   #If this function returns, it's a valid file.
   #We then make sure it's 1D
   if(!dim==1) {
     #If it's not 1D, we issue an error
     stop("read.NMR can only process directories of 1 dimensional data.")
   }
-  
+
   #At this point we assume that all the text files in the folder are 1D NMR files.
-  
+
   #Now we extract ppm scales for the first two files
   ppm1=read_ppm_1D(files[[1]])
   ppm2=read_ppm_1D(files[[2]])
-  
+
   #Are they the same?
   if(all(ppm1==ppm2)) {
     #Assume case 1
@@ -298,7 +297,7 @@ determine_dimensions_from_text_file <-function(file) {
     #Extract lines
     l4=lines[[4]]
     l5=lines[[5]]
-    
+
     if(grepl("^# LEFT", l4)) {
       return(1)
     } else if(grepl("^# F2LEFT", l5)) {
@@ -330,12 +329,12 @@ read_ppm_1D <-function(file) {
   #Extract lines
   lr=lines[[4]]
   nr=lines[[6]]
-  
+
   #Get data from lines
   l=as.numeric(gsub("# LEFT = ([[:digit:]\\.-]*) .*","\\1",lr))
   r=as.numeric(gsub("# LEFT = [[:digit:]\\.-]* ppm\\. RIGHT = ([[:digit:]\\.-]*) .*","\\1",lr))
   nrows=as.numeric(gsub("# SIZE = ([[:digit:]]*).*","\\1",nr))
-  
+
   #Calculate ppm scale
   ppmscale=seq(l,r,(r-l)/(nrows-1))
   return(ppmscale)
@@ -398,10 +397,10 @@ read_dir_1d_2col_as_2d <-function(files) {
 #' @keywords internal
 read.NMR1D <- function(nmrfile) {
   ppmscale=read_ppm_1D(nmrfile)
-  
+
   #Read all data ignoring comment lines (Thus also ignoring row separators)
   fullTable=read.table(nmrfile)
-  
+
   #Make data frame
   nmrdata=data.frame(ppmscale,fullTable$V1)
   #Rename columns
@@ -429,22 +428,22 @@ read.NMR2D.text <- function(nmrfile,imaginary_file=NA) {
   f2=lines[[5]]
   nr=lines[[7]]
   nc=lines[[8]]
-  
+
   #Get data from lines
   f2l=as.numeric(gsub("# F2LEFT = ([[:digit:]\\.-]*) .*","\\1",f2))
   f2r=as.numeric(gsub("# F2LEFT = [[:digit:]\\.-]* ppm\\. F2RIGHT = ([[:digit:]\\.-]*) .*","\\1",f2))
   nrows=as.numeric(gsub("# NROWS = ([[:digit:]]*).*","\\1",nr))
   ncols=as.numeric(gsub("# NCOLS = ([[:digit:]]*).*","\\1",nc))
-  
+
   #Calculate ppm scale
   ppmscale=seq(f2l,f2r,(f2r-f2l)/(ncols-1))
-  
+
   #Read all data ignoring comment lines (Thus also ignoring row separators)
   fullTable=read.table(nmrfile)
   if(!is.na(imaginary_file)) {
       imaginaryTable=read.table(imaginary_file)
   }
-  
+
   #Split table into multiple columns of length ncols
   cols=c()
   for(i in 1:nrows) {
@@ -454,7 +453,7 @@ read.NMR2D.text <- function(nmrfile,imaginary_file=NA) {
           cols[[i]]=fullTable[((i-1)*ncols+1):(i*ncols),]
       }
   }
-  
+
   #Make data frame
   nmrdata=data.frame(ppmscale,cols)
   #Rename columns
@@ -473,7 +472,7 @@ read.NMR2D.text <- function(nmrfile,imaginary_file=NA) {
 #' read.NMR2D.raw("/path/to/nmr/expName/expNo")
 #' @keywords internal
 read.NMR2D.raw <- function(dir,acqs) {
-    
+
     Warning("Reading the raw format currently doesn't work as I don't understand the submatrix format. See ? read.NMR2D.text for a workaround.")
   #reading offset from proc files if possible:
   if(!file.exists(paste0(dir,"/pdata/1/procs"))) {
