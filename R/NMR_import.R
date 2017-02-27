@@ -114,14 +114,16 @@ read.acqu <- function(dir) {
 #'
 #' If a folder is passed as the parameter to nmrfile, read.NMR will attempt to guess whether it is a folder containing individual scans from an in-situ experiement, a folder containing raw data or a folder containing 1D spectra to be summed. It will then process accordingly.
 #' @param nmrfile Path to txt file saved using topspin's File->Save as->Save data of currently displayed region in a text file. Or a directory of files (see above)
+#' @param nucleus The nucleus to which the data corresponds
+#' @param acqus The path to the directory containing the acqus file for the data
 #' @return A data frame containing the NMR data (ppm,intensity1, ...)
 #' @export
 #' @examples
 #' read.NMR("/path/to/file.txt")
 #' read.NMR("/path/to/nmr/expName/expNo")
 #' read.NMR("/path/to/folder/")
-read.NMR <- function(nmrfile,imaginary_file=NA) {
-
+read.NMR <- function(nmrfile,imaginary_file=NA, nucleus='Unknown Nucleus', acqus=NA) {
+  acqs=list()
   if(dir.exists(nmrfile)) {
     #File is a directory, determine whether it is a bruker folder or a normal folder
     #If there is a pdata folder, we process as raw data, otherwise we assume that it is a folder of text files
@@ -133,7 +135,7 @@ read.NMR <- function(nmrfile,imaginary_file=NA) {
       if(dim==1) {
         stop("Cannot process raw data for 1D experiments, use topspin's export via File->Save as->Save data of currently displayed region in a text file instead. (This also allows for imaginary data).")
       } else if (dim==2) {
-        return(read.NMR2D.raw(nmrfile,acqs))
+        data = (read.NMR2D.raw(nmrfile,acqs))
       } else {
         stop("Only 1D & 2D data are supported.")
       }
@@ -161,25 +163,35 @@ read.NMR <- function(nmrfile,imaginary_file=NA) {
       type=determine_1d_file_type(files[[1]])
 
       if(type==1) {
-        return(process_one_column_files(files))
+        data = (process_one_column_files(files))
       } else if(type==2) {
-        return(process_two_column_files(files))
+        data = (process_two_column_files(files))
       } else {
         stop("File type not supported")
       }
     }
-  }
-  #We're working with a text file
-
-  dim=determine_dimensions_from_text_file(nmrfile)
-
-  if(dim==1) {
-    return(read.NMR1D(nmrfile))
-  } else if(dim==2) {
-    return(read.NMR2D.text(nmrfile,imaginary_file=imaginary_file))
   } else {
-    stop("Input file not supported.")
+    #We're working with a text file
+
+    dim=determine_dimensions_from_text_file(nmrfile)
+
+    if(dim==1) {
+      data = (read.NMR1D(nmrfile))
+    } else if(dim==2) {
+      data = (read.NMR2D.text(nmrfile,imaginary_file=imaginary_file))
+    } else {
+      stop("Input file not supported.")
+    }
   }
+  if(!length(acqs) && !is.na(acqus)) {
+    acqs=read.acqu(acqus)
+  } else {
+    acqs$nuc1=nucleus
+  }
+  for(att in names(acqs)) {
+    attr(data,att)<-acqs[[att]]
+  }
+  return(data)
 }
 
 #' Determine NMR file type

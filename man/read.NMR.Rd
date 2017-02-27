@@ -4,10 +4,15 @@
 \alias{read.NMR}
 \title{Read NMR Data}
 \usage{
-read.NMR(nmrfile, imaginary_file = NA)
+read.NMR(nmrfile, imaginary_file = NA, nucleus = "Unknown Nucleus",
+  acqus = NA)
 }
 \arguments{
 \item{nmrfile}{Path to txt file saved using topspin's File->Save as->Save data of currently displayed region in a text file. Or a directory of files (see above)}
+
+\item{nucleus}{The nucleus to which the data corresponds}
+
+\item{acqus}{The path to the directory containing the acqus file for the data}
 }
 \value{
 A data frame containing the NMR data (ppm,intensity1, ...)
