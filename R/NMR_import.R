@@ -122,7 +122,7 @@ read.acqu <- function(dir) {
 #' read.NMR("/path/to/file.txt")
 #' read.NMR("/path/to/nmr/expName/expNo")
 #' read.NMR("/path/to/folder/")
-read.NMR <- function(nmrfile,imaginary_file=NA, nucleus='Unknown Nucleus', acqus=NA) {
+read.NMR <- function(nmrfile,imaginary_file=NA, mass=1,nucleus='Unknown Nucleus', acqus=NA) {
   acqs=list()
   if(dir.exists(nmrfile)) {
     #File is a directory, determine whether it is a bruker folder or a normal folder
@@ -188,6 +188,7 @@ read.NMR <- function(nmrfile,imaginary_file=NA, nucleus='Unknown Nucleus', acqus
   } else {
     acqs$nuc1=nucleus
   }
+  acqs$mass=mass
   for(att in names(acqs)) {
     attr(data,att)<-acqs[[att]]
   }
@@ -521,3 +522,18 @@ read.NMR2D.raw <- function(dir,acqs) {
   names(nmrdata) <- c("ppm",0:(nPoints-1))
   return (nmrdata)
 }
+
+
+#TODO: see fid_read.R
+#' #' Read 1D NMR Data (processed, complex)
+#' #'
+#' #' This function is used to import NMR data.
+#' #' @param dir Path to raw data directory (up to expNo)
+#' #' @param acqs List of acquisition parameters (\code{\link[NMR.Utils]{read.acqu}})
+#' #' @return A data frame containing the NMR data (ppm,intensity1, intensity2, ...)
+#' #' @examples
+#' #' read.NMR1D.raw("/path/to/nmr/expName/expNo")
+#' #' @keywords internal
+#' read.NMR1D.raw <- function(dir,acqs) {
+#'
+#' }

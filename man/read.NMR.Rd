@@ -4,8 +4,8 @@
 \alias{read.NMR}
 \title{Read NMR Data}
 \usage{
-read.NMR(nmrfile, imaginary_file = NA, nucleus = "Unknown Nucleus",
-  acqus = NA)
+read.NMR(nmrfile, imaginary_file = NA, mass = 1,
+  nucleus = "Unknown Nucleus", acqus = NA)
 }
 \arguments{
 \item{nmrfile}{Path to txt file saved using topspin's File->Save as->Save data of currently displayed region in a text file. Or a directory of files (see above)}
