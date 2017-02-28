@@ -187,7 +187,9 @@ read.NMR <- function(nmrfile,imaginary_file=NA, mass=1,nucleus='Unknown Nucleus'
     acqs=read.acqu(acqus)
   } else {
     acqs$nuc1=nucleus
+    acqs$ns=1
   }
+  if(is.na(mass)) mass=1
   acqs$mass=mass
   for(att in names(acqs)) {
     attr(data,att)<-acqs[[att]]
