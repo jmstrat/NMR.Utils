@@ -5,7 +5,7 @@
 #' @param acqus_dirs The Paths to the directories containing acqus files
 #' @param ... Additional parameters passed to \code{\link{plot_ex_situ_nmr}}
 #' @export
-plot_ex_situ_nmr_files <- function(files,acqus_dirs=c(),...) {
+plot_ex_situ_nmr_files <- function(files,acqus_dirs=c(),masses=c(),...) {
   data_list=list()
   if(length(acqus_dirs) && length(files)!=length(acqus_dirs)) {
     warning("The number of files and acqus directories are not equal, ignoring the acqus files.")
@@ -14,241 +14,117 @@ plot_ex_situ_nmr_files <- function(files,acqus_dirs=c(),...) {
   for(i in 1:length(files)) {
     ac=acqus_dirs[[i]]
     if(is.null(ac)) ac=NA
-    data_list=append(data_list,read.NMR(file,acqus=ac))
+    mass=masses[[i]]
+    if(is.null(mass)) mass=NA
+    data_list=append(data_list,list(read.NMR(files[[i]],acqus=ac,mass=mass)))
   }
   plot_ex_situ_nmr(data_list,...)
 }
 
 #' Plot ex situ NMR data
 #'
-#' This function is used to plot ex situ NMR data.
+#' This function is used to plot ex situ NMR data. A grid of plots is produced per nucleus present in the data list.
 #' @param data A list of data to plot (see \code{\link{read.NMR}})
 #' @param names Names of the data to go into the legend (defaults to filenames)
 #' @param plot.cols list of colours for plots (defaults to automatically chosing)
 #' @return A list of plotting options to be displayed to the user (invisibly)
 #' @export
 #' @family Ploting Methods
-plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=hcl(h=15+c(1:length(cellids))*360/length(cellids),c=100,l=65), .interactive_xlim=NULL, .interactive_ylim=NULL,...)
+plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NULL, .interactive_ylim=NULL,...)
 {
-  if(!is.list(data)) data=list(data)
+  if(!class(data)=='list') data=list(data)
 
   #We produce a grid of plots, one per nucleus in the supplied data
 
-  ####
-
-
-  #Remove cells without any data
-  data_list<-data_list[unlist(lapply(data_list,function(y) !all(is.na(y))))]
-
-  if(all(is.na(plot.cols))) plot.cols=hcl(h=15+c(1:length(data_list))*360/length(data_list),c=100,l=65)
-
-  if(is.data.frame(data_list))
-  {
-    data_list=list(data_list)
-  }
-  if(length(data_list)==0) {
-    flog.error("No data to plot")
-    return(invisible())
-  }
-
-  for(d in data_list)
-  {
-    assert_data_columns(d,c("Discharge_SpecificCapacity.Ah.","Charge_SpecificCapacity.Ah.","SpecificCapacity.Ah.","Voltage.V."))
-  }
-
-  if(all(names==c(""))) {
-    for(i in 1:length(data_list)) {
-      n=attr(data_list[[i]],'filename')
-      names[[i]]=n
-    }
-  }
-
-  #If not specified, automatically find complimentary colours
-  if(any(is.na(plot.chargecols)) || length(plot.chargecols) != length(plot.cols)) {
-    plot.chargecols=rgb2hsv(col2rgb(plot.cols))
-    plot.chargecols['h',]=plot.chargecols['h',]+0.05
-    plot.chargecols['h',][plot.chargecols['h',]>1]=plot.chargecols['h',][plot.chargecols['h',]>1]-1
-    plot.chargecols=hsv(plot.chargecols['h',],plot.chargecols['s',],plot.chargecols['v',])
-  }
-
-  tick_int_cap=20
-  leg_text_width=12
-  cap_dfs=lapply(data_list,get_cycle_capacities)
-
-  dcaps=lapply(cap_dfs,function(x) x[,'Discharge_Capacity_mahg'])
-
-  maxcycles=max(unlist(lapply(dcaps,length)))
-  maxcy=max(unlist(dcaps))
-
-  if(charge_as_coulombic)
-    ccaps=lapply(cap_dfs,function(x) (x[,'Efficiency'])*maxcy/100)
-  else
-    ccaps=lapply(cap_dfs,function(x) x[,'Charge_Capacity_mahg'])
-
-  ######## BEGIN PLOTTING ########
-
-  ymax=signif(maxcy,2)*1.1
-  m=mo=par('mar')
-  if(charge && charge_as_coulombic) {
-    m[[4]]=m[[2]]
-    par(mar=m)
-  }
-
-  xrange=c(1,maxcycles)
-  yrange=c(0,ymax)
-
-  if(!is.null(.interactive_xlim)) {
-    flog.debug("Interactive x-range specified as %s-%s",.interactive_xlim[[1]],.interactive_xlim[[2]])
-    xrange=.interactive_xlim
-  }
-  if(!is.null(.interactive_ylim)) {
-    flog.debug("Interactive y-range specified as %s-%s",.interactive_ylim[[1]],.interactive_ylim[[2]])
-    yrange=.interactive_ylim
-  }
-  flog.debug("Starting to plot")
-
-  plot(0,0, type="n", xaxs="i", yaxs="i", xlim=xrange, ylim=yrange, axes = FALSE, xlab = NA, ylab = NA)
-  ##PLOT DATA##
-
-  invisible(mapply(function(x,col) lines(c(1:length(x)),x,col=col),dcaps,plot.cols))
-  invisible(mapply(function(x,col) points(c(1:length(x)),x,col=col,pch=16),dcaps,plot.cols))
-
-  if(charge) {
-    invisible(mapply(function(x,col) lines(c(1:length(x)),x,col=col),ccaps,plot.chargecols))
-    invisible(mapply(function(x,col) points(c(1:length(x)),x,col=col,pch=16),ccaps,plot.chargecols))
-  }
-  ##Add a box
-  box()
-
-  ytickInterval<-tick_interval(yrange[[2]]-yrange[[1]])
-  yticksat=seq(round10(yrange[[1]]),round10(yrange[[1]])+ytickInterval*10,ytickInterval)
-
-  yMinortickInterval<-ytickInterval/2
-  yMinorticksat=seq(round10(yrange[[1]]),round10(yrange[[1]])+yMinortickInterval*20,yMinortickInterval)
-
-  yMinorticksat=yMinorticksat[!(yMinorticksat %in% yticksat)]
-
-  xtickInterval<-tick_interval(xrange[[2]]-xrange[[1]])
-  xticksat=seq(round(xrange[[1]]),round(xrange[[1]])+xtickInterval*10,xtickInterval)
-
-  xMinortickInterval<-xtickInterval/2
-  xMinorticksat=seq(round(xrange[[1]]),round(xrange[[1]])+xMinortickInterval*20,xMinortickInterval)
-
-  xMinorticksat=xMinorticksat[!(xMinorticksat %in% xticksat)]
-
-  #Add minor ticks
-  axis(side = 1, tcl = -.2, at=xMinorticksat, labels = NA)
-  axis(side = 2, tcl = -.2, at=yMinorticksat, labels = NA)
-  #Add major ticks
-  axis(side = 1, tcl = -.4, at=xticksat, labels = NA)
-  axis(side = 2, tcl = -.4, at=yticksat, labels = NA)
-
-  ##Add labels (With reduced spacing from axis -- line=.4)
-  axis(side = 1, lwd = 0,tcl = -0.5, line = -.6, at=xticksat)
-  axis(side = 2, lwd = 0,tcl = -0.5, line = -.4, at=yticksat, las = 1)
-
-  ##Add axis titles
-  mtext(side = 1, "Cycles", line = 1.8)
-  mtext(side = 2, expression("Capacity (mA h g"^-1*")"), line = 2+0.4*(nchar(ymax)-3))
-
-  if(charge && charge_as_coulombic) {
-    y2tickInterval<-tick_interval((yrange[[2]]-yrange[[1]])*100/ymax)
-    y2ticksat=seq(round10(yrange[[1]]*100/maxcy),round10(yrange[[1]]*100/maxcy)+y2tickInterval*10,y2tickInterval)
-    y2MinortickInterval<-y2tickInterval/2
-    y2Minorticksat=seq(round10(yrange[[1]]*100/maxcy),round10(yrange[[1]]*100/maxcy)+y2MinortickInterval*20,y2MinortickInterval)
-
-
-    y2scaledticksat<-y2ticksat*maxcy/100
-    y2scaledMinorticksat<-y2Minorticksat*maxcy/100
-    y2scaledMinorticksat=y2scaledMinorticksat[!(y2scaledMinorticksat %in% y2scaledticksat)]
-    axis(side = 4, tcl = -.2, at=y2scaledMinorticksat, labels = NA)
-    axis(side = 4, tcl = -.4, at=y2scaledticksat, labels = NA)
-    axis(side = 4, lwd = 0,tcl = -0.5, line = -.4, at=y2scaledticksat, labels=y2ticksat, las = 1)
-    mtext(side = 4, "Coulombic efficiency (%)", line = 2.1)
-  }
-
-  par(mar=mo)
-
-
-  plot_capacity_data_internal_legend <- function() {
-    for(n in names) {
-      if(nchar(n)>13)
-        n=paste0(strtrim(n,10),"...")
-      names[[i]]=n
-    }
-    par(mar=m)
-    leg_names=names
-    if(length(data_list)==1 && charge) {
-      #Plot basic legend (by fudging parameters for the "normal" legend)
-      plot.cols=c(plot.cols[[1]],plot.chargecols[[1]])
-      if(charge_as_coulombic)
-        leg_names=c("Discharge","Efficiency")
-      else
-        leg_names=c("Discharge","Charge")
-      charge=FALSE
-    }
-
-    cin <- par("cin")
-    leg_top=ymax
-    leg_right=maxcycles-xinch(cin[1L]*0.5, warn.log = FALSE)
-    leg_voffset=yMinortickInterval
-    leg_text_cex=0.7
-    leg_cex=1
-    leg_lwd=2
-
-    leg_hoffset=xinch(cin[1L]*0.1, warn.log = FALSE)
-    leg_lwidth=leg_cex*xinch(cin[1L], warn.log = FALSE)
-
-    leg_lwidth2=0
-    leg_hoffset2=0
-
-    if(charge) {
-      leg_lwidth2=leg_lwidth
-      leg_hoffset2=leg_hoffset*2
-
-      leg_top=leg_top-leg_voffset
-      text(mean(c(leg_right-leg_hoffset2-leg_lwidth2,leg_right-leg_lwidth-leg_hoffset2-leg_lwidth2)),leg_top-leg_voffset,"D",pos=3,cex=leg_text_cex)
-      text(mean(c(leg_right,leg_right-leg_lwidth)),leg_top-leg_voffset,"C",pos=3,cex=leg_text_cex)
-    }
-
-    for(i in 1:length(leg_names)) {
-      text(leg_right-leg_lwidth-leg_hoffset-leg_lwidth2-leg_hoffset,leg_top-leg_voffset*i,leg_names[[i]],pos=2,cex=leg_text_cex)
-      lines(c(leg_right-leg_hoffset2-leg_lwidth2,leg_right-leg_lwidth-leg_hoffset2-leg_lwidth2),c(leg_top-leg_voffset*i,leg_top-leg_voffset*i),col=plot.cols[[i]],lwd=leg_lwd)
-      if(charge)
-        lines(c(leg_right,leg_right-leg_lwidth),c(leg_top-leg_voffset*i,leg_top-leg_voffset*i),col=plot.chargecols[[i]],lwd=leg_lwd)
-    }
-    par(mar=mo)
-  }
-  plot_capacity_data_external_legend <- function() {
-    leg_names=names
-    if(length(data_list)==1 && charge) {
-      #Plot basic legend (by fudging parameters for the "normal" legend)
-      #cols=c(plot.cols[[1]],plot.chargecols[[1]])
-      if(charge_as_coulombic)
-        leg_names=c("Discharge","Efficiency")
-      else
-        leg_names=c("Discharge","Charge")
-      #charge=FALSE
-    }
-    if(charge) {
-      odr <- order(c(seq_along(plot.cols), seq_along(plot.chargecols)))
-      cols=c(plot.cols,plot.chargecols)[odr]
+  nuclei=c()
+  data_per_nucleus=list()
+  for(d in data) {
+    nucleus=attr(d,'nuc1')
+    if(is.null(nucleus)) nucleus='Unknown Nucleus'
+    if(!nucleus %in% nuclei) {
+      nuclei=append(nuclei,nucleus)
+      data_per_nucleus[[nucleus]]=list(d)
     } else {
-      cols=plot.cols
+      data_per_nucleus[[nucleus]]=append(data_per_nucleus[[nucleus]],list(d))
     }
-    legend_horizontal(leg_names,cols,20,new_plot = TRUE)
   }
 
-  plot_options = list(
-    charge=list(type='logical',label="Plot charge data?", value=charge),
-    charge_as_coulombic=list(type=if(charge){'logical'} else {'invisible'} ,label="Plot charge data as coulombic efficiency?", value=charge_as_coulombic),
-    legend=list(
-      internal=plot_capacity_data_internal_legend,
-      external=plot_capacity_data_external_legend
-    )
-  )
+  n=length(nuclei)
+  load_or_install('Plotting.Utils')
+  #Setup the plots
+  par(oma=c(1.6,1,0,0))
+  grid.layout(n)
 
-  plot_options=append(plot_options,list())
-  return(invisible(plot_options))
+  #Make the plots
+  for(nuc in nuclei) {
+    #Set up margins
+    par(mai=c(.15,.1,.1,.1))
+
+    #Get the data for this nucleus
+    data_to_plot=data_per_nucleus[[nuc]]
+    #Find the plot bounds
+    min_x=min(sapply(data_to_plot, function(x) min(x[,1])))
+    max_x=max(sapply(data_to_plot, function(x) max(x[,1])))
+    min_y=min(sapply(data_to_plot, function(x) min(x[,2])))
+    max_y=max(sapply(data_to_plot, function(x) max(x[,2])))
+
+    mass_min=min(sapply(data_to_plot, function(x) as.numeric(attr(x,'mass'))),na.rm=TRUE)
+    ns_min=min(sapply(data_to_plot, function(x) as.numeric(attr(x,'ns'))),na.rm=TRUE)
+
+    #Make a blank plot
+    plot(0,type='n',xlim=c(max_x,min_x),ylim=c(min_y,max_y),axes=F,xlab=NA,ylab=NA)
+
+    #Determine the line colours
+    len=length(data_to_plot)
+    if(any(is.na(plot.cols))) {
+      if(len==1) {
+        this.plot.cols=c('black')
+      } else {
+        this.plot.cols=hcl(h=15+c(1:len)*360/len,c=100,l=65)
+      }
+    } else {
+      this.plot.cols=rep(plot.cols,length.out = len)
+    }
+
+    #Normalise and plot the data
+    for(i in 1:len) {
+      m=attr(data_to_plot[[i]],'mass')
+      if(is.null(m)) m=1
+      m=as.numeric(m)
+      ns=attr(data_to_plot[[i]],'ns')
+      if(is.null(ns)) ns=1
+      ns=as.numeric(ns)
+      lines(data_to_plot[[i]][,1],data_to_plot[[i]][,2]/(m/mass_min)/(ns/ns_min),col=this.plot.cols[[i]])
+    }
+
+    #Draw the bounding box
+    box()
+
+    #Add the nucleus label
+    nuc_num=sub('^([[:digit:]]*).*$','\\1',nuc)
+    nuc_string=sub('^[[:digit:]]*(.*)$','\\1',nuc)
+    add_plot_label(parse(text=paste0('""^"',nuc_num,'"*"',nuc_string,'"'))) #Convoluted method to superscript mass number...
+
+    #Add some axes
+    xticksat=pretty_ticks(min_x,max_x)
+    xMinorticksat=pretty_ticks(min_x,max_x,div=2)
+    xMinorticksat=xMinorticksat[!(xMinorticksat %in% xticksat)]
+
+    #Add minor ticks
+    axis(side = 1, tcl = -.2, at=xMinorticksat, labels = NA)
+    #Add major ticks
+    axis(side = 1, tcl = -.4, at=xticksat, labels = NA)
+    #Add labels (With reduced spacing from axis -- line=.4)
+    axis(side = 1, lwd = 0,tcl = -0.5, line = -.6, at=xticksat)
+  }
+
+  #Add the axis labels
+  mtext(text="Intensity",side=2,line=0,outer=TRUE)
+  mtext(text="δ / ppm",side=1,line=0.6,outer=TRUE)
+
+  return(invisible())
+  #TODO:
+  #Legend(s)
+  #Plot options
 }
 
