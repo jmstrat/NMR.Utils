@@ -107,7 +107,7 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
 
     #Add some axes
     xticksat=pretty_ticks(min_x,max_x)
-    xMinorticksat=pretty_ticks(min_x,max_x,div=2)
+    xMinorticksat=pretty_ticks(min_x,max_x,div=5)
     xMinorticksat=xMinorticksat[!(xMinorticksat %in% xticksat)]
 
     #Add minor ticks
