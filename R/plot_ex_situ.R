@@ -71,8 +71,19 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
     mass_min=min(sapply(data_to_plot, function(x) as.numeric(attr(x,'mass'))),na.rm=TRUE)
     ns_min=min(sapply(data_to_plot, function(x) as.numeric(attr(x,'ns'))),na.rm=TRUE)
 
+    xrange=c(max_x,min_x)
+    yrange=c(min_y,max_y)
+    if(length(nuclei)==1){
+      if(!is.null(.interactive_xlim)) {
+        xrange=.interactive_xlim
+      }
+      if(!is.null(.interactive_ylim)) {
+        yrange=.interactive_ylim
+      }
+    }
+
     #Make a blank plot
-    pretty_plot(xlim=c(max_x,min_x),ylim=c(min_y,max_y),y_axis=NA,div=5)
+    pretty_plot(xlim=xrange,ylim=yrange,y_axis=NA,div=5)
 
     #Determine the line colours
     len=length(data_to_plot)
