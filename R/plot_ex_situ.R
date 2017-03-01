@@ -58,7 +58,7 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
   #Make the plots
   for(nuc in nuclei) {
     #Set up margins
-    par(mai=c(.15,.1,.1,.1))
+    par(mai=c(.2,.1,.1,.1))
 
     #Get the data for this nucleus
     data_to_plot=data_per_nucleus[[nuc]]
