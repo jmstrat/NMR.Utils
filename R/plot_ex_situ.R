@@ -72,7 +72,7 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
     ns_min=min(sapply(data_to_plot, function(x) as.numeric(attr(x,'ns'))),na.rm=TRUE)
 
     #Make a blank plot
-    plot(0,type='n',xlim=c(max_x,min_x),ylim=c(min_y,max_y),axes=F,xlab=NA,ylab=NA)
+    pretty_plot(xlim=c(max_x,min_x),ylim=c(min_y,max_y),y_axis=NA,div=5)
 
     #Determine the line colours
     len=length(data_to_plot)
@@ -97,25 +97,10 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
       lines(data_to_plot[[i]][,1],data_to_plot[[i]][,2]/(m/mass_min)/(ns/ns_min),col=this.plot.cols[[i]])
     }
 
-    #Draw the bounding box
-    box()
-
     #Add the nucleus label
     nuc_num=sub('^([[:digit:]]*).*$','\\1',nuc)
     nuc_string=sub('^[[:digit:]]*(.*)$','\\1',nuc)
     add_plot_label(parse(text=paste0('""^"',nuc_num,'"*"',nuc_string,'"'))) #Convoluted method to superscript mass number...
-
-    #Add some axes
-    xticksat=pretty_ticks(min_x,max_x)
-    xMinorticksat=pretty_ticks(min_x,max_x,div=5)
-    xMinorticksat=xMinorticksat[!(xMinorticksat %in% xticksat)]
-
-    #Add minor ticks
-    axis(side = 1, tcl = -.2, at=xMinorticksat, labels = NA)
-    #Add major ticks
-    axis(side = 1, tcl = -.4, at=xticksat, labels = NA)
-    #Add labels (With reduced spacing from axis -- line=.4)
-    axis(side = 1, lwd = 0,tcl = -0.5, line = -.6, at=xticksat)
   }
 
   #Add the axis labels
