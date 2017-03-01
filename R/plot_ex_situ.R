@@ -75,7 +75,7 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
     yrange=c(min_y,max_y)
     if(length(nuclei)==1){
       if(!is.null(.interactive_xlim)) {
-        xrange=.interactive_xlim
+        xrange=.interactive_xlim*-1
       }
       if(!is.null(.interactive_ylim)) {
         yrange=.interactive_ylim
