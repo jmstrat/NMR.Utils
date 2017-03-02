@@ -1,6 +1,5 @@
 #' Read Acquisition Parameters
 #'
-#' This function is read acquisition pararameters for NMR Data.
 #' This function reads acquisition pararameters for NMR Data.
 #' @param dir Path to raw data directory (up to expNo)
 #' @return A list of parameters
@@ -106,6 +105,23 @@ read.acqu <- function(dir) {
     }
   }
   return(acqu)
+}
+
+#' Read Title for NMR file
+#'
+#' This function reads the title for NMR Data.
+#' @param dir Path to raw data directory (up to expNo)
+#' @return The title
+#' @export
+#' @examples
+#' read.title("/path/to/nmr/expName/expNo")
+read.nmr.title <- function(dir) {
+  title=""
+  fileName=paste0(dir,"/pdata/1/title")
+  if(file.exists(fileName)) {
+    title=readChar(fileName, file.info(fileName)$size)
+  } else flog.warn('Unable to find title for NMR data at "%s"',dir)
+  return(title)
 }
 
 #' Read NMR Data
