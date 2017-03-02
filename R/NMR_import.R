@@ -1,6 +1,7 @@
 #' Read Acquisition Parameters
 #'
 #' This function is read acquisition pararameters for NMR Data.
+#' This function reads acquisition pararameters for NMR Data.
 #' @param dir Path to raw data directory (up to expNo)
 #' @return A list of parameters
 #' @export
@@ -14,6 +15,7 @@ read.acqu <- function(dir) {
     position = grep('^\\$\\$',head0)[[1]]
     acqu=list()
     acqu$file       = gsub("^\\$\\$ ","",head0[[position+1]])
+    acqu$date       = as.Date(sub("^\\$\\$ ([^[:space:]]* [^[:space:]]* [^[:space:]]*) .*$","\\1",head0[[position]]))
 
     get_pat <- function(pat) {
       gsub(pat,"",head0[grepl(pat,head0)])
