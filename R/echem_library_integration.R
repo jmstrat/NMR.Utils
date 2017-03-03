@@ -5,7 +5,8 @@
 setup_NMR_echem_integration <- function() {
   if(load_or_install('Echem',optional=TRUE)) {
     .inset_ex_situ_into_echem()
-  }}
+  }
+}
 
 #' @export
 .plot_ex_situ_nmr_echem <- function(cellids,data_file,acqus_file_directory,mass,  ...) { plot_ex_situ_nmr_files(files=data_file,acqus_dirs=acqus_file_directory, masses=mass, ...)}
