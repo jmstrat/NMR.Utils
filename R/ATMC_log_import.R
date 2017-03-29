@@ -28,22 +28,22 @@ read.ATMC <- function(log_file_path, version=1, experimentNumber=1) {
 #' read.ATMC1("/path/to/file.txt")
 #' @keywords internal
 read.ATMC1 <- function(log_file_path, experimentNumber=1) {
-  #Read ATMC log file  
+  #Read ATMC log file
   #Open file for reading
   con=file(log_file_path,open='r')
   #Read lines
   lines=readLines(con,n=-1)
   #Close file
   close(con)
-  
+
   tDone_lines=grep("Experiment in progress",lines)
   times=gsub("([[:digit:]\\.:[:space:]]*)Experiment in progress.*","\\1",lines[tDone_lines])
   times=lapply(times,function(x) as.POSIXct(x,format="%d.%m.%Y  %H:%M:%S"))
-  
+
   t0=times[[1]]
   offsets=c()
   for(t in times) {
-    offsets=append(offsets,difftime(t,t0,units="hours"))
+    offsets=append(offsets,as.double(difftime(t,t0,units="hours")))
   }
   return(offsets)
 }
@@ -58,18 +58,18 @@ read.ATMC1 <- function(log_file_path, experimentNumber=1) {
 #' read.ATMC0("/path/to/file.txt")
 #' @keywords internal
 read.ATMC0 <- function(log_file_path, version=1, experimentNumber=1) {
-  #Read ATMC log file  
+  #Read ATMC log file
   #Open file for reading
   con=file(log_file_path,open='r')
   #Read lines
   lines=readLines(con,n=-1)
   #Close file
   close(con)
-  
+
   experiment_lines = grep("Neuer Experiment Bruker beginnt",lines)
-  
+
   eCount = length(experiment_lines)
-  
+
   if(experimentNumber == 1) {
     lines=lines[c(1:experiment_lines[[1]])]
   } else if(experimentNumber == eCount) {
@@ -77,15 +77,15 @@ read.ATMC0 <- function(log_file_path, version=1, experimentNumber=1) {
   } else {
     lines=lines[c(experiment_lines[[experimentNumber]]:experiment_lines[[experimentNumber+1]])]
   }
-  
+
   tDone_lines=grep("Experiment Bruker ended.",lines)
   times=gsub("([[:digit:]\\.:[:space:]]*)\\(*","\\1",lines[tDone_lines])
   times=lapply(times,function(x) as.POSIXct(x,format="%Y.%m.%d %H:%M:%S"))
-  
+
   t0=times[[1]]
   offsets=c()
   for(t in times) {
-    offsets=append(offsets,difftime(t,t0,units="hours"))
+    offsets=append(offsets,as.double(difftime(t,t0,units="hours")))
   }
   return(offsets)
 }
