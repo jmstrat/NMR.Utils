@@ -91,7 +91,7 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
           cvar=signif(cvar,5)
           cvar[cvar<cr[[1]]]<-cr[[1]]
           cvar[cvar>cr[[2]]]<-cr[[2]]
-          load_or_install(Plotting.Utils)
+          load_or_install('Plotting.Utils')
           cols=color.scale.jms(cvar,c(0,0,0,1,1,1),c(0,0,1,1,0,0),c(0,1,0,0,1,0),xrange=cr)
           nseg=length(prx)-1
           segments(prx[1:nseg], pry[1:nseg], prx[2:(nseg + 1)], pry[2:(nseg + 1)], col = cols,lwd=lwd)
