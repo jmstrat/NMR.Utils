@@ -29,7 +29,7 @@
 #' @export
 #' @examples
 #' plotNMR2D(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
-plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval=200,xMinorTickInterval=50,y_trunc=Inf,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE) {
+plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval=200,xMinorTickInterval=50,y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE) {
   load_or_install("plotrix")
     n=ncol(nmrdata)
     x=nmrdata[,1] #ppm
@@ -43,6 +43,10 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
       yrangemax=max(nmrdata[,n]+pos[[n-1]])
       yrange<-c(yrangemin,yrangemax)
     }
+
+    if(is.na(y_trunc))
+      y_trunc=15/16*yrange[[2]]
+
     #plot (blank plot)
     plot(0,0, type="n", xaxs="i", yaxs="i", xlim=xrange, ylim=yrange, axes = FALSE, xlab = NA, ylab = NA)
 
@@ -54,12 +58,13 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
       if(any(col_ranges=='auto')) {
         col_ranges=list()
         for(r in plot.colour.ranges) {
+          crange=c(Inf,-Inf)
           for(i in n:2) {
             cy=nmrdata[,i][x<r[[1]]&x>r[[2]]]
             mincy=min(cy)
             maxcy=max(cy)
-            crange[[1]]=signif(mincy,5)
-            crange[[2]]=signif(maxcy,5)
+            if(mincy<crange[[1]]) crange[[1]]=signif(mincy,5)
+            if(maxcy>crange[[2]]) crange[[2]]=signif(maxcy,5)
           }
           col_ranges=append(col_ranges,list(crange))
         }
@@ -89,10 +94,15 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
 
           cvar=pry-off
           cvar=signif(cvar,5)
-          cvar[cvar<cr[[1]]]<-cr[[1]]
-          cvar[cvar>cr[[2]]]<-cr[[2]]
+          #cvar[cvar<cr[[1]]]<-cr[[1]]
+          #cvar[cvar>cr[[2]]]<-cr[[2]]
           load_or_install('Plotting.Utils')
-          cols=color.scale.jms(cvar,c(0,0,0,1,1,1),c(0,0,1,1,0,0),c(0,1,0,0,1,0),xrange=cr)
+          cvar[cvar<cr[[1]]]<-NA
+          cvar[cvar>cr[[2]]]<-NA#cr[[2]]
+
+          cols=color.scale.jms(cvar,c(0,0,1,1,1),c(0,1,1,0,0),c(1,0,0,1,0),xrange=cr,na.color='black')
+
+          #cols=color.scale.jms(cvar,c(0,0,0,1,1,1),c(0,0,1,1,0,0),c(0,1,0,0,1,0),xrange=cr)
           nseg=length(prx)-1
           segments(prx[1:nseg], pry[1:nseg], prx[2:(nseg + 1)], pry[2:(nseg + 1)], col = cols,lwd=lwd)
           #tryCatch(color.scale.lines(prx,pry,c(0,0,0,1,1,1),c(0,0,1,1,0,0),c(0,1,0,0,1,0),colvar=cvar,lwd=lwd), error = function(e) lines(x,y,col=col,lwd=plot_line_lwd))
