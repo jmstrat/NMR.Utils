@@ -8,11 +8,12 @@
 #' @param V_tick_interval Tick interval for the potential axis
 #' @param V_minor_tick_interval Minor tick interval for the potential axis
 #' @param time_tick_interval Tick interval for the time axis
+#' @param xaxismline The margin line on which to draw the x-axis
 #' @param xaxislabelmline The margin line on which to draw the x-axis label
 #' @export
 #' @examples
 #' plotechem_vertical(data,V_range,alignment)
-plotechem_vertical <-function(data,V_range, alignment=NA, show_axes=TRUE,V_tick_interval=1,V_minor_tick_interval=0.25,time_tick_interval=5,time_ticks_dps=0,tick_size_multiplier=1,xaxislabelmline=1.1) {
+plotechem_vertical <-function(data,V_range, alignment=NA, show_axes=TRUE,V_tick_interval=1,V_minor_tick_interval=0.25,time_tick_interval=5,time_ticks_dps=0,tick_size_multiplier=1,xaxismline=-0.8,xaxislabelmline=1.1) {
 
   if(any(is.na(alignment))) {
     alignment=list(yrange=c(0,1),time_scan_1=0,offset_scan_1=0,time_scan_last=Inf,offset_scan_last=1)
@@ -47,7 +48,7 @@ plotechem_vertical <-function(data,V_range, alignment=NA, show_axes=TRUE,V_tick_
       axis(side = 4, tck = -.015*tick_size_multiplier,at=ScaledtimeTicksAt, labels = NA)
 
       ##Add axis With labels (With reduced spacing from axis -- line=.4)
-      axis(side = 1, lwd = 0,at=V_ticks_at, line = -.4,labels=V_ticks_at*-1)
+      axis(side = 1, lwd = 0,at=V_ticks_at, line = xaxismline,labels=V_ticks_at*-1)
       axis(side = 4, lwd = 0,at=ScaledtimeTicksAt, line = -.4, las = 1, labels=round(time_ticks_at/3600,digits=time_ticks_dps))
 
       ##Add axis titles
