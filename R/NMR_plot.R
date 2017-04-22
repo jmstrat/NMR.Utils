@@ -176,7 +176,7 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
     } else {
       element=sub('[0-9]*([A-Za-z]*)','\\1',nucleus)
       mass_number=sub('([0-9]*)[A-Za-z]*','\\1',nucleus)
-      axis_label=parse(text=paste0('"δ ("^"',mass_number,'"*"',element,') / ppm"'))
+      axis_label=parse(text=paste0('delta*"("^"',mass_number,'"*"',element,') / ppm"'))
     }
 
     ##Add axis titles
