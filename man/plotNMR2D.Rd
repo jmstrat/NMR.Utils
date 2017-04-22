@@ -12,7 +12,7 @@ plotNMR2D(nmrdata, xrange, yrange, plot_offset, plot.colour = TRUE,
   y_trunc_label_offset_factor = 20, y_trunc_sin_period = 5,
   y_trunc_labels = c(), y_trunc_text_col = "grey",
   y_trunc_line_col = "grey", y_trunc_lwd = 2, show_axes = TRUE,
-  show_RH_Tick = TRUE)
+  show_RH_Tick = TRUE, xaxislabelmline = 1.1)
 }
 \arguments{
 \item{nmrdata}{Data frame of (real) NMR data (ppm, intensity1, ...)}
@@ -62,6 +62,8 @@ plotNMR2D(nmrdata, xrange, yrange, plot_offset, plot.colour = TRUE,
 \item{show_axes}{(TRUE / FALSE) Should plot axes & labels}
 
 \item{show_RH_Tick}{(TRUE / FALSE) Show last tick on RHS}
+
+\item{xaxislabelmline}{The margin line on which to draw the x-axis label}
 }
 \value{
 List of alignment_parameters

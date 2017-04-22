@@ -6,7 +6,8 @@
 \usage{
 plotechem_vertical(data, V_range, alignment = NA, show_axes = TRUE,
   V_tick_interval = 1, V_minor_tick_interval = 0.25,
-  time_tick_interval = 5, time_ticks_dps = 0, tick_size_multiplier = 1)
+  time_tick_interval = 5, time_ticks_dps = 0, tick_size_multiplier = 1,
+  xaxislabelmline = 1.1)
 }
 \arguments{
 \item{data}{Data frame of echem data}
@@ -22,6 +23,8 @@ plotechem_vertical(data, V_range, alignment = NA, show_axes = TRUE,
 \item{V_minor_tick_interval}{Minor tick interval for the potential axis}
 
 \item{time_tick_interval}{Tick interval for the time axis}
+
+\item{xaxislabelmline}{The margin line on which to draw the x-axis label}
 }
 \description{
 This function plots in-situ echem data.
