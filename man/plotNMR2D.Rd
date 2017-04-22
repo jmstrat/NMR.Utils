@@ -6,7 +6,7 @@
 \usage{
 plotNMR2D(nmrdata, xrange, yrange, plot_offset, plot.colour = TRUE,
   plot.colour.ranges = NA, plot.colour.yranges = "auto",
-  xTickInterval = 200, xMinorTickInterval = 50, y_trunc = Inf,
+  xTickInterval = 200, xMinorTickInterval = 50, y_trunc = NA,
   col = "Black", lwd = 1, shade_under = FALSE, shade_col = "grey",
   y_trunc_x_points = c(), y_trunc_amp_div = 200,
   y_trunc_label_offset_factor = 20, y_trunc_sin_period = 5,
@@ -33,7 +33,7 @@ plotNMR2D(nmrdata, xrange, yrange, plot_offset, plot.colour = TRUE,
 
 \item{xMinorTickInterval}{Minor tick interval for x axis}
 
-\item{y_trunc}{Truncate y values that are higher than this}
+\item{y_trunc}{Truncate y values that are higher than this (or NA for auto)}
 
 \item{col}{Line colour for plot}
 
