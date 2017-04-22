@@ -4,7 +4,7 @@
 \alias{process_two_column_files}
 \title{Process a folder of two column text files}
 \usage{
-process_two_column_files(files)
+process_two_column_files(files, skip)
 }
 \arguments{
 \item{files}{List of file paths to read}

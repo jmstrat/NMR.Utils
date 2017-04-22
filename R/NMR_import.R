@@ -168,22 +168,20 @@ read.NMR <- function(nmrfile,imaginary_file=NA, mass=1,nucleus='Unknown Nucleus'
       #Otherwise we choose case 2
 
       #Firstly we find all of the files
-      files=list.files(nmrfile,pattern="*.txt",full.names=TRUE)
-      files2=list.files(nmrfile,pattern="*.txt",full.names=FALSE)
-      as.numeric(gsub('([0123456789]*)\\.txt$','\\1',files2))->fileNum;
-      files=files[order(fileNum)]
+      files=list.files(nmrfile,pattern="*.(txt|dat)",full.names=TRUE)
+      files=files[order(as.numeric(sub("^[^0-9]*([0-9]*).*", "\\1", basename(files))))]
       #We check that we have some files
       if(length(files)==0) {
         stop("No files were found.")
       }
 
       #Then we inspect the first file
-      type=determine_1d_file_type(files[[1]])
+      type_skip=determine_1d_file_type(files[[1]])
 
-      if(type==1) {
+      if(type_skip[[1]]==1) {
         data = (process_one_column_files(files))
-      } else if(type==2) {
-        data = (process_two_column_files(files))
+      } else if(type_skip[[1]]==2) {
+        data = (process_two_column_files(files,type_skip[[2]]))
       } else {
         stop("File type not supported")
       }
@@ -236,9 +234,12 @@ determine_1d_file_type <- function(file) {
     l1=lines[[1]]
 
     if(grepl("^# File created", l1)) {
-      return(1)
+      return(c(1,NA))
     } else if(grepl("^ppm scale", l1)) {
-      return(2)
+      return(c(2,3))
+    } else if(grepl("^[-+eE.0-9]* [-+eE.0-9]*$", l1)) {
+      #2 columns of data, no header
+      return(c(2,0))
     } else {
       stop("Input file not supported.")
     }
@@ -255,18 +256,18 @@ determine_1d_file_type <- function(file) {
 #' @examples
 #' process_two_column_files(files)
 #' @keywords internal
-process_two_column_files <- function(files) {
+process_two_column_files <- function(files,skip) {
   #Must be 1D
   #At this point we assume that all the text files in the folder are 1D NMR files.
 
   #Now we extract ppm scales for the first two files
-  ppm1=read.table(files[[1]],skip=3)[,1]
-  ppm2=read.table(files[[2]],skip=3)[,1]
+  ppm1=read.table(files[[1]],skip=skip)[,1]
+  ppm2=read.table(files[[2]],skip=skip)[,1]
 
   #Are they the same?
   if(all(ppm1==ppm2)) {
     #Assume case 1
-    return(read_dir_1d_2col_as_2d(files))
+    return(read_dir_1d_2col_as_2d(files,skip))
   } else {
     #Assume case 2
     #TODO
@@ -405,13 +406,13 @@ read_dir_1d_as_2d <-function(files) {
 #' @examples
 #' read_dir_1d_2col_as_2d(files)
 #' @keywords internal
-read_dir_1d_2col_as_2d <-function(files) {
-  ppmscale=read.table(files[[1]],skip=3)[,1]
+read_dir_1d_2col_as_2d <-function(files,skip) {
+  ppmscale=read.table(files[[1]],skip=skip)[,1]
   #Now we have to read each file as a subsequent column for a data frame
   columns=c()
   len_f=length(files)
   for(f in 1:len_f) {
-    columns[[f]]=read.table(files[[f]],skip=3)[,2]
+    columns[[f]]=read.table(files[[f]],skip=skip)[,2]
   }
   nmrdata=data.frame(ppmscale,columns)
   #Rename columns

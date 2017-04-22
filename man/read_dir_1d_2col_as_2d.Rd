@@ -4,7 +4,7 @@
 \alias{read_dir_1d_2col_as_2d}
 \title{Generate 2D data from a list of 1D data files}
 \usage{
-read_dir_1d_2col_as_2d(files)
+read_dir_1d_2col_as_2d(files, skip)
 }
 \arguments{
 \item{files}{List of file paths to read}
