@@ -39,14 +39,14 @@ new_model <- function(type, ...) {
 #' add_constraint_to_model(model, "height", "variable_range", c(0.5,0,1))
 add_constraint_to_model <- function(model,parameter, constraint_type,constraint) {
   constraint_types=c("range","vary","variable_range")
-  
+
   if(!constraint_type %in% constraint_types) {
     stop(paste0('Constraint type "',constraint_type, '" unknown.'))
   }
   if(!all(is.numeric(constraint))) {
     stop('Constraint values must be numeric')
   }
-  
+
   if(constraint_type=='range') {
     if(!length(constraint)==2) {
       stop('Range constraint takes 2 values')
@@ -60,7 +60,7 @@ add_constraint_to_model <- function(model,parameter, constraint_type,constraint)
       stop('Variable range constraint takes 3 values')
     }
   }
-  
+
   model$constraint_type[parameter]=constraint_type
   model$constraint[parameter]=list(constraint)
   return(model)
@@ -68,7 +68,7 @@ add_constraint_to_model <- function(model,parameter, constraint_type,constraint)
 
 #' Add an estimation function to a model
 #'
-#' This function adds an estimation function to a model. 
+#' This function adds an estimation function to a model.
 #' @param model The model object to which the estimation function should be added (see details)
 #' @return The model object
 #' @section Details:
@@ -84,7 +84,11 @@ add_constraint_to_model <- function(model,parameter, constraint_type,constraint)
 #' add_estimation_function_to_model(model, guess_height)
 add_estimation_function_to_model <- function(model, estimation_function) {
   if(!is.function(estimation_function)) {
-    stop('The estimation function must be a function.')
+    if(exists(func, mode='function')) {
+      estimation_function=call(estimation_function)
+    } else {
+      stop('The estimation function must be a function.')
+    }
   }
   model$estimation_function=estimation_function
   return(model)
