@@ -28,11 +28,13 @@
 #' @param show_LH_Tick (TRUE / FALSE) Show last tick on LHS
 #' @param xaxismline The margin line on which to draw the x-axis
 #' @param xaxislabelmline The margin line on which to draw the x-axis label
+#' @param colour_scheme If plot.colour is TRUE, each colour y-range (as specified in plot.colour.yranges) will be split into a number of equal ranges based on the number of colours specified in this vector. Each range will be assigned to one of the colours, starting from the smallest y-value.
+#' @param col_na Colour of values outside of colouring y-range
 #' @return List of alignment_parameters
 #' @export
 #' @examples
 #' plotNMR2D(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
-plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval=200,xMinorTickInterval=50,y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1) {
+plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval=200,xMinorTickInterval=50,y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red')) {
   load_or_install("plotrix")
   load_or_install('Plotting.Utils')
   n=ncol(nmrdata)
@@ -64,6 +66,19 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
   new_plot(xrange,yrange)
 
   if(plot.colour) {
+    #Create colour lists
+    if(all(is.na(colour_scheme))) {
+      plot.colour=FALSE
+      warning("colour_scheme is empty, but plot.colour is TRUE; setting plot.colour to FALSE and continuing", call.=FALSE)
+    } else {
+      colour_scheme=colour_scheme[!is.na(colour_scheme)]
+      cols=col2rgb(colour_scheme)/255
+      col_r=cols[1,]
+      col_g=cols[2,]
+      col_b=cols[3,]
+    }
+
+    #Create colour ranges
     if(any(is.na(plot.colour.ranges))) {
       plot.colour.ranges=list(xrange)
     }
@@ -108,7 +123,7 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
         cvar[cvar<cr[[1]]]<-NA
         cvar[cvar>cr[[2]]]<-NA#cr[[2]]
 
-        cols=color.scale.jms(cvar,c(0,0,1,1,1),c(0,1,1,0,0),c(1,0,0,1,0),xrange=cr,na.color='black')
+        cols=color.scale.jms(cvar,col_r,col_g,col_b,xrange=cr,na.color=col_na)
 
         nseg=length(prx)-1
         segments(prx[1:nseg], pry[1:nseg], prx[2:(nseg + 1)], pry[2:(nseg + 1)], col = cols,lwd=lwd)
@@ -117,7 +132,7 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
       nseg=length(allx)
       segments(allx[1:nseg], ally[1:nseg], allx[2:(nseg + 1)], ally[2:(nseg + 1)], col = col,lwd=lwd)
     } else {
-      lines(x,y,col=col,lwd=lwd)
+      lines(x,y,col=col_na,lwd=lwd)
     }
     if(shade_under){
       #add shading

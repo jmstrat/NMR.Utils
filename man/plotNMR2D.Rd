@@ -13,7 +13,8 @@ plotNMR2D(nmrdata, xrange, yrange, plot_offset, plot.colour = TRUE,
   y_trunc_labels = c(), y_trunc_text_col = "grey",
   y_trunc_line_col = "grey", y_trunc_lwd = 2, show_axes = TRUE,
   show_RH_Tick = TRUE, show_LH_Tick = TRUE, xaxismline = -0.8,
-  xaxislabelmline = 1.1)
+  xaxislabelmline = 1.1, col_na = "black", colour_scheme = c("blue",
+  "green", "yellow", "magenta", "red"))
 }
 \arguments{
 \item{nmrdata}{Data frame of (real) NMR data (ppm, intensity1, ...)}
@@ -69,6 +70,10 @@ plotNMR2D(nmrdata, xrange, yrange, plot_offset, plot.colour = TRUE,
 \item{xaxismline}{The margin line on which to draw the x-axis}
 
 \item{xaxislabelmline}{The margin line on which to draw the x-axis label}
+
+\item{col_na}{Colour of values outside of colouring y-range}
+
+\item{colour_scheme}{If plot.colour is TRUE, each colour y-range (as specified in plot.colour.yranges) will be split into a number of equal ranges based on the number of colours specified in this vector. Each range will be assigned to one of the colours, starting from the smallest y-value.}
 }
 \value{
 List of alignment_parameters
