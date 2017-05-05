@@ -30,11 +30,13 @@
 #' @param xaxislabelmline The margin line on which to draw the x-axis label
 #' @param colour_scheme If plot.colour is TRUE, each colour y-range (as specified in plot.colour.yranges) will be split into a number of equal ranges based on the number of colours specified in this vector. Each range will be assigned to one of the colours, starting from the smallest y-value.
 #' @param col_na Colour of values outside of colouring y-range
+#' @param colour.legend (TRUE / FALSE) Show a basic legend of the chosen colour_scheme
+#' @param colour.legend.show.zero (TRUE / FALSE) If the colour range extends beyond zero, indicate this value in the legend (WARNING: Only valid if there is a single colour scaling range)
 #' @return List of alignment_parameters
 #' @export
 #' @examples
 #' plotNMR2D(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
-plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval=200,xMinorTickInterval=50,y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red')) {
+plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval=200,xMinorTickInterval=50,y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red'),colour.legend=FALSE,colour.legend.show.zero=TRUE) {
   load_or_install("plotrix")
   load_or_install('Plotting.Utils')
   n=ncol(nmrdata)
@@ -96,6 +98,44 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
         }
         col_ranges=append(col_ranges,list(crange))
       }
+    }
+
+    #Show legend
+    if(colour.legend) {
+      #Add 1/2 inch to RHS
+      par(omi=c(0,0,0,0.5))
+      col_max_range=c(min(unlist(col_ranges,use.names=F),na.rm=T),
+                      max(unlist(col_ranges,use.names=F),na.rm=T))
+      #Find x coordinates of new space
+      xmax=grconvertX(1, from = "ndc", to = "user")
+      xleg=xmax+abs(xinch()*0.4)
+      xleg2=xmax+abs(xinch()*0.1)
+      xlab=(xleg+xleg2)/2
+      lab_bottom=yrange[[1]]-yinch()*0.1
+      lab_top=yrange[[2]]+yinch()*0.1
+
+      zero_in_range=col_max_range[[1]]<0&col_max_range[[2]]>0
+      #Disable plot clipping
+      xpd=par("xpd")
+      par(xpd=NA)
+      #Draw legend
+      if(colour.legend.show.zero&zero_in_range) {
+        break_size=0.1*yinch()
+        y_total_range=yrange[[2]]-yrange[[1]]
+        zerofrac=col_max_range[[2]]/(col_max_range[[2]]-col_max_range[[1]])
+        zeropos=y_total_range*zerofrac+yrange[[1]]
+        negativecols=color.scale.jms(seq(0,zerofrac,length.out=300),col_r,col_g,col_b,xrange=c(0,1))
+        positivecol=color.scale.jms(seq(zerofrac,1,length.out=300),col_r,col_g,col_b,xrange=c(0,1))
+        color.legend.jms(xleg,yrange[[1]],xleg2,zeropos-break_size,"",rect.col=negativecols,align="rb",gradient="y")
+        color.legend.jms(xleg,zeropos+break_size,xleg2,yrange[[2]],"",rect.col=positivecol,align="rb",gradient="y")
+        text(xlab,zeropos,'0')
+      } else {
+        color.legend.jms(xleg,yrange[[1]],xleg2,yrange[[2]],"",rect.col=color.gradient(col_r,col_g,col_b,nslices=300),align="rb",gradient="y")
+      }
+      #Add labels
+      text(xlab,lab_bottom,"Min")
+      text(xlab,lab_top,"Max")
+      par(xpd=xpd)
     }
   }
 
