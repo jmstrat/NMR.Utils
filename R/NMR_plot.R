@@ -2,11 +2,11 @@
 #'
 #' This function plots 2D NMR Data.
 #' @param nmrdata Data frame of (real) NMR data (ppm, intensity1, ...)
-#' @param xrange x range of data to plot (ppm) -- should be in form c(upper, lower) or spectrum will be reversed
+#' @param xrange x range of data to plot (ppm) -- should be in form c(upper, lower) or spectrum will be reversed (or 'auto')
 #' @param yrange Y range of data to plot (or 'auto')
-#' @param plot_offset offset between subsequent plots
-#' @param xTickInterval Tick interval for x axis
-#' @param xMinorTickInterval Minor tick interval for x axis
+#' @param plot_offset offset between subsequent plots (or 'auto')
+#' @param xTickInterval Tick interval for x axis (or 'auto')
+#' @param xMinorTickInterval Minor tick interval for x axis (or 'auto')
 #' @param y_trunc Truncate y values that are higher than this (or NA for auto)
 #' @param col Line colour for plot
 #' @param lwd Line width for plot
@@ -21,7 +21,7 @@
 #' @param y_trunc_line_col Colour of truncation line
 #' @param y_trunc_lwd Line width of truncation line
 #' @param show_axes (TRUE / FALSE) Should plot axes & labels
-#' @param plot.colour TRUE
+#' @param plot.colour (TRUE / FALSE) Should the plot be coloured?
 #' @param plot.colour.ranges list of x ranges to colour (can be NA to cover entire range)
 #' @param plot.colour.yranges list of y ranges to scale colours over (can be 'auto')
 #' @param show_RH_Tick (TRUE / FALSE) Show last tick on RHS
@@ -35,8 +35,8 @@
 #' @return List of alignment_parameters
 #' @export
 #' @examples
-#' plotNMR2D(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
-plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval=200,xMinorTickInterval=50,y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red'),colour.legend=FALSE,colour.legend.show.zero=TRUE) {
+#' plot.nmr.2Ddata.object(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
+plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset='auto',plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval='auto',xMinorTickInterval='auto',y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red'),colour.legend=FALSE,colour.legend.show.zero=TRUE) {
   load_or_install("plotrix")
   load_or_install('Plotting.Utils')
   n=ncol(nmrdata)
@@ -51,6 +51,17 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
   nmrdata=nmrdata[,c(TRUE,!is.na(offsets))]
   offsets=offsets[!is.na(offsets)]
   n=ncol(nmrdata)
+
+  if(xrange=='auto') {
+    xrange=c(max(nmrdata[,1]),min(nmrdata[,1]))
+  }
+
+  if(xTickInterval=='auto') xTickInterval=tick_interval(xrange[[1]]-xrange[[2]])
+  if(xMinorTickInterval=='auto') xMinorTickInterval=xTickInterval/4
+
+  if(plot_offset=='auto') {
+    plot_offset=max(nmrdata[,c(2:n)])/sqrt(ncol(nmrdata)-1)
+  }
   #convert offsets in hours to plot coordinates
   pos=offsets*plot_offset
 
@@ -64,6 +75,10 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
   if(is.na(y_trunc))
     y_trunc=15/16*yrange[[2]]
 
+  if(colour.legend) {
+    #Add 1/2 inch to RHS (Must do this before plotting as it resets the layout order)
+    par(omi=c(0,0,0,0.5))
+  }
   #plot (blank plot)
   new_plot(xrange,yrange)
 
@@ -102,8 +117,6 @@ plotNMR2D <-function(nmrdata,xrange,yrange,plot_offset,plot.colour=TRUE,plot.col
 
     #Show legend
     if(colour.legend) {
-      #Add 1/2 inch to RHS
-      par(omi=c(0,0,0,0.5))
       col_max_range=c(min(unlist(col_ranges,use.names=F),na.rm=T),
                       max(unlist(col_ranges,use.names=F),na.rm=T))
       #Find x coordinates of new space

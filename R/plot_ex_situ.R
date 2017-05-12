@@ -32,7 +32,7 @@ plot_ex_situ_nmr_files <- function(files,acqus_dirs=c(),masses=c(),...) {
 #' @family Ploting Methods
 plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NULL, .interactive_ylim=NULL,...)
 {
-  if(!class(data)=='list') data=list(data)
+  if(!inherits(data,'list')) data=list(data)
 
   #We produce a grid of plots, one per nucleus in the supplied data
 
@@ -124,3 +124,10 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
   #Plot options
 }
 
+#' Plot ex situ NMR data
+#'
+#' This function is used to plot ex situ NMR data.
+#' @param data An nmr.data.object
+#' @param ... Additional parameters passed to \code{\link{plot_ex_situ_nmr}}
+#' @export
+plot.nmr.data.object <- function(data,...) {plot_ex_situ_nmr(data,...)}
