@@ -11,11 +11,11 @@
   shade_under = FALSE, shade_col = "grey", y_trunc_x_points = c(),
   y_trunc_amp_div = 200, y_trunc_label_offset_factor = 20,
   y_trunc_sin_period = 5, y_trunc_labels = c(), y_trunc_text_col = "grey",
-  y_trunc_line_col = "grey", y_trunc_lwd = 2, show_axes = TRUE,
-  show_RH_Tick = TRUE, show_LH_Tick = TRUE, xaxismline = -0.8,
-  xaxislabelmline = 1.1, col_na = "black", colour_scheme = c("blue",
-  "green", "yellow", "magenta", "red"), colour.legend = FALSE,
-  colour.legend.show.zero = TRUE)
+  y_trunc_line_col = "grey", y_trunc_lwd = 2, y_trunc_cex = 1,
+  show_axes = TRUE, show_RH_Tick = TRUE, show_LH_Tick = TRUE,
+  xaxismline = -0.8, xaxislabelmline = 1.1, col_na = "black",
+  colour_scheme = c("blue", "green", "yellow", "magenta", "red"),
+  colour.legend = FALSE, colour.legend.show.zero = TRUE)
 }
 \arguments{
 \item{nmrdata}{Data frame of (real) NMR data (ppm, intensity1, ...)}
@@ -61,6 +61,8 @@
 \item{y_trunc_line_col}{Colour of truncation line}
 
 \item{y_trunc_lwd}{Line width of truncation line}
+
+\item{y_trunc_cex}{cex of truncation label}
 
 \item{show_axes}{(TRUE / FALSE) Should plot axes & labels}
 

@@ -20,6 +20,7 @@
 #' @param y_trunc_text_col Colour of text for truncation line
 #' @param y_trunc_line_col Colour of truncation line
 #' @param y_trunc_lwd Line width of truncation line
+#' @param y_trunc_cex cex of truncation label
 #' @param show_axes (TRUE / FALSE) Should plot axes & labels
 #' @param plot.colour (TRUE / FALSE) Should the plot be coloured?
 #' @param plot.colour.ranges list of x ranges to colour (can be NA to cover entire range)
@@ -36,7 +37,7 @@
 #' @export
 #' @examples
 #' plot.nmr.2Ddata.object(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
-plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset='auto',plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval='auto',xMinorTickInterval='auto',y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red'),colour.legend=FALSE,colour.legend.show.zero=TRUE) {
+plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset='auto',plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval='auto',xMinorTickInterval='auto',y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,y_trunc_cex=1,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red'),colour.legend=FALSE,colour.legend.show.zero=TRUE) {
   load_or_install("plotrix")
   load_or_install('Plotting.Utils')
   n=ncol(nmrdata)
@@ -213,12 +214,12 @@ plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset
       curve(sin((x-xs[[1]])*pi/y_trunc_sin_period)*y_trunc/y_trunc_amp_div+y_trunc,from=xs[[1]],to=xs[[2]],col=y_trunc_line_col,add=T,lwd=y_trunc_lwd)
       #add label
       #Note reversed axis == negative string width!!
-      if(xcent-(strwidth(y_trunc_labels[i])+strwidth(y_trunc_labels[i])/2*0.1)/2>xrange[[1]]) {
-        xcent=xrange[[1]]+strwidth(y_trunc_labels[i])/2+strwidth(y_trunc_labels[i])/2*0.1
-      } else if(xcent+(strwidth(y_trunc_labels[i])+strwidth(y_trunc_labels[i])/2*0.1)/2<xrange[[2]]) {
-        xcent=xrange[[2]]-strwidth(y_trunc_labels[i])/2-strwidth(y_trunc_labels[i])/2*0.1
+      if(xcent-(strwidth(y_trunc_labels[i],cex=y_trunc_cex)+strwidth(y_trunc_labels[i],cex=y_trunc_cex)/2*0.1)/2>xrange[[1]]) {
+        xcent=xrange[[1]]+strwidth(y_trunc_labels[i],cex=y_trunc_cex)/2+strwidth(y_trunc_labels[i],cex=y_trunc_cex)/2*0.1
+      } else if(xcent+(strwidth(y_trunc_labels[i],cex=y_trunc_cex)+strwidth(y_trunc_labels[i],cex=y_trunc_cex)/2*0.1)/2<xrange[[2]]) {
+        xcent=xrange[[2]]-strwidth(y_trunc_labels[i],cex=y_trunc_cex)/2-strwidth(y_trunc_labels[i],cex=y_trunc_cex)/2*0.1
       }
-      text(xcent,ycent,y_trunc_labels[i],col=y_trunc_text_col)
+      text(xcent,ycent,y_trunc_labels[i],col=y_trunc_text_col,cex=y_trunc_cex)
     }
   }
   #make plot pretty
