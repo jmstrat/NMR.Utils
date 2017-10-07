@@ -56,3 +56,11 @@ is.nmr.data.object <- function(x) {
 is.nmr.2Ddata.object <- function(x) {
   return(inherits(x,"nmr.2Ddata.object"))
 }
+
+#' Retain attributes upon subsetting
+#' @export
+`[.nmr.data.object` <- function (x, ...) {
+  r <- NextMethod("[")
+  if(inherits(r,'jms.data.object')) return(as.nmr.data.object(r))
+  return (r)
+}
