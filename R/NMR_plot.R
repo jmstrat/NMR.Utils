@@ -37,7 +37,7 @@
 #' @export
 #' @examples
 #' plot.nmr.2Ddata.object(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
-plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset='auto',plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval='auto',xMinorTickInterval='auto',y_trunc=NA,col='Black',lwd=1,shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,y_trunc_cex=1,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red'),colour.legend=FALSE,colour.legend.show.zero=TRUE) {
+plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset='auto',plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval='auto',xMinorTickInterval='auto',y_trunc=NA,col='Black',lwd=par('lwd'),shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,y_trunc_cex=1,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red'),colour.legend=FALSE,colour.legend.show.zero=TRUE) {
   load_or_install("plotrix")
   load_or_install('Plotting.Utils')
   n=ncol(nmrdata)
@@ -53,7 +53,7 @@ plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset
   offsets=offsets[!is.na(offsets)]
   n=ncol(nmrdata)
 
-  if(xrange=='auto') {
+  if(any(xrange=='auto')) {
     xrange=c(max(nmrdata[,1]),min(nmrdata[,1]))
   }
 
@@ -104,6 +104,10 @@ plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset
     if(any(col_ranges=='auto')) {
       col_ranges=list()
       for(r in plot.colour.ranges) {
+        if(length(r)!=2) {
+          stop("Invalid length for colour range",.call=FALSE)
+        }
+        r=c(max(r),min(r))
         crange=c(Inf,-Inf)
         for(i in n:2) {
           cy=nmrdata[,i][x<r[[1]]&x>r[[2]]]
@@ -223,7 +227,7 @@ plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset
     }
   }
   #make plot pretty
-  box()
+  box(lwd=1)
 
   if(show_axes) {
     ticksat=seq(xrange[[1]],xrange[[2]],xTickInterval*sign(xrange[[2]]-xrange[[1]]))
@@ -255,7 +259,7 @@ plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset
     }
 
     ##Add axis titles
-    mtext(side = 1, axis_label, line = xaxislabelmline)
+    mtext(side = 1, axis_label, line = xaxislabelmline, cex=par('cex.axis'))
   }
   #return alignment parameters
   invisible(list(time_scan_1=offsets[[1]], offset_scan_1=pos[[1]],time_scan_last=offsets[[n-1]], offset_scan_last=pos[[n-1]], yrange=yrange))
