@@ -50,7 +50,6 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
   }
 
   n=length(nuclei)
-  load_or_install('Plotting.Utils')
   #Setup the plots
   par(oma=c(1.6,1,0,0))
   grid.layout(n)
