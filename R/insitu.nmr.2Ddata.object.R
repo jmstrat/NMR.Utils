@@ -6,7 +6,7 @@
 make.insitu.nmr.2Ddata.object <- function(x) {
   if(is.nmr.2Ddata.object(x)) {
     if(load_or_install('Echem',optional=TRUE)) {
-      attr(x, "class") <- c("insitu.nmr.2Ddata.object","nmr.2Ddata.object","nmr.data.object", "data.frame")
+      attr(x, "class") <- c("insitu.nmr.2Ddata.object",class(x))
       attr(x, "echem") <- dummy.echem()
     } else {
       stop('In situ NMR processing requires the Echem library')
