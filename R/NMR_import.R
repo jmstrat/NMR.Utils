@@ -395,7 +395,7 @@ read_dir_1d_as_2d <-function(files) {
   #Rename columns
   names(nmrdata) <- c("ppm",0:(len_f-1))
   #return data
-  return(make.nmr.2Ddata.object(nmrdata))
+  return(as.nmr2d.data.object(nmrdata))
 }
 
 #' Generate 2D data from a list of 1D data files
@@ -418,7 +418,7 @@ read_dir_1d_2col_as_2d <-function(files,skip) {
   #Rename columns
   names(nmrdata) <- c("ppm",0:(ncol(nmrdata)-2))
   #return data
-  return(make.nmr.2Ddata.object(nmrdata))
+  return(as.nmr2d.data.object(nmrdata))
 }
 
 #' Read 1D NMR Data
@@ -493,7 +493,7 @@ read.NMR2D.text <- function(nmrfile,imaginary_file=NA) {
   #Rename columns
   names(nmrdata) <- c("ppm",0:(nrows-1))
   #return data
-  return(make.nmr.2Ddata.object(nmrdata))
+  return(as.nmr2d.data.object(nmrdata))
 }
 
 #' Read 2D NMR Data (processed, complex)
@@ -541,7 +541,7 @@ read.NMR2D.raw <- function(dir,acqs) {
   Cdata=matrix(Cdata, nrow = length(Cdata)/nPoints, ncol = nPoints,byrow=F)
   nmrdata=nmr.data.object(ppm,Cdata)
   names(nmrdata) <- c("ppm",0:(nPoints-1))
-  return (make.nmr.2Ddata.object(nmrdata))
+  return (as.nmr2d.data.object(nmrdata))
 }
 
 

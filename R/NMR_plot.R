@@ -36,8 +36,8 @@
 #' @return List of alignment_parameters
 #' @export
 #' @examples
-#' plot.nmr.2Ddata.object(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
-plot.nmr.2Ddata.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset='auto',plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval='auto',xMinorTickInterval='auto',y_trunc=NA,col='Black',lwd=par('lwd'),shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,y_trunc_cex=1,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red'),colour.legend=FALSE,colour.legend.show.zero=TRUE) {
+#' plot(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
+plot.nmr2d.data.object<-function(nmrdata,xrange='auto',yrange='auto',plot_offset='auto',plot.colour=TRUE,plot.colour.ranges=NA,plot.colour.yranges='auto', xTickInterval='auto',xMinorTickInterval='auto',y_trunc=NA,col='Black',lwd=par('lwd'),shade_under=FALSE,shade_col='grey',y_trunc_x_points=c(),y_trunc_amp_div=200,y_trunc_label_offset_factor=20,y_trunc_sin_period=5,y_trunc_labels=c(),y_trunc_text_col='grey',y_trunc_line_col='grey',y_trunc_lwd=2,y_trunc_cex=1,show_axes=TRUE,show_RH_Tick=TRUE,show_LH_Tick=TRUE,xaxismline=-0.8,xaxislabelmline=1.1,col_na='black',colour_scheme=c('blue','green','yellow','magenta','red'),colour.legend=FALSE,colour.legend.show.zero=TRUE) {
   load_or_install("plotrix")
   n=ncol(nmrdata)
   x=nmrdata[,1] #ppm

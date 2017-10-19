@@ -141,11 +141,5 @@ reduceScans <-function(spectra,scan_range) {
     n=ncol(spectra)
     if(scan_range[[2]]>n)
         scan_range[[2]]=n
-    #Keep attributes
-    newspectra=spectra[,c(1,scan_range[[1]]:scan_range[[2]])]
-    special_attrs=c('class', 'comment', 'dim', 'dimnames', 'names', 'row.names', 'tsp')
-    oldAtts=attributes(spectra)
-    oldAtts=oldAtts[!names(oldAtts)%in%special_attrs]
-    attributes(newspectra)[names(oldAtts)]<-oldAtts
-    return(newspectra)
+    spectra[,c(1,scan_range[[1]]:scan_range[[2]])]
 }
