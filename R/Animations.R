@@ -25,7 +25,7 @@ plot_animation_frame <-function(fit,data,echem,frame_number,xrange,V_range,yrang
   layout(matrix(c(1, 2), 1, 2, byrow=F), widths=c(5,1))
   #set margins for LH plot to leave no margin on RHS
   par(mar=c(3,3,1,0),xpd=FALSE)
-  
+
   x=data[,1] #ppm
   y=data[,frame_number+1]
   #plot (blank plot)
@@ -40,19 +40,19 @@ plot_animation_frame <-function(fit,data,echem,frame_number,xrange,V_range,yrang
   if(include_fit) {
     #Get fitted models
     fit_models=make_fitted_models(fit$models,fit$result[frame_number,])
-  
+
     #Plot the deconvolution:
     for(f in fit_models) {
       curve(f[[2]](x),from=xrange[[1]],to=xrange[[2]],lwd=lwd,lty=lty,col=cols[[f[[1]]]],add=T,n=length(data[,1]))
     }
-  
+
     #Build a total fit model
     total_fit_function=get_fit_function(fit_models)
-  
+
     #plot overall fit
     curve(total_fit_function(x),from=xrange[[1]],to=xrange[[2]],col=fit_col,lwd=fit_lwd,add=T,n=length(data[,1]))
   }
-  
+
   #make plot pretty
   box()
   ticksat=seq(xrange[[1]],xrange[[2]],xTickInterval*sign(xrange[[2]]-xrange[[1]]))
@@ -65,16 +65,16 @@ plot_animation_frame <-function(fit,data,echem,frame_number,xrange,V_range,yrang
   ##Add axis titles
   mtext(side = 2, "Intensity", line = 1)
   mtext(side = 1, "ppm", line = 2)
-  
+
 	#set margins of RH plot to leave no margin on LHS
 	par(mar=c(3,0,1,3))
-  plotechem_vertical(echem,V_range)
-  
+  plot_echem_vertical(echem,V_range)
+
   #add point
   time_scan=as.numeric(names(data)[[frame_number+1]])*3600
   index=which(abs(echem$Test_Time.s.-time_scan)==min(abs(echem$Test_Time.s.-time_scan)))[[1]]
   points(x=-echem$Voltage.V[[index]],y=time_scan*1/(max(echem$Test_Time.s.)-min(echem$Test_Time.s.)),col='red',pch=16,cex=1)
-  
+
 }
 
 
@@ -94,14 +94,12 @@ plot_animation_frame <-function(fit,data,echem,frame_number,xrange,V_range,yrang
 #' @examples
 #' save_animation(fit,data,echem,c(200,-200),c(0,2))
 save_animation <-function(fit,data,echem,xrange,V_range,yrange='auto',include_fit=TRUE,data_col='black',data_lwd=1,cols=c('forestgreen','blue','magenta','cyan','orange','brown'),lwd=1,lty='dashed',fit_col='red',fit_lwd=2,xTickInterval=50, delay=0.1,width=400, height=400,type='gif',name='Animation.gif',image_dev='png',image_type='png') {
-  load_or_install("animation")
-  
   #requires ImageMagick to also be installed
-  ani.options(interval=delay,ani.width=width,ani.height=height)
+  animation::ani.options(interval=delay,ani.width=width,ani.height=height)
   if(type=="HTML"){
-      func=saveHTML
+      func=animation::saveHTML
   } else if(type=="gif") {
-      func=saveGIF
+      func=animation::saveGIF
   }
 suppressMessages(
   func({
