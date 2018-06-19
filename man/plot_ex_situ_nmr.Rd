@@ -18,5 +18,6 @@ plot_ex_situ_nmr(data, names = c(""), plot.cols = NA,
 A list of plotting options to be displayed to the user (invisibly)
 }
 \description{
+WARNING: LEGACY FUNCTION, USE plot(...) INSTEAD
 This function is used to plot ex situ NMR data. A grid of plots is produced per nucleus present in the data list.
 }

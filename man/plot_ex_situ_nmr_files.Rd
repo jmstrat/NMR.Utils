@@ -14,5 +14,6 @@ plot_ex_situ_nmr_files(files, acqus_dirs = c(), masses = c(), ...)
 \item{...}{Additional parameters passed to \code{\link{plot_ex_situ_nmr}}}
 }
 \description{
+WARNING: LEGACY FUNCTION, USE plot(...) INSTEAD
 This function is used to read and plot ex situ NMR data.
 }

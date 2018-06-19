@@ -4,38 +4,31 @@
 \alias{plot.nmr2d.data.object}
 \title{Plot 2D NMR data}
 \usage{
-\method{plot}{nmr2d.data.object}(nmrdata, xrange = "auto", yrange = "auto",
+\method{plot}{nmr2d.data.object}(nmrdata, xlim = NA, ylim = NA,
   plot_offset = "auto", plot.colour = TRUE, plot.colour.ranges = NA,
-  plot.colour.yranges = "auto", xTickInterval = "auto",
-  xMinorTickInterval = "auto", y_trunc = NA, col = "Black",
+  plot.colour.yranges = "auto", y_trunc = NA, col = "Black",
   lwd = par("lwd"), shade_under = FALSE, shade_col = "grey",
   y_trunc_x_points = c(), y_trunc_amp_div = 200,
   y_trunc_label_offset_factor = 20, y_trunc_sin_period = 5,
   y_trunc_labels = c(), y_trunc_text_col = "grey",
-  y_trunc_line_col = "grey", y_trunc_lwd = 2, y_trunc_cex = 1,
-  show_axes = TRUE, show_RH_Tick = TRUE, show_LH_Tick = TRUE,
-  xaxismline = -0.8, xaxislabelmline = 1.1, col_na = "black",
-  colour_scheme = c("blue", "green", "yellow", "magenta", "red"),
-  colour.legend = FALSE, colour.legend.show.zero = TRUE)
+  y_trunc_line_col = "grey", y_trunc_lwd = 2, y_trunc_cex = 1, axes = 1,
+  show_RH_Tick = TRUE, show_LH_Tick = TRUE, xaxismline = -0.8,
+  xaxislabelmline = 1.1, col_na = "black", colour_scheme = c("blue",
+  "green", "yellow", "magenta", "red"), colour.legend = FALSE,
+  colour.legend.show.zero = TRUE, show_ppm_label = TRUE)
 }
 \arguments{
 \item{nmrdata}{Data frame of (real) NMR data (ppm, intensity1, ...)}
 
-\item{xrange}{x range of data to plot (ppm) -- should be in form c(upper, lower) or spectrum will be reversed (or 'auto')}
+\item{xlim}{x range of data to plot (ppm) -- should be in form c(upper, lower) or spectrum will be reversed (or 'auto')}
 
-\item{yrange}{Y range of data to plot (or 'auto')}
+\item{ylim}{Y range of data to plot (or 'auto')}
 
 \item{plot_offset}{offset between subsequent plots (or 'auto')}
 
 \item{plot.colour}{(TRUE / FALSE) Should the plot be coloured?}
 
 \item{plot.colour.ranges}{list of x ranges to colour (can be NA to cover entire range)}
-
-\item{plot.colour.yranges}{list of y ranges to scale colours over (can be 'auto')}
-
-\item{xTickInterval}{Tick interval for x axis (or 'auto')}
-
-\item{xMinorTickInterval}{Minor tick interval for x axis (or 'auto')}
 
 \item{y_trunc}{Truncate y values that are higher than this (or NA for auto)}
 
@@ -65,8 +58,6 @@
 
 \item{y_trunc_cex}{cex of truncation label}
 
-\item{show_axes}{(TRUE / FALSE) Should plot axes & labels}
-
 \item{show_RH_Tick}{(TRUE / FALSE) Show last tick on RHS}
 
 \item{show_LH_Tick}{(TRUE / FALSE) Show last tick on LHS}
@@ -77,11 +68,19 @@
 
 \item{col_na}{Colour of values outside of colouring y-range}
 
-\item{colour_scheme}{If plot.colour is TRUE, each colour y-range (as specified in plot.colour.yranges) will be split into a number of equal ranges based on the number of colours specified in this vector. Each range will be assigned to one of the colours, starting from the smallest y-value.}
+\item{colour_scheme}{If plot.colour is TRUE, each colour y-range (as specified in plot.colour.ylims) will be split into a number of equal ranges based on the number of colours specified in this vector. Each range will be assigned to one of the colours, starting from the smallest y-value.}
 
 \item{colour.legend}{(TRUE / FALSE) Show a basic legend of the chosen colour_scheme}
 
 \item{colour.legend.show.zero}{(TRUE / FALSE) If the colour range extends beyond zero, indicate this value in the legend (WARNING: Only valid if there is a single colour scaling range)}
+
+\item{show_ppm_label}{(TRUE / FALSE) Should plot ppm axis label}
+
+\item{xTickInterval}{Tick interval for x axis (or 'auto')}
+
+\item{xMinorTickInterval}{Minor tick interval for x axis (or 'auto')}
+
+\item{plot.colour.ylims}{list of y ranges to scale colours over (can be 'auto')}
 }
 \value{
 List of alignment_parameters
@@ -90,5 +89,5 @@ List of alignment_parameters
 This function plots 2D NMR Data.
 }
 \examples{
-plot(data, xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)))
+plot(data)
 }

@@ -8,6 +8,10 @@ Maintainer: Josh Stratford <51674722+jmstrat@users.noreply.github.com>
 Description: Contains functions to automatically import, process and plot
     Bruker NMR data. Primarily designed to speed up the processing of in-situ
     electrochemical experiments.
+Imports: jms.classes,
+         Plotting.Utils,
+         minpack.lm,
+         nls2
 Depends: R (>= 3.2.0)
 License: GPL (>=2)
 Encoding: UTF-8

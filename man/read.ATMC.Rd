@@ -4,7 +4,7 @@
 \alias{read.ATMC}
 \title{Read ATMC log file}
 \usage{
-read.ATMC(log_file_path, version = 1, experimentNumber = 1)
+read.ATMC(log_file_path, version = NA, experimentNumber = 1)
 }
 \arguments{
 \item{log_file_path}{Path to txt file}

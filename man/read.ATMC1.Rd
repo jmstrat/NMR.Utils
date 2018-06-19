@@ -4,12 +4,10 @@
 \alias{read.ATMC1}
 \title{Read ATMC (version 1) log file}
 \usage{
-read.ATMC1(log_file_path, experimentNumber = 1)
+read.ATMC1(log_file_path)
 }
 \arguments{
 \item{log_file_path}{Path to txt file}
-
-\item{experimentNumber}{Index of the experiment in the current log file (currently not used)}
 }
 \value{
 A vector of offsets giving the number of hours after the first scan that each scan was started.
@@ -20,4 +18,3 @@ Calculates offsets in hours from first scan based on ATMC log file
 \examples{
 read.ATMC1("/path/to/file.txt")
 }
-\keyword{internal}

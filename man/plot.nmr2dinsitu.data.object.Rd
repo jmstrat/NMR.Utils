@@ -2,20 +2,20 @@
 % Please edit documentation in R/insitu_plot.R
 \name{plot.nmr2dinsitu.data.object}
 \alias{plot.nmr2dinsitu.data.object}
-\title{Plot electrochemisty data (vertically)}
+\title{Plot In situ NMR data}
 \usage{
 \method{plot}{nmr2dinsitu.data.object}(nmr, widths = c(3, 1), ...)
 }
 \arguments{
-\item{nmr}{Data frame of nmr data}
+\item{nmr}{In situ nmr data}
 
-\item{...}{Further parameters will be passed to \code{\link[NMR.Utils]{plot.nmr.2Ddata.object}} or \code{\link[NMR.Utils]{plotechem_vertical}}}
+\item{widths}{Ratio of NMR to echem plot sizes}
 
-\item{echem}{Data frame of echem data}
+\item{...}{Further parameters will be passed to \code{\link[NMR.Utils]{plot.nmr2d.data.object}} or \code{\link[NMR.Utils]{plot_echem_vertical}}}
 }
 \description{
-This function plots in-situ echem data.
+This function plots in-situ NMR data.
 }
 \examples{
-plot(data,xrange=c(1500,-500), yrange='auto', plot_offset=100000, plot.colour.ranges=list(c(210,900)), plot.colour.yranges=list(c(50000,200000)),V_range=c(0,2),alignment=align)
+plot(data)
 }
