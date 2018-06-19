@@ -115,7 +115,7 @@ makeReal <-function(spectra) {
 #' noATMoffsets(spectra,0.5)
 noATMoffsets <-function(spectra,scan_length,initial_offset=0) {
     n=ncol(spectra)-1
-    return(seq(0:n)*scan_length+initial_offset)
+    return(0:n*scan_length+initial_offset)
 }
 
 #' Stores the time offsets in the data frame
