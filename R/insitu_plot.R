@@ -11,9 +11,15 @@
 #' @param nmr.func Function to plot NMR data (default \code{\link[NMR.Utils]{plot.nmr2d.data.object}})
 #' @param echem.func Function to plot echem data (default \code{\link[NMR.Utils]{plot_echem_vertical}})
 #' @param ... Further parameters will be passed to the plotting methods
+#' @return Returns a function to convert voltage, time into x,y values for the echem plot
 #' @export
 #' @examples
 #' plot(data)
+#'
+#' rescale <- plot(data)
+#' time = c(1, 2)
+#' V = Plotting.Utils::nearest(echem, Test_Time.s.=time*3600)$Voltage.V
+#' points(rescale(V, time), col='red')
 plot.nmr2dinsitu.data.object <-function(nmr, use.default.layout=TRUE, separation=0.1, separation.pos=c(4, 2), nmr.func=NULL, echem.func=NULL, ...) {
 
   if(is.null(nmr.func)) nmr.func = getS3method('plot', 'nmr2d.data.object')
@@ -66,8 +72,11 @@ plot.nmr2dinsitu.data.object <-function(nmr, use.default.layout=TRUE, separation
   set_margins(2)
 
   #Plot echem
-  do.call(plot_echem_vertical,echem_args)
+  rescale_func <- do.call(echem.func,echem_args)
 
+  invisible(rescale_func)
+
+  # Note we cannot restore par / layout as then the rescale function wouldn't work
 }
 
 
@@ -81,6 +90,7 @@ plot.nmr2dinsitu.data.object <-function(nmr, use.default.layout=TRUE, separation
 #' @param offset_start,offset_end y values of 1st and last data point
 #' @param xaxismline Margin line on which to draw the x axis
 #' @param xaxislabelmline Margin line on which to draw the x axis title
+#' @return Returns a function to convert voltage, time into x,y values for the plot
 #' @export
 plot_echem_vertical <- function(data, V_range=NA, time_start=0, time_end=Inf,
                                 yrange=c(0,1), offset_start=0, offset_end=1,
@@ -112,4 +122,10 @@ plot_echem_vertical <- function(data, V_range=NA, time_start=0, time_end=Inf,
   #plot echem
   # DO NOT ADD offset_start -- echem always starts at time 0!
   lines(-data$Voltage.V.,data$Test_Time.s. * (offset_end-offset_start) / (time_end-time_start))
+
+  # Return rescale function
+  function(x, y) {
+    xy = xy.coords(x, y)
+    data.frame(x=-xy$x, y=xy$y * 3600 * (offset_end-offset_start) / (time_end-time_start))
+  }
 }
