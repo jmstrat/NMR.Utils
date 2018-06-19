@@ -5,12 +5,8 @@
 #' @keywords internal
 as.nmr2dinsitu.data.object <- function(x) {
   if(is.nmr2d.data.object(x)) {
-    if(load_or_install('Echem',optional=TRUE)) {
-      x=as.nmr2dinsitu.data.object.super(x)
-      attr(x, "echem") <- dummy.echem()
-    } else {
-      stop('In situ NMR processing requires the Echem library')
-    }
+    x=as.nmr2dinsitu.data.object.super(x)
+    attr(x, "echem") <- Echem.Data::echem.data.object()
   } else {
     stop("as.nmr2dinsitu.data.object can only be called with an nmr2d.data.object")
   }
@@ -24,10 +20,9 @@ as.nmr2dinsitu.data.object <- function(x) {
 #' @return An insitu.nmr.2Ddata.object
 #' @export
 associate_echem_with_nmr <- function(nmr,echem) {
-  if(!load_or_install('Echem',optional=TRUE)) stop('In situ NMR processing requires the Echem library')
   #Check validity of echem
+  if(!Echem.Data::is.echem.data.object(echem)) stop('Echem object must be of class echem.data.object')
   nmr=as.nmr2dinsitu.data.object(nmr)
-  if(!is.echem.data.object(echem)) stop('Echem object must be of class echem.data.object')
   attr(nmr, "echem")<- echem
   return(nmr)
 }
