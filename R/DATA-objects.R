@@ -91,3 +91,6 @@ NULL
   }
   r
 }
+
+#' @export
+`[.nmr2dinsitu.data.object`  <- `[.nmr2d.data.object`
