@@ -26,6 +26,7 @@
 #' @param plot.colour (TRUE / FALSE) Should the plot be coloured?
 #' @param plot.colour.ranges list of x ranges to colour (can be NA to cover entire range)
 #' @param plot.colour.ylims list of y ranges to scale colours over (can be 'auto')
+#' @param damp_colour_scaling_percent Apply a linear damping to the values used for colour scaling to this percent of the end of the range to help avoi a "hard" end (NA to disable)
 #' @param xaxismline The margin line on which to draw the x-axis
 #' @param xaxislabelmline The margin line on which to draw the x-axis label
 #' @param colour_scheme If plot.colour is TRUE, each colour y-range (as specified in plot.colour.ylims) will be split into a number of equal ranges based on the number of colours specified in this vector. Each range will be assigned to one of the colours, starting from the smallest y-value.
@@ -37,20 +38,23 @@
 #' @examples
 #' plot(data)
 plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
+                                 axes=1,
+                                 xaxismline=-0.8, xaxislabelmline=1.1,
                                  plot.colour=TRUE,plot.colour.ranges=NA,
                                  plot.colour.yranges='auto',
-                                 y_trunc=NA, col='Black', lwd=par('lwd'),
+                                 col_na='black',
+                                 colour_scheme=c('blue','green','yellow','magenta','red'),
+                                 colour.legend=FALSE, colour.legend.show.zero=TRUE,
+                                 damp_colour_scaling_percent = NA,
+                                 col='Black', lwd=par('lwd'),
                                  shade_under=FALSE, shade_col='grey', shade_min_intensity = -Inf,
+                                 y_trunc=NA,
                                  y_trunc_x_points=c(), y_trunc_amp_div=200,
                                  y_trunc_label_offset_factor=20,
                                  y_trunc_sin_period=5, y_trunc_labels=c(),
                                  y_trunc_text_col='grey',
                                  y_trunc_line_col='grey', y_trunc_lwd=2,
-                                 y_trunc_cex=1, axes=1,
-                                 xaxismline=-0.8, xaxislabelmline=1.1,
-                                 col_na='black',
-                                 colour_scheme=c('blue','green','yellow','magenta','red'),
-                                 colour.legend=FALSE, colour.legend.show.zero=TRUE,
+                                 y_trunc_cex=1,
                                  show_ppm_label=TRUE) {
 
   if(any(sapply(nmrdata, is.complex))) nmrdata = makeReal(nmrdata)
@@ -195,14 +199,22 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
         pry=y[x<prx[[1]]&x>prx[[2]]]
         prx=x[x<prx[[1]]&x>prx[[2]]]
 
-        ally[allx %in% prx] <- NA
+        ally[allx %in% prx] <- NA # Don't replot these points outside of this loop
 
         cr=col_ranges[[r]]
 
-        cvar=pry-off
+        cvar=pry-off # Make sure we don't include the offset when scaling the colours
+
+        if(!is.na(damp_colour_scaling_percent)) {
+          len = length(cvar)
+          damp_idx_count = round(length(cvar) * damp_colour_scaling_percent / 100)
+          cvar[1:damp_idx_count] = 1/(1:damp_idx_count) * cvar[1:damp_idx_count]
+          cvar[len:(len-damp_idx_count+1)] = 1/(1:damp_idx_count) * cvar[len:(len-damp_idx_count+1)]
+        }
+
         cvar=signif(cvar,5)
-        cvar[cvar<cr[[1]]]<-NA
-        cvar[cvar>cr[[2]]]<-NA#cr[[2]]
+        cvar[cvar<cr[[1]]]<-NA #Set to NA outside of range
+        cvar[cvar>cr[[2]]]<-NA
 
         cols=color.scale.jms(cvar,col_r,col_g,col_b,xrange=cr,na.color=col_na)
 
