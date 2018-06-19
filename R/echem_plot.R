@@ -9,7 +9,7 @@
 #' @param time_tick_interval Tick interval for the time axis
 #' @export
 #' @examples
-#' plotechem_vertical(data,V_range)
+#' plot_echem_horizontal(data,V_range)
 plot_echem_horizontal <-function(data,V_range, alignment=NA,show_axes=TRUE,V_tick_interval=0.25,time_tick_interval=5,time_ticks_dps=0,mar=2) {
   if(any(is.na(alignment))) {
     alignment=list(xrange=c(0,1),time_scan_1=0,offset_scan_1=0,time_scan_last=Inf,offset_scan_last=1)
