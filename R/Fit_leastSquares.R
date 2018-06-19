@@ -8,10 +8,10 @@
 #' @examples
 #' run_fit_for_data(fit, data)
 run_fit_for_data <-function(fit,data) {
-  load_or_install("minpack.lm")
-
 	#Number of scans to fit = number of columns - 1 (first col == x values)
 	nc=ncol(data)
+
+	fit$timeAxis = as.numeric(colnames(data)[-1])
 
 	if(fit$determine_parameters_dynamically) {
     warning("Automatic parameter calculation has not been re-written for this library yet... (& it may never be)")
@@ -112,7 +112,7 @@ fit_single_scan <- function(fit, data) {
     fit$models[[m]]=model
   }
   #Determine control values
-  control=nls.lm.control(maxiter=fit$maxIterations,epsfcn=fit$noise_height,maxfev=fit$maxEvaluations)
+  control=minpack.lm::nls.lm.control(maxiter=fit$maxIterations,epsfcn=fit$noise_height,maxfev=fit$maxEvaluations)
 
   #For saving results:
   best_r2=Inf
@@ -231,7 +231,7 @@ fit_models_to_x_y <- function(models, x, y, control,brute_force=FALSE,brute_forc
   }
 
   #Run the fit
-  return(tryCatch({nlsLM(formula, start=start, lower=lower, upper=upper, control = control)}, error = function(e) {
+  return(tryCatch({minpack.lm::nlsLM(formula, start=start, lower=lower, upper=upper, control = control)}, error = function(e) {
     #warning(e)
     return(NA)}))
 }
@@ -251,14 +251,13 @@ fit_models_to_x_y <- function(models, x, y, control,brute_force=FALSE,brute_forc
 #' fit_initial_brute_force(models,x,y,formula,upper,lower)
 #' @keywords internal
 fit_initial_brute_force <-function(models,x,y,formula,upper,lower,grid_points=100) {
-  load_or_install('nls2')
   ## Define the grid to search in
   grd <- as.data.frame(rbind(upper,lower))
   ## Do the brute-force
   ind=!is.na(y)
   data=as.data.frame(cbind(x[ind],y[ind]))
   names(data)=c("x","y")
-  fit <- tryCatch({nls2(formula,data=data,start = grd,algorithm = "brute-force",control=list(maxiter=grid_points))}, error = function(e) {
+  fit <- tryCatch({nls2::nls2(formula,data=data,start = grd,algorithm = "brute-force",control=list(maxiter=grid_points))}, error = function(e) {
       return(NA)})
   if(any(is.na(fit))) {
     return(NA)
