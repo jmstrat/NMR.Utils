@@ -8,7 +8,10 @@
 #' @examples
 #' new_model(pseudoVoigt, height=1e9,centre=-9.95,hwhm=2.1,shape=1)
 new_model <- function(type, ...) {
-  return(list(model=type,constraint_type=list(),constraint=list(), estimation_function=NA,initial_guess=list(...),current_guess=NA,upper=list(),lower=list()))
+  model = list(model=type,constraint_type=list(),constraint=list(), estimation_function=NA,initial_guess=list(...),current_guess=NA,upper=list(),lower=list(), name=NA)
+  model$type_string =deparse(substitute(type))
+  class(model) <- c('nmr.fit.model', 'list')
+  model
 }
 
 #' Add a constraint to a model
