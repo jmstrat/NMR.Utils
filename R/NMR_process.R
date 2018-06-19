@@ -96,10 +96,12 @@ apkpseudo2d <-function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_
 #' @examples
 #' makeReal(data)
 makeReal <-function(spectra) {
-    nam=names(spectra)
-    newdf=as.data.frame(lapply(spectra,Re))
-    names(newdf)<-nam
-    return(newdf)
+  atts = attributes(spectra)
+  cls = class(spectra)
+  new = as.data.frame(apply(as.matrix(spectra),2,Re))
+  attributes(new) <- atts
+  class(new) <- cls
+  return(new)
 }
 
 #' Generates time offsets if spectra were acquired without ATM
