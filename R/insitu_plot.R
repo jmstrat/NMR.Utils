@@ -14,11 +14,11 @@ plot.nmr2dinsitu.data.object <-function(nmr,widths=c(3,1), ...) {
   echem_args=args[names(args) %in% names(formals(plot_echem_vertical))]
   NMR_args=args[names(args) %in% names(formals(getS3method('plot', 'nmr2d.data.object')))]
 
-  echem_args=append(list(echem,tick_size_multiplier=widths[[1]]/widths[[2]]),echem_args)
   NMR_args=append(list(nmr,show_RH_Tick=FALSE),NMR_args)
 
   #Store par settings
   original_par=par('mar','xpd','omi')
+  echem_args=append(list(echem), echem_args)
 
   margins=par('mai')
 
@@ -53,18 +53,12 @@ plot.nmr2dinsitu.data.object <-function(nmr,widths=c(3,1), ...) {
 #' @param time_start,time_end Range of time to plot
 #' @param y_range Y range to scale the data to
 #' @param offset_start,offset_end y values of 1st and last data point
-#' @param show_axes --ignored--
-#' @param V_tick_interval,V_minor_tick_interval,V_minor_tick_interval --ignored--
-#' @param time_tick_interval,time_ticks_dps,tick_size_multiplier --ignored--
 #' @param xaxismline Margin line on which to draw the x axis
 #' @param xaxislabelmline Margin line on which to draw the x axis title
 #' @export
-plot_echem_vertical <- function(data,V_range=NA,time_start=0, time_end=Inf,
-                                yrange=c(0,1),offset_start=0,offset_end=1,
-                                show_axes=TRUE,V_tick_interval=NA,
-                                V_minor_tick_interval=NA,time_tick_interval=NA,
-                                time_ticks_dps=0,tick_size_multiplier=1,
-                                xaxismline=-0.8,xaxislabelmline=1.1) {
+plot_echem_vertical <- function(data, V_range=NA, time_start=0, time_end=Inf,
+                                yrange=c(0,1), offset_start=0, offset_end=1,
+                                xaxismline=-0.8, xaxislabelmline=1.1) {
   if(nrow(data) == 0) {
     data=data.frame(Test_Time.s. = NA, Voltage.V. = NA)
   } else {
