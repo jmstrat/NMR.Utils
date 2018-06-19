@@ -1,18 +1,3 @@
-#' Convert a 2D NMR data object to an insitu NMR data object
-#'
-#' @param x The object to be converted
-#' @return The converted object
-#' @keywords internal
-as.nmr2dinsitu.data.object <- function(x) {
-  if(is.nmr2d.data.object(x)) {
-    x=as.nmr2dinsitu.data.object.super(x)
-    attr(x, "echem") <- Echem.Data::echem.data.object()
-  } else {
-    stop("as.nmr2dinsitu.data.object can only be called with an nmr2d.data.object")
-  }
-  return(x)
-}
-
 #' Make an insitu NMR data object containing both NMR and Echem data
 #'
 #' @param nmr An nmr.2Ddata.object
