@@ -12,6 +12,7 @@
 #' @param lwd Line width for plot
 #' @param shade_under TRUE / FALSE shade under the plot
 #' @param shade_col colour to shade plot
+#' @param shade_min_intensity Only shade under points with intensity greater than this
 #' @param y_trunc_x_points X-ranges to draw truncation lines over
 #' @param y_trunc_amp_div Factor to divide amplitude of truncation line
 #' @param y_trunc_label_offset_factor Factor to offset truncation line label by
@@ -39,7 +40,7 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
                                  plot.colour=TRUE,plot.colour.ranges=NA,
                                  plot.colour.yranges='auto',
                                  y_trunc=NA, col='Black', lwd=par('lwd'),
-                                 shade_under=FALSE, shade_col='grey',
+                                 shade_under=FALSE, shade_col='grey', shade_min_intensity = -Inf,
                                  y_trunc_x_points=c(), y_trunc_amp_div=200,
                                  y_trunc_label_offset_factor=20,
                                  y_trunc_sin_period=5, y_trunc_labels=c(),
@@ -215,8 +216,10 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
       lines(x,y,col=col_na,lwd=lwd)
     }
     if(shade_under){
+      shade_y = y
+      shade_y[shade_y-off < shade_min_intensity] <- NA
       #add shading
-      polygon(c(x,x[length(x)]), c(y, y[1]), col=shade_col,border=NA)
+      polygon(c(x,x[length(x)]), c(shade_y, shade_y[1]), col=shade_col,border=NA)
     }
   }
 

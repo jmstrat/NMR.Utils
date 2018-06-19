@@ -8,9 +8,9 @@
   plot_offset = "auto", plot.colour = TRUE, plot.colour.ranges = NA,
   plot.colour.yranges = "auto", y_trunc = NA, col = "Black",
   lwd = par("lwd"), shade_under = FALSE, shade_col = "grey",
-  y_trunc_x_points = c(), y_trunc_amp_div = 200,
-  y_trunc_label_offset_factor = 20, y_trunc_sin_period = 5,
-  y_trunc_labels = c(), y_trunc_text_col = "grey",
+  shade_min_intensity = -Inf, y_trunc_x_points = c(),
+  y_trunc_amp_div = 200, y_trunc_label_offset_factor = 20,
+  y_trunc_sin_period = 5, y_trunc_labels = c(), y_trunc_text_col = "grey",
   y_trunc_line_col = "grey", y_trunc_lwd = 2, y_trunc_cex = 1, axes = 1,
   xaxismline = -0.8, xaxislabelmline = 1.1, col_na = "black",
   colour_scheme = c("blue", "green", "yellow", "magenta", "red"),
@@ -39,6 +39,8 @@
 \item{shade_under}{TRUE / FALSE shade under the plot}
 
 \item{shade_col}{colour to shade plot}
+
+\item{shade_min_intensity}{Only shade under points with intensity greater than this}
 
 \item{y_trunc_x_points}{X-ranges to draw truncation lines over}
 
