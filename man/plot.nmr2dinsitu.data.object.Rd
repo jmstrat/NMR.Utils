@@ -4,18 +4,39 @@
 \alias{plot.nmr2dinsitu.data.object}
 \title{Plot In situ NMR data}
 \usage{
-\method{plot}{nmr2dinsitu.data.object}(nmr, widths = c(3, 1), ...)
+\method{plot}{nmr2dinsitu.data.object}(nmr, use.default.layout = TRUE,
+  separation = 0.1, separation.pos = c(4, 2), nmr.func = NULL,
+  echem.func = NULL, ...)
 }
 \arguments{
 \item{nmr}{In situ nmr data}
 
-\item{widths}{Ratio of NMR to echem plot sizes}
+\item{use.default.layout}{If TRUE, a side-by-side 3:1 layout will be used for NMR-Echem.
+If FALSE, \code{\link[graphics]{layout}} must be called prior to calling \code{plot}
+Plot #1 will be used for NMR, #2 for echem}
 
-\item{...}{Further parameters will be passed to \code{\link[NMR.Utils]{plot.nmr2d.data.object}} or \code{\link[NMR.Utils]{plot_echem_vertical}}}
+\item{separation}{Gap between plots (in inches)}
+
+\item{separation.pos}{Where to put the separation -- vector c(nmr, echem)
+where nmr,echem are one of 1=bottom, 2=left, 3=top, 4=right}
+
+\item{nmr.func}{Function to plot NMR data (default \code{\link[NMR.Utils]{plot.nmr2d.data.object}})}
+
+\item{echem.func}{Function to plot echem data (default \code{\link[NMR.Utils]{plot_echem_vertical}})}
+
+\item{...}{Further parameters will be passed to the plotting methods}
+}
+\value{
+Returns a function to convert voltage, time into x,y values for the echem plot
 }
 \description{
 This function plots in-situ NMR data.
 }
 \examples{
 plot(data)
+
+rescale <- plot(data)
+time = c(1, 2)
+V = Plotting.Utils::nearest(echem, Test_Time.s.=time*3600)$Voltage.V
+points(rescale(V, time), col='red')
 }

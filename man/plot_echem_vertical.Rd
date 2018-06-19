@@ -5,10 +5,8 @@
 \title{Plot electrochemisty data (vertically)}
 \usage{
 plot_echem_vertical(data, V_range = NA, time_start = 0, time_end = Inf,
-  yrange = c(0, 1), offset_start = 0, offset_end = 1, show_axes = TRUE,
-  V_tick_interval = NA, V_minor_tick_interval = NA,
-  time_tick_interval = NA, time_ticks_dps = 0, tick_size_multiplier = 1,
-  xaxismline = -0.8, xaxislabelmline = 1.1)
+  yrange = c(0, 1), offset_start = 0, offset_end = 1, xaxismline = -0.8,
+  xaxislabelmline = 1.1)
 }
 \arguments{
 \item{data}{Echem data}
@@ -19,17 +17,14 @@ plot_echem_vertical(data, V_range = NA, time_start = 0, time_end = Inf,
 
 \item{offset_start, offset_end}{y values of 1st and last data point}
 
-\item{show_axes}{--ignored--}
-
-\item{V_tick_interval, V_minor_tick_interval, V_minor_tick_interval}{--ignored--}
-
-\item{time_tick_interval, time_ticks_dps, tick_size_multiplier}{--ignored--}
-
 \item{xaxismline}{Margin line on which to draw the x axis}
 
 \item{xaxislabelmline}{Margin line on which to draw the x axis title}
 
 \item{y_range}{Y range to scale the data to}
+}
+\value{
+Returns a function to convert voltage, time into x,y values for the plot
 }
 \description{
 This function plots in-situ echem data.
