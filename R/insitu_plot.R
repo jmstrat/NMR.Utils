@@ -72,17 +72,17 @@ plot_echem_vertical <- function(data,V_range=NA,time_start=0, time_end=Inf,
     data=data[data$Test_Time.s. >= time_start * 3600 & data$Test_Time.s. <= time_end * 3600, ]
   }
 
-  if(time_end==Inf) time_end=max(data$Test_Time.s.) else time_end=time_end*3600
-  time_start=time_start*3600
+  if(time_end==Inf) time_end=max(data$Test_Time.s.) else time_end = time_end * 3600
+  time_start = time_start * 3600
 
-  if(any(is.na(V_range))) V_range=c(min(data$Voltage.V.),max(data$Voltage.V.))
+  if(any(is.na(V_range))) V_range=c(min(data$Voltage.V.), max(data$Voltage.V.))
 
   total_y2_range = (time_end-time_start) / 3600 / ((offset_end - offset_start) / (yrange[[2]]-yrange[[1]]))
-  first_scan_as_fraction_of_yrange = (offset_start-yrange[[1]]) / (yrange[[2]] - yrange[[1]])
-  first_scan_in_y2 = first_scan_as_fraction_of_yrange * total_y2_range
+  time_zero_as_fraction_of_yrange = (yrange[[1]]) / (yrange[[2]] - yrange[[1]])
+  time_zero_in_y2 = time_zero_as_fraction_of_yrange * total_y2_range
 
   Plotting.Utils::pretty_plot(xlim=c(-V_range[[2]],-V_range[[1]]), ylim=yrange, axes=c(1,4),
-                              y2lim=c(-first_scan_in_y2, total_y2_range-first_scan_in_y2),
+                              y2lim=c(time_zero_in_y2, total_y2_range-time_zero_in_y2),
                               frac=TRUE, div=c(2,5), invertX=TRUE,
                               upperTickLimit=c(NA,NA,time_end/3600),
                               lowerTickLimit=c(NA,NA,time_start/3600),
@@ -90,5 +90,6 @@ plot_echem_vertical <- function(data,V_range=NA,time_start=0, time_end=Inf,
                               xlab=expression("Voltage / V"), y2lab="Time / h")
 
   #plot echem
-  lines(-data$Voltage.V.,data$Test_Time.s.*(offset_end-offset_start)/(time_end-time_start))
+  # DO NOT ADD offset_start -- echem always starts at time 0!
+  lines(-data$Voltage.V.,data$Test_Time.s. * (offset_end-offset_start) / (time_end-time_start))
 }
