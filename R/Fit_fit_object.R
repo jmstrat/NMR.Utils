@@ -14,8 +14,24 @@
 #' @examples
 #' new_fit()
 new_fit <- function(integration_range=c(-Inf,Inf),noise_height=0,maxEvaluations=10000,maxIterations=1000,use_previous_as_guess=TRUE, brute_force=FALSE,brute_force_method='short',brute_force_grid_size=10) {
-  return(list(models=list(),integration_range=integration_range,noise_height=noise_height, maxEvaluations=maxEvaluations, maxIterations=maxIterations, determine_parameters_dynamically=FALSE, determine_parameters_from_scans=NA, use_previous_as_guess=use_previous_as_guess,brute_force=brute_force, brute_force_method=brute_force_method,brute_force_grid_size=brute_force_grid_size,update_guess_for_non_fixed=TRUE,ppm_exclude=list(),result=NA,last_scan=0))
+  fit = list(models=list(),integration_range=integration_range,noise_height=noise_height, maxEvaluations=maxEvaluations, maxIterations=maxIterations, determine_parameters_dynamically=FALSE, determine_parameters_from_scans=NA, use_previous_as_guess=use_previous_as_guess,brute_force=brute_force, brute_force_method=brute_force_method,brute_force_grid_size=brute_force_grid_size,update_guess_for_non_fixed=TRUE,ppm_exclude=list(),result=NA,last_scan=0, timeAxis=NA)
+  class(fit) <- c('nmr.fit.object', 'list')
+  fit
 }
+
+#' Export fit results
+#'
+#' This function is used to export the fit results as a csv file.
+#' @param fit The fit object
+#' @param filename The path to the file (ending in .csv)
+#' @return None
+#' @export
+#' @examples
+#' export(fit,"/path/to/file.csv")
+export.nmr.fit.object <- function(fit, filename) {
+  write.table(fit$result,filename,sep=",",row.names =FALSE)
+}
+
 
 #' Make dynamic fit
 #'
@@ -54,6 +70,8 @@ exclude_ppm_range_from_fit <-function(fit,range) {
 #' @examples
 #' add_model_to_fit(fit,model)
 add_model_to_fit <- function(fit,model) {
+  if(is.na(model$name))
+    model$name = deparse(substitute(model))
   fit$models=append(fit$models,list(model))
   return(fit)
 }
@@ -104,7 +122,7 @@ prepare_result_data_frame <-function(fit,n) {
 }
 
 #'Generate fit function
-#' 
+#'
 #' This function creates a function representing the overall fit
 #' @param models List of models to use
 #' @return The fit function
@@ -134,7 +152,7 @@ make_fitted_models <-function(models,result_line) {
   total_fit=c()
   for(m in 1:nmodels) {
     model=models[[m]]
-    
+
     #Extract fitted values
     variables=names(model$constraint)
     column_names=paste0(variables,"_",m)
@@ -143,15 +161,15 @@ make_fitted_models <-function(models,result_line) {
     if(any(is.na(values))) {
       next
     } else {
-    
+
       #Define fitted function
       model_fitted=model$model
-      
+
       #Assign fitted values to it
       fmls=names(formals(model_fitted))
       fixed=fmls[fmls %in% variables]
       formals(model_fitted)[fixed]=values[fixed]
-    
+
       #Add function to overall fit
       total_fit=append(total_fit,list(c(m,model_fitted)))
     }
