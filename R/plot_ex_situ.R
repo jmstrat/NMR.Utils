@@ -1,5 +1,6 @@
 #' Read and plot ex situ NMR data
 #'
+#' WARNING: LEGACY FUNCTION, USE plot(...) INSTEAD
 #' This function is used to read and plot ex situ NMR data.
 #' @param files The Paths to the data files
 #' @param acqus_dirs The Paths to the directories containing acqus files
@@ -23,6 +24,7 @@ plot_ex_situ_nmr_files <- function(files,acqus_dirs=c(),masses=c(),...) {
 
 #' Plot ex situ NMR data
 #'
+#' WARNING: LEGACY FUNCTION, USE plot(...) INSTEAD
 #' This function is used to plot ex situ NMR data. A grid of plots is produced per nucleus present in the data list.
 #' @param data A list of data to plot (see \code{\link{read.NMR}})
 #' @param names Names of the data to go into the legend (defaults to filenames)
@@ -82,7 +84,7 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
     }
 
     #Make a blank plot
-    pretty_plot(xlim=xrange,ylim=yrange,y_axis=NA,div=5)
+    pretty_plot(xlim=xrange,ylim=yrange,axes=1,div=5,...)
 
     #Determine the line colours
     len=length(data_to_plot)
@@ -122,11 +124,3 @@ plot_ex_situ_nmr <- function(data,names=c(""),plot.cols=NA, .interactive_xlim=NU
   #Legend(s)
   #Plot options
 }
-
-#' Plot ex situ NMR data
-#'
-#' This function is used to plot ex situ NMR data.
-#' @param data An nmr.data.object
-#' @param ... Additional parameters passed to \code{\link{plot_ex_situ_nmr}}
-#' @export
-plot.nmr.data.object <- function(data,...) {plot_ex_situ_nmr(data,...)}
