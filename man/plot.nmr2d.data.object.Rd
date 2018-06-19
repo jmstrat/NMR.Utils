@@ -12,10 +12,10 @@
   y_trunc_label_offset_factor = 20, y_trunc_sin_period = 5,
   y_trunc_labels = c(), y_trunc_text_col = "grey",
   y_trunc_line_col = "grey", y_trunc_lwd = 2, y_trunc_cex = 1, axes = 1,
-  show_RH_Tick = TRUE, show_LH_Tick = TRUE, xaxismline = -0.8,
-  xaxislabelmline = 1.1, col_na = "black", colour_scheme = c("blue",
-  "green", "yellow", "magenta", "red"), colour.legend = FALSE,
-  colour.legend.show.zero = TRUE, show_ppm_label = TRUE)
+  xaxismline = -0.8, xaxislabelmline = 1.1, col_na = "black",
+  colour_scheme = c("blue", "green", "yellow", "magenta", "red"),
+  colour.legend = FALSE, colour.legend.show.zero = TRUE,
+  show_ppm_label = TRUE)
 }
 \arguments{
 \item{nmrdata}{Data frame of (real) NMR data (ppm, intensity1, ...)}
@@ -57,10 +57,6 @@
 \item{y_trunc_lwd}{Line width of truncation line}
 
 \item{y_trunc_cex}{cex of truncation label}
-
-\item{show_RH_Tick}{(TRUE / FALSE) Show last tick on RHS}
-
-\item{show_LH_Tick}{(TRUE / FALSE) Show last tick on LHS}
 
 \item{xaxismline}{The margin line on which to draw the x-axis}
 

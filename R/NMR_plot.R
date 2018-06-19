@@ -25,8 +25,6 @@
 #' @param plot.colour (TRUE / FALSE) Should the plot be coloured?
 #' @param plot.colour.ranges list of x ranges to colour (can be NA to cover entire range)
 #' @param plot.colour.ylims list of y ranges to scale colours over (can be 'auto')
-#' @param show_RH_Tick (TRUE / FALSE) Show last tick on RHS
-#' @param show_LH_Tick (TRUE / FALSE) Show last tick on LHS
 #' @param xaxismline The margin line on which to draw the x-axis
 #' @param xaxislabelmline The margin line on which to draw the x-axis label
 #' @param colour_scheme If plot.colour is TRUE, each colour y-range (as specified in plot.colour.ylims) will be split into a number of equal ranges based on the number of colours specified in this vector. Each range will be assigned to one of the colours, starting from the smallest y-value.
@@ -48,7 +46,6 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
                                  y_trunc_text_col='grey',
                                  y_trunc_line_col='grey', y_trunc_lwd=2,
                                  y_trunc_cex=1, axes=1,
-                                 show_RH_Tick=TRUE, show_LH_Tick=TRUE,
                                  xaxismline=-0.8, xaxislabelmline=1.1,
                                  col_na='black',
                                  colour_scheme=c('blue','green','yellow','magenta','red'),
