@@ -2,32 +2,58 @@
 #'
 #' This function plots in-situ NMR data.
 #' @param nmr In situ nmr data
-#' @param widths Ratio of NMR to echem plot sizes
-#' @param ... Further parameters will be passed to \code{\link[NMR.Utils]{plot.nmr2d.data.object}} or \code{\link[NMR.Utils]{plot_echem_vertical}}
+#' @param use.default.layout If TRUE, a side-by-side 3:1 layout will be used for NMR-Echem.
+#'                           If FALSE, \code{\link[graphics]{layout}} must be called prior to calling \code{plot}
+#'                           Plot #1 will be used for NMR, #2 for echem
+#' @param separation Gap between plots (in inches)
+#' @param separation.pos Where to put the separation -- vector c(nmr, echem)
+#'                       where nmr,echem are one of 1=bottom, 2=left, 3=top, 4=right
+#' @param nmr.func Function to plot NMR data (default \code{\link[NMR.Utils]{plot.nmr2d.data.object}})
+#' @param echem.func Function to plot echem data (default \code{\link[NMR.Utils]{plot_echem_vertical}})
+#' @param ... Further parameters will be passed to the plotting methods
 #' @export
 #' @examples
 #' plot(data)
-plot.nmr2dinsitu.data.object <-function(nmr,widths=c(3,1), ...) {
+plot.nmr2dinsitu.data.object <-function(nmr, use.default.layout=TRUE, separation=0.1, separation.pos=c(4, 2), nmr.func=NULL, echem.func=NULL, ...) {
+
+  if(is.null(nmr.func)) nmr.func = getS3method('plot', 'nmr2d.data.object')
+  if(is.null(echem.func)) echem.func = plot_echem_vertical
+
   echem=attr(nmr,'echem')
   if(!Echem.Data::is.echem.data.object(echem)) stop('Echem data is invalid')
+
   args=list(...)
-  echem_args=args[names(args) %in% names(formals(plot_echem_vertical))]
-  NMR_args=args[names(args) %in% names(formals(getS3method('plot', 'nmr2d.data.object')))]
+  echem_args=args[names(args) %in% names(formals(echem.func))]
+  NMR_args=args[names(args) %in% names(formals(nmr.func))]
 
-  NMR_args=append(list(nmr,show_RH_Tick=FALSE),NMR_args)
-
-  #Store par settings
-  original_par=par('mar','xpd','omi')
   echem_args=append(list(echem), echem_args)
+  NMR_args=append(list(nmr), NMR_args)
 
   margins=par('mai')
 
-  #adjacent horizontal plot width ratio 5:1
-  layout(matrix(c(1, 2), 1, 2, byrow=F), widths=widths)
-  #set margins for LH plot to leave no margin on RHS
-  par(mai=c(margins[1:3],0.05),xpd=FALSE)
+  #adjacent horizontal plot width ratio 3:1
+  if(use.default.layout) layout(matrix(c(1, 2), 1, 2), widths=c(3,1))
+
+
+  set_margins <- function(n) {
+    if(!is.na(separation)) {
+      pos = separation.pos[[n]]
+      if(pos == 1) {
+        mai = c(separation / 2, margins[2:4])
+      } else if(pos == 4) {
+        mai = c(margins[1:3], separation / 2)
+      } else {
+        mai=c(margins[1:(pos-1)], separation / 2, margins[(pos+1):4])
+      }
+      par(mai=mai)
+    }
+  }
+
+  #set margins for NMR plot (#1)
+  set_margins(1)
+
   #plot NMR data and recieve time and offset of first and last scan plotted
-  align=do.call(getS3method('plot', 'nmr2d.data.object'),NMR_args)
+  align=do.call(nmr.func,NMR_args)
   echem_args=append(echem_args,list(time_start=align$time_scan_1,
                                     time_end=align$time_scan_last,
                                     yrange=align$yrange,
@@ -35,13 +61,13 @@ plot.nmr2dinsitu.data.object <-function(nmr,widths=c(3,1), ...) {
                                     offset_end=align$offset_scan_last))
   #Get (last) unique
   echem_args<-echem_args[length(names(echem_args))-match(unique(names(echem_args)),rev(names(echem_args)))+1]
-  #set margins of RH plot to leave no margin on LHS
-  par(mai=c(margins[1],0.05,margins[3:4]))
+
+  #set margins for Echem plot (#2)
+  set_margins(2)
+
   #Plot echem
   do.call(plot_echem_vertical,echem_args)
 
-  layout(1)
-  par(original_par)
 }
 
 
