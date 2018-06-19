@@ -206,10 +206,14 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
         cvar=pry-off # Make sure we don't include the offset when scaling the colours
 
         if(!is.na(damp_colour_scaling_percent)) {
-          len = length(cvar)
-          damp_idx_count = round(length(cvar) * damp_colour_scaling_percent / 100)
-          cvar[1:damp_idx_count] = 1/(1:damp_idx_count) * cvar[1:damp_idx_count]
-          cvar[len:(len-damp_idx_count+1)] = 1/(1:damp_idx_count) * cvar[len:(len-damp_idx_count+1)]
+          damp_range = diff(range(prx)) * damp_colour_scaling_percent / 100
+          damp_idx_count = length(prx[prx<damp_range])
+          len = length(prx)
+          if(damp_idx_count>1) {
+            grad = 1 / damp_idx_count
+            cvar[1:damp_idx_count] = (1:damp_idx_count)*grad * cvar[1:damp_idx_count]
+            cvar[len:(len-damp_idx_count+1)] = (1:damp_idx_count)*grad * cvar[len:(len-damp_idx_count+1)]
+          }
         }
 
         cvar=signif(cvar,5)
