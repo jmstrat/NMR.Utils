@@ -11,18 +11,18 @@
 #' phase(data,45,0,0)
 
 phase <- function(data,p0,p1,pivot) {
-  ppm=data[,1]
-  pdata=data[,2:ncol(data)]
-  ns=dim(pdata)
+  ppm = data[, 1]
+  pdata = data[, 2:ncol(data)]
+  ns = dim(pdata)
   if(is.null(ns))
-    ns=c(length(pdata))
-  n_points=ns[[1]]
-  pivot_points=which(abs(ppm-pivot)==min(abs(ppm-pivot)))[[1]]
-  x=seq(1,n_points,length.out=n_points)-pivot_points
-  phi=p0/180*pi+p1/180*pi*x/1000
-  phas_vector=complex(real=cos(phi),imaginary=-sin(phi))
-  result=pdata*phas_vector
-  data[,2:ncol(data)]=result
+    ns = c(length(pdata))
+  n_points = ns[[1]]
+  pivot_points = which(abs(ppm-pivot)==min(abs(ppm-pivot)))[[1]]
+  x = seq(1,n_points,length.out=n_points)-pivot_points
+  phi = p0 / 180 * pi + p1 / 180 * pi * x / 1000
+  phas_vector = complex(real=cos(phi), imaginary=-sin(phi))
+  result = pdata * phas_vector
+  data[, 2:ncol(data)] = result
   return(data)
 }
 
@@ -45,16 +45,26 @@ apk <-function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p
   p0_xmax_points=which(abs(ppm-p0_optim_x_range[[2]])==min(abs(ppm-p0_optim_x_range[[2]])))[[1]]
   p1_xmin_points=which(abs(ppm-p1_optim_x_range[[1]])==min(abs(ppm-p1_optim_x_range[[1]])))[[1]]
   p1_xmax_points=which(abs(ppm-p1_optim_x_range[[2]])==min(abs(ppm-p1_optim_x_range[[2]])))[[1]]
+  p0_npoints = abs(p0_xmax_points-p0_xmin_points)
+  p1_npoints = abs(p1_xmax_points-p1_xmin_points)
+
   optim_f0 <-function(x) {
     real_phased=Re(phase(spectrum,x,0,0)[p0_xmin_points:p0_xmax_points,2])
+    bsl = max(c(real_phased[[1]], real_phased[[p0_npoints]]))
+    real_phased = real_phased - bsl
+    real_phased = real_phased / max(real_phased)
     sum(real_phased)
   }
   p0=(optimise(optim_f0,lower=p0_optim_range[[1]],upper=p0_optim_range[[2]],maximum=T)$maximum)
   optim_f <-function(x) {
     real_phased=Re(phase(spectrum,p0,x,pivot)[p1_xmin_points:p1_xmax_points,2])
+    bsl = max(c(real_phased[[1]], real_phased[[p1_npoints]]))
+    real_phased = real_phased - bsl
+    real_phased = real_phased / max(real_phased)
     sum(real_phased)
   }
   p1=optimise(optim_f,lower=p1_optim_range[[1]],upper=p1_optim_range[[2]],maximum=T)$maximum
+  print(sprintf("p0 = %s; p1 = %s", p0, p1))
   phase(spectrum,p0,p1,pivot)
 }
 
@@ -73,7 +83,7 @@ apk <-function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p
 #' apkpseudo2d(data,c(-200,200),c(1000,1300),0,c(-50,50),c(-5,0))
 apkpseudo2d <-function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
   for(i in 2:ncol(spectra)) {
-    spectra[,i]=apk(spectra[,c(1,i)],p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)[,2]
+    spectra[,i]=as.complex(apk(spectra[,c(1,i)],p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)[,2])
   }
   return(spectra)
 }
