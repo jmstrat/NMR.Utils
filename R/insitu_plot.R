@@ -25,7 +25,7 @@ plot.nmr2dinsitu.data.object <-function(nmr,widths=c(3,1), ...) {
   #adjacent horizontal plot width ratio 5:1
   layout(matrix(c(1, 2), 1, 2, byrow=F), widths=widths)
   #set margins for LH plot to leave no margin on RHS
-  par(mai=c(margins[1:3],0),xpd=FALSE)
+  par(mai=c(margins[1:3],0.05),xpd=FALSE)
   #plot NMR data and recieve time and offset of first and last scan plotted
   align=do.call(getS3method('plot', 'nmr2d.data.object'),NMR_args)
   echem_args=append(echem_args,list(time_start=align$time_scan_1,
@@ -36,7 +36,7 @@ plot.nmr2dinsitu.data.object <-function(nmr,widths=c(3,1), ...) {
   #Get (last) unique
   echem_args<-echem_args[length(names(echem_args))-match(unique(names(echem_args)),rev(names(echem_args)))+1]
   #set margins of RH plot to leave no margin on LHS
-  par(mai=c(margins[1],0,margins[3:4]))
+  par(mai=c(margins[1],0.05,margins[3:4]))
   #Plot echem
   do.call(plot_echem_vertical,echem_args)
 
