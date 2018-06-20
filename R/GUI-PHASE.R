@@ -54,31 +54,53 @@ interactive_phase_mod_renderUI <- function(ns, nscans, xrange, yrange, init_yran
 }
 
 
-interactive_phase_mod <- function(input, output, session, data, data_name, complex_error_dismissable=FALSE) {
+interactive_phase_mod <- function(input, output, session, data, data_name, complex_error_dismissable=FALSE, check_complex_reactive=function() TRUE) {
 
+  modal_shown <- list(shown=FALSE)
   observe({
+    if(!check_complex_reactive()) return()
+    if(length(data()) == 0) {
+      shiny::showModal(shiny::modalDialog(
+        title = "No data to phase!",
+        "Please import some data and try again.",
+        size = 'l'
+      ))
+      return()
+    }
+
     footer = if(complex_error_dismissable) modalButton('Dismiss') else ''
-    if(!any_complex(data()))
-      showModal(modalDialog(
+    if(!any_complex(data()) && !modal_shown$shown)
+      shiny::showModal(shiny::modalDialog(
         title = "Data are not complex!",
         "Real data cannot be phased.",
         size = 'l',
         footer = footer
       ))
+    modal_shown$shown <- TRUE
   })
 
-  xrange <- reactive({rev(range(data()[,1]))})
-  yrange <- reactive({grDevices::extendrange(range(makeReal(data())), f=0.05)})
+  shiny::observeEvent(data(), {modal_shown$shown <- FALSE})
 
-  nscans = reactive({ncol(data())-1})
+  xrange <- shiny::reactive({
+    if(length(data()) == 0) return(c(NA, NA))
+    rev(range(data()[,1]))
+  })
+  yrange <- shiny::reactive({
+    if(length(data()) == 0) return(c(NA, NA))
+    grDevices::extendrange(range(makeReal(data())), f=0.05)
+  })
 
-  init_yrange <- reactive({
+  nscans = shiny::reactive({ncol(data())-1})
+
+  init_yrange <- shiny::reactive({
+    if(length(data()) == 0) return(c(NA, NA))
     r = grDevices::extendrange(range(Re(data()[,2])), f=0.05)
     r[[2]] = r[[2]] * 0.1
     r
   })
 
   init_apk_range <- function(initial) {
+    if(length(data()) == 0) return(list(range=c(NA, NA), max=NA))
     x_total_range = diff(xrange())
     apk_real_range =  xrange()[[2]] - (1-initial) * x_total_range
     x = data()[,1]
@@ -90,8 +112,8 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   }
 
 
-  init_apk0_range = reactive({init_apk_range(c(0.5, 1))})
-  init_apk1_range = reactive({init_apk_range(c(0, 0.5))})
+  init_apk0_range = shiny::reactive({init_apk_range(c(0.5, 1))})
+  init_apk1_range = shiny::reactive({init_apk_range(c(0, 0.5))})
 
 
   output$ui <- shiny::renderUI(interactive_phase_mod_renderUI(session$ns, nscans, xrange, yrange, init_yrange, init_apk0_range, init_apk1_range))
@@ -160,6 +182,8 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   output$scan_title <- shiny::renderText(sprintf("Scan #%s", input$scan))
 
   output$spectrum <- shiny::renderPlot({
+    if(length(data()) == 0) return()
+
     ls = as.character(phased_parameters$last_scan)
     p0 = phased_parameters[[ls]][['p0']]
     p1 = phased_parameters[[ls]][['p1']]
@@ -202,17 +226,20 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     })
   })
 
-  phasing_matrix <- reactive({
+  phasing_matrix <- shiny::reactive({
     pp <- shiny::reactiveValuesToList(phased_parameters)
     include = ! names(pp) == 'last_scan'
     mat = matrix(unlist(pp[include]), ncol=3, byrow=T, dimnames=list(names(pp[include]), c('p0', 'p1', 'pivot')))
     mat[order(as.numeric(rownames(mat))),]
   })
 
-  shiny::observeEvent(input$copy_r, {
+  script_input <- shiny::reactive({
     df_input = paste(deparse(phasing_matrix()), collapse='\n')
-    df_input = sprintf("phasing_parameters = %s\n%s = phase(%s, phasing_parameters)", df_input, data_name(), data_name())
-    jms.classes::clipboard_copy(df_input)
+    sprintf("phasing_parameters = %s\n%s = phase(%s, phasing_parameters)", df_input, data_name(), data_name())
+  })
+
+  shiny::observeEvent(input$copy_r, {
+    jms.classes::clipboard_copy(script_input())
   })
 
   shiny::observeEvent(input$copy_tab, {
@@ -224,6 +251,15 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     filename = 'Phase_parameters.csv',
     content = function(file) {write.csv(phasing_matrix(), file)})
 
+  phased_data <- shiny::reactive({
+    list(
+      data = phase(data(), phasing_matrix()),
+      parameters = phasing_matrix(),
+      script_input = script_input()
+    )
+  })
+
+  return(phased_data)
 }
 
 #' Creates a GUI for phasing data
