@@ -9,21 +9,52 @@
 #' @export
 #' @examples
 #' phase(data,45,0,0)
-
 phase <- function(data,p0,p1,pivot) {
   ppm = data[, 1]
-  pdata = data[, 2:ncol(data)]
-  ns = dim(pdata)
-  if(is.null(ns))
-    ns = c(length(pdata))
-  n_points = ns[[1]]
-  pivot_points = which(abs(ppm-pivot)==min(abs(ppm-pivot)))[[1]]
-  x = seq(1,n_points,length.out=n_points)-pivot_points
-  phi = p0 / 180 * pi + p1 / 180 * pi * x / 1000
-  phas_vector = complex(real=cos(phi), imaginary=-sin(phi))
-  result = pdata * phas_vector
+  pdata = as.matrix(data[, 2:ncol(data)])
+
+  n_points = nrow(pdata)
+  if(is.null(n_points))
+    n_points = length(pdata)
+
+  if(missing(p1) && missing(pivot)) {
+    if(!all(c('p0','p1','pivot') %in% colnames(p0))) stop('Could not determine phase coefficients. Unsupported arguments provided.')
+    pivot = p0[,'pivot']
+    p1 = p0[,'p1']
+    p0 = p0[,'p0']
+  } else if(missing(pivot)) {
+    if(!all(c('p0','p1') %in% colnames(p0))) stop('Could not determine phase coefficients. Unsupported arguments provided.')
+    pivot = p1
+    p1 = p0[,'p1']
+    p0 = p0[,'p0']
+  }
+
+  x = sapply(pivot, function(p) (1:n - which(abs(ppm-p) == min(abs(ppm-p)))[[1]]) / n )
+
+  # Support for vectors
+  phi = t(mapply(function(pp0, pp1, x_i) pp0 / 180 * pi + pp1 / 180 * pi * x[,x_i], p0, p1, 1:ncol(x) ))
+
+  phase_vector = matrix(complex(real=cos(phi), imaginary=-sin(phi)), nrow(phi), ncol(phi))
+  result = sapply(1:nrow(phase_vector), function(i) {pdata[,i] * phase_vector[i,]})
+
   data[, 2:ncol(data)] = result
   return(data)
+}
+
+.single_phase <- function(data, p0, p1, pivot) {
+  x = data[,1]
+  y = data[,2]
+  n = nrow(data)
+
+  # Which can give 2 values if equidistent -- just take the first...
+  pivot_points = which(abs(x-pivot)==min(abs(x-pivot)))[[1]]
+  # Between max -1...0...1 centred on pivot
+  x = (1:n-pivot_points) / n
+  # Doesn't support vectors for p0 / p1:
+  phi = p0 / 180 * pi + p1 / 180 * pi * x
+  phase_vector = complex(real=cos(phi), imaginary=-sin(phi))
+  data[,2] = y * phase_vector
+  data
 }
 
 #' Autophase NMR Data with constraints (using a VERY CRUDE method)
