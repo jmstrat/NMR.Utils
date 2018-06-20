@@ -5,7 +5,7 @@
 #' @param ... Additional parameters passed to \code{\link[jms.classes]{plot.jms.data.object}}
 #' @export
 plot.nmr.data.object <- function(x,...,axes=1,xlim=NULL) {
-  if(any(sapply(x, is.complex))) x = makeReal(x)
+  if(any_complex(x)) x = makeReal(x)
   if(any(is.null(xlim))) xlim=range(x[,jms.classes::xcol(x)][is.finite(x[,jms.classes::xcol(x)])])
   xlim=rev(range(xlim))
   NextMethod(x,axes=axes,xlim=xlim,div=2,...)
@@ -13,7 +13,7 @@ plot.nmr.data.object <- function(x,...,axes=1,xlim=NULL) {
 
 #' @export
 lines.nmr.data.object <- function(x,...) {
-  if(any(sapply(x, is.complex))) x = makeReal(x)
+  if(any_complex(x)) x = makeReal(x)
   # Normalise
   m=attr(x,'mass')
   if(is.null(m)) m=1
@@ -53,11 +53,11 @@ iplot.nmr.data.object <- function(...,axes=1,offset=NULL,xlim=NULL,ylim=NULL,y2l
         }
       }
       ns=as.numeric(ns)
-      if(any(sapply(data[[i]], is.complex))) data[[i]] = makeReal(data[[i]])
+      if(any_complex(data[[i]])) data[[i]] = makeReal(data[[i]])
       data[[i]]=data[[i]] / m / ns
     }
   } else {
-    if(any(sapply(data[[1]], is.complex))) data[[1]] = makeReal(data[[1]])
+    if(any_complex(data[[1]])) data[[1]] = makeReal(data[[1]])
   }
   data=jms.classes::combine(unname(data),interpolate=TRUE)
   if(any(is.null(xlim))) {

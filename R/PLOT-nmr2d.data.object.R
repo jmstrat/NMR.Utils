@@ -57,7 +57,7 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
                                  y_trunc_cex=1,
                                  show_ppm_label=TRUE) {
 
-  if(any(sapply(nmrdata, is.complex))) nmrdata = makeReal(nmrdata)
+  if(any_complex(nmrdata)) nmrdata = makeReal(nmrdata)
   n=ncol(nmrdata)
   x=nmrdata[,1] #ppm
   offsets=as.numeric(names(nmrdata)[2:n])
