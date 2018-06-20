@@ -70,7 +70,15 @@ phase <- function(data,p0,p1,pivot) {
 #' @export
 #' @examples
 #' apk(data,c(-200,200),c(1000,1300),0,c(-50,50),c(-5,0))
-apk <-function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
+apk <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
+  values = apk_values(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)
+  print(sprintf("p0 = %s; p1 = %s", values[['p0']], values[['p1']]))
+  phase(spectrum, values[['p0']], values[['p1']], pivot)
+}
+
+#' @export
+#' @rdname apk
+apk_values <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
   ppm=spectrum[,1]
   p0_xmin_points=which(abs(ppm-p0_optim_x_range[[1]])==min(abs(ppm-p0_optim_x_range[[1]])))[[1]]
   p0_xmax_points=which(abs(ppm-p0_optim_x_range[[2]])==min(abs(ppm-p0_optim_x_range[[2]])))[[1]]
@@ -95,8 +103,8 @@ apk <-function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p
     sum(real_phased)
   }
   p1=optimise(optim_f,lower=p1_optim_range[[1]],upper=p1_optim_range[[2]],maximum=T)$maximum
-  print(sprintf("p0 = %s; p1 = %s", p0, p1))
-  phase(spectrum,p0,p1,pivot)
+
+  return(c(p0=p0, p1=p1))
 }
 
 #' Autophase NMR Data with constraints for a pseudo 2D dataset (e.g. in-situ echem). Uses (\code{\link[NMR.Utils]{apk}})
@@ -110,6 +118,7 @@ apk <-function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p
 #' @param p1_optim_range range over which the p1 value can vary
 #' @return A data frame containing the phased NMR data (ppm,intensity1, ...)
 #' @export
+#' @rdname apk
 #' @examples
 #' apkpseudo2d(data,c(-200,200),c(1000,1300),0,c(-50,50),c(-5,0))
 apkpseudo2d <-function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
@@ -117,6 +126,17 @@ apkpseudo2d <-function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_
     spectra[,i]=as.complex(apk(spectra[,c(1,i)],p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)[,2])
   }
   return(spectra)
+}
+
+#' @export
+#' @rdname apk
+apkpseudo2d_values <- function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range, .progress=NA) {
+  output = data.frame(p0=NA, p1=NA)
+  for(i in 2:ncol(spectra)) {
+    output[i-1,]=apk_values(spectra[,c(1,i)],p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)
+    if(is.function(.progress)) .progress(i-1)
+  }
+  return(output)
 }
 
 #' Removes imaginary component from NMR data

@@ -2,10 +2,22 @@
 % Please edit documentation in R/PROCESS-phase.R
 \name{apk}
 \alias{apk}
+\alias{apk_values}
+\alias{apkpseudo2d}
+\alias{apkpseudo2d_values}
 \title{Autophase NMR Data with constraints (using a VERY CRUDE method)}
 \usage{
 apk(spectrum, p0_optim_x_range, p1_optim_x_range, pivot, p0_optim_range,
   p1_optim_range)
+
+apk_values(spectrum, p0_optim_x_range, p1_optim_x_range, pivot, p0_optim_range,
+  p1_optim_range)
+
+apkpseudo2d(spectra, p0_optim_x_range, p1_optim_x_range, pivot, p0_optim_range,
+  p1_optim_range)
+
+apkpseudo2d_values(spectra, p0_optim_x_range, p1_optim_x_range, pivot,
+  p0_optim_range, p1_optim_range, .progress = NA)
 }
 \arguments{
 \item{spectrum}{A (complex) dataframe of NMR data (single scan)}
@@ -19,13 +31,30 @@ apk(spectrum, p0_optim_x_range, p1_optim_x_range, pivot, p0_optim_range,
 \item{p0_optim_range}{range over which the p0 value can vary}
 
 \item{p1_optim_range}{range over which the p1 value can vary}
+
+\item{spectra}{(complex) dataframe containing spectra}
+
+\item{p0_optim_x_range}{x range over which to optimise the p0 value (ppm)}
+
+\item{p1_optim_x_range}{x range over which to optimise the p1 value (ppm)}
+
+\item{pivot}{Pivot point for 2nd-order phase correction coefficient (ppm)}
+
+\item{p0_optim_range}{range over which the p0 value can vary}
+
+\item{p1_optim_range}{range over which the p1 value can vary}
 }
 \value{
 A data frame containing the phased NMR data (ppm,intensity)
+
+A data frame containing the phased NMR data (ppm,intensity1, ...)
 }
 \description{
+This function phases (complex) NMR data.
+
 This function phases (complex) NMR data.
 }
 \examples{
 apk(data,c(-200,200),c(1000,1300),0,c(-50,50),c(-5,0))
+apkpseudo2d(data,c(-200,200),c(1000,1300),0,c(-50,50),c(-5,0))
 }
