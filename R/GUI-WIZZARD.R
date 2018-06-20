@@ -5,13 +5,13 @@ wizzard_mod_UI <- function(id) {
                       shiny::tabPanel('Import', interactive_import_mod_UI(ns('import'))),
                       shiny::tabPanel('Phasing', interactive_phase_mod_UI(ns('phase'))),
                       shiny::tabPanel('Baseline', interactive_baseline_mod_UI(ns('baseline'))),
-                      shiny::tabPanel('Plot', interactive_plotting_mod_UI(ns('plot')))
+                      shiny::tabPanel('Plot', interactive_plotting_mod_UI(ns('plot'))),
+                      shiny::tabPanel('Export', h4('Under construction'))
     )
   )
 }
 
 wizzard_mod <- function(input, output, session) {
-  ns <- session$ns
   import_parameters <- shiny::callModule(interactive_import_mod, "import")
 
   import_data <- shiny::reactive({import_parameters()$data})
@@ -48,7 +48,7 @@ wizzard_mod <- function(input, output, session) {
   }
 
   script <- shiny::reactive({
-    sprintf("%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s",
+    sprintf("library(NMR.Utils)\nlibrary(Echem.Data)\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s",
             hash_header('IMPORT'),
             import_script(),
             hash_header('PHASE'),
@@ -76,7 +76,12 @@ wizzard_mod <- function(input, output, session) {
 #' @export
 insitu_gui <- function() {
   if(!requireNamespace("shiny", quietly=TRUE)) stop('Interactive processing requires the shiny package to be installed')
+  if(!requireNamespace("shinyFiles", quietly=TRUE)) stop('Interactive processing requires the shinyFiles package to be installed')
+  if(!requireNamespace("shinyBS", quietly=TRUE)) stop('Interactive processing requires the shinyBS package to be installed')
 
+
+  shiny::addResourcePath("sbs", system.file("www", package = "shinyBS"))
+  shiny::addResourcePath('www', system.file('www', package='jms.classes'))
   server <- function(input, output, session) {
     shiny::callModule(wizzard_mod, "wizzard")
   }
