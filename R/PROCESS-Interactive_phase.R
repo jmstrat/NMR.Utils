@@ -121,7 +121,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   shiny::observeEvent(input$apk1_button, {
     brush = input$brush
     if(!is.null(brush)) {
-      new_range = 1 - (c(brush$xmax, brush$xmin) - xrange[[2]]) / (diff(xrange())*-1)
+      new_range = 1 - (c(brush$xmax, brush$xmin) - xrange()[[2]]) / (diff(xrange())*-1)
       shiny::updateSliderInput(session, 'apk1', value=new_range)
     }
   })
