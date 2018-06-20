@@ -115,7 +115,6 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   init_apk0_range = shiny::reactive({init_apk_range(c(0.5, 1))})
   init_apk1_range = shiny::reactive({init_apk_range(c(0, 0.5))})
 
-
   output$ui <- shiny::renderUI(interactive_phase_mod_renderUI(session$ns, nscans, xrange, yrange, init_yrange, init_apk0_range, init_apk1_range))
 
   shiny::observe({
