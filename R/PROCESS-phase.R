@@ -80,7 +80,7 @@ apk <-function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p
   p1_npoints = abs(p1_xmax_points-p1_xmin_points)
 
   optim_f0 <-function(x) {
-    real_phased=Re(phase(spectrum,x,0,0)[p0_xmin_points:p0_xmax_points,2])
+    real_phased=Re(.single_phase(spectrum,x,0,0)[p0_xmin_points:p0_xmax_points,2])
     bsl = max(c(real_phased[[1]], real_phased[[p0_npoints]]))
     real_phased = real_phased - bsl
     real_phased = real_phased / max(real_phased)
@@ -88,7 +88,7 @@ apk <-function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p
   }
   p0=(optimise(optim_f0,lower=p0_optim_range[[1]],upper=p0_optim_range[[2]],maximum=T)$maximum)
   optim_f <-function(x) {
-    real_phased=Re(phase(spectrum,p0,x,pivot)[p1_xmin_points:p1_xmax_points,2])
+    real_phased=Re(.single_phase(spectrum,p0,x,pivot)[p1_xmin_points:p1_xmax_points,2])
     bsl = max(c(real_phased[[1]], real_phased[[p1_npoints]]))
     real_phased = real_phased - bsl
     real_phased = real_phased / max(real_phased)
