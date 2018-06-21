@@ -89,7 +89,11 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     grDevices::extendrange(range(makeReal(data())), f=0.05)
   })
 
-  nscans = shiny::reactive({ncol(data())-1})
+  nscans = shiny::reactive({
+    n = ncol(data())
+    if(n > 1) n = n - 1 # x column
+    n
+  })
 
   init_yrange <- shiny::reactive({
     if(length(data()) == 0) return(c(NA, NA))
@@ -126,16 +130,18 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
 
   phasing_matrix <- shiny::reactive({
     mat <- phased_parameters$phases
-    mat[order(as.numeric(rownames(mat))),]
+    mat[order(as.numeric(rownames(mat))),, drop=FALSE]
   })
 
   current_parameters <- shiny::reactive({
     mat <- phasing_matrix()
     if(is.null(mat)) return(list())
-    known_scans = as.numeric(rownames(mat)[!is.na(mat[,1])])
+    rows_with_na = sapply(1:nrow(mat), function(i) any(is.na(mat[i,])))
+    known_scans = as.numeric(rownames(mat)[!rows_with_na])
     if(!current_scan() %in% known_scans) {
       # Go to the nearset parameters if we don't have anything saved for the current scan
-      phased_parameters$phases[current_scan(),] <- mat[which.min(abs(known_scans-current_scan())),]
+      nearest_known = known_scans[[which.min(abs(known_scans-current_scan()))]]
+      phased_parameters$phases[current_scan(),] <- mat[nearest_known,]
     }
     mat[current_scan(),]
   })
@@ -157,7 +163,9 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   # Reset phase params when data changes
 
   observeEvent(data(),{
-    mat <- matrix(nrow=nscans(), ncol=3, dimnames=list(1:nscans(), c('p0', 'p1', 'pivot')))
+    n = nscans()
+    if(n == 0) n = 1
+    mat <- matrix(nrow=n, ncol=3, dimnames=list(1:n, c('p0', 'p1', 'pivot')))
     mat[1,] <- c(0, 0, init_apk0_range()[['max']])
     phased_parameters$phases <- mat
   })
