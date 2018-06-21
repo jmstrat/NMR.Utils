@@ -8,7 +8,7 @@ interactive_baseline_mod <- function(input, output, session, data, data_name) {
     list(
       data = data(),
       parameters = '...',
-      script_input = '# Baseline correction must currently be done manually. See ?make_baseline'
+      script_input = '# Baseline correction must currently be done manually. See ?jms.classes::make_background'
     )
   })
 

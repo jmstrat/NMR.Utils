@@ -228,6 +228,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   phasing_matrix <- shiny::reactive({
     pp <- shiny::reactiveValuesToList(phased_parameters)
     include = ! names(pp) == 'last_scan'
+    if(!any(include)) return()
     mat = matrix(unlist(pp[include]), ncol=3, byrow=T, dimnames=list(names(pp[include]), c('p0', 'p1', 'pivot')))
     mat[order(as.numeric(rownames(mat))),]
   })
@@ -251,8 +252,14 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     content = function(file) {write.csv(phasing_matrix(), file)})
 
   phased_data <- shiny::reactive({
+    pdata = data()
+    if(length(data()) != 0) {
+      if(!is.null(phasing_matrix())) {
+        pdata = phase(data(), phasing_matrix())
+      }
+    }
     list(
-      data = phase(data(), phasing_matrix()),
+      data = pdata,
       parameters = phasing_matrix(),
       script_input = script_input()
     )

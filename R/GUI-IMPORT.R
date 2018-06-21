@@ -70,7 +70,7 @@ interactive_import_mod <- function(input, output, session) {
   shiny::observe({shiny::updateTextInput(session, 'nmr_atmc_text', value=nmr_atmc_file())})
   shiny::observe({shiny::updateTextInput(session, 'echem_text', value=echem_file())})
 
-  imported_data_list <- shiny::reactiveValues(data=nmr2dinsitu.data.object(), data_name = 'insitu_data', script_input='')
+  imported_data_list <- shiny::reactiveValues(data=nmr2dinsitu.data.object(), data_name = 'insitu_nmr_data', script_input='')
 
   observeEvent(input$save, {assign('insitu_nmr_data', imported_data_list$data, envir=.GlobalEnv)})
 
