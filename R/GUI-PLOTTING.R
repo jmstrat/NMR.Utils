@@ -1,10 +1,10 @@
 interactive_plotting_mod_UI <- function(id) {
-  shiny::fluidPage(h4('Under construction'))
+  shiny::fluidPage(shiny::h4('Under construction'))
 }
 
 
 interactive_plotting_mod <- function(input, output, session, data, data_name) {
-  plot_data <- reactive({
+  plot_data <- shiny::reactive({
     list(
       parameters = '...',
       script_input = '# Plotting must currently be done manually. See ?plot.nmr2dinsitu.data.object'

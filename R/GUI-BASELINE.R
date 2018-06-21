@@ -1,10 +1,10 @@
 interactive_baseline_mod_UI <- function(id) {
-  shiny::fluidPage(h4('Under construction'))
+  shiny::fluidPage(shiny::h4('Under construction'))
 }
 
 
 interactive_baseline_mod <- function(input, output, session, data, data_name) {
-  baseline_data <- reactive({
+  baseline_data <- shiny::reactive({
     list(
       data = data(),
       parameters = '...',
