@@ -7,9 +7,30 @@ wizzard_mod_UI <- function(id) {
                       shiny::tabPanel('Baseline', interactive_baseline_mod_UI(ns('baseline'))),
                       shiny::tabPanel('Plot', interactive_plotting_mod_UI(ns('plot'))),
                       shiny::tabPanel('Export',
-                                      h4('Under construction -- buttons to save png, pdf. Inputs for width, height, res'),
-                                      shiny::actionButton(ns("copy_script"), "Copy processing script"),
-                                      shiny::downloadButton(ns('save_script'), 'Save processing script'))
+
+                                      ######################
+                                      shiny::h4('Under construction'),
+                                      shiny::fluidRow(
+                                        shiny::column(12,
+                                                      'To add: buttons to save png, pdf. Inputs for width, height, res. Unless these are covered under plotting...'
+                                        )
+                                      ),
+                                      ######################
+
+                                      shiny::hr(),
+                                      shiny::h4("Processing scripts"),
+                                      shiny::fluidRow(
+                                        shiny::column(12,
+                                                      "Use the buttons below to create a script that will reproduce the processing done with this wizzard."
+                                        )
+                                      ),
+                                      shiny::fluidRow(
+                                        shiny::column(12,
+                                                      shiny::actionButton(ns("copy_script"), "Copy processing script"),
+                                                      shiny::downloadButton(ns('save_script'), 'Save processing script')
+                                        )
+                                      )
+                      )
     )
   )
 }

@@ -14,7 +14,7 @@ interactive_import_mod_UI <- function(id) {
       shiny::column(2,jms.classes::fileChooserUI(ns('nmr_im'),label="Select File",title='Please choose the Imaginary 2D NMR txt file',multiple=FALSE,style="width:100%; margin-top: 0px;"))
     ),
 
-    shiny::fluidRow(shiny::column(10, "Path to the acquisition directory. Optional. TODO dirChoose!")),
+    shiny::fluidRow(shiny::column(10, "Path to the acquisition directory. Optional. Manually enter the path for now as the button will not work... TODO need to make a dir choose button!")),
     shiny::fluidRow(
       shiny::column(10,shiny::textInput(ns("nmr_acqu_text"), label=NULL, placeholder = "Path to acquisition directory", width='100%')),
       shiny::column(2,jms.classes::fileChooserUI(ns('nmr_acqu'),label="Select File",title='Please choose the acquisition directory',multiple=FALSE,style="width:100%; margin-top: 0px;"))
