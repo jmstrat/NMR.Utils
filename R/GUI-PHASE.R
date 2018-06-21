@@ -1,22 +1,19 @@
 interactive_phase_mod_UI <- function(id) {
-  shiny::fluidPage(shiny::uiOutput(shiny::NS(id)('ui')))
-}
-
-interactive_phase_mod_renderUI <- function(ns, nscans, xrange, yrange, init_yrange, init_apk0_range, init_apk1_range) {
+  ns = shiny::NS(id)
   shiny::fluidPage(shiny::tags$script(shiny::HTML('Shiny.addCustomMessageHandler("jsCode",function(message) {eval(message.code);});')),
                    shiny::tags$head(shiny::tags$style(".shiny-notification {height: 50px; width: 400px; position:fixed; top: 5px; right: 5px;}")),
                    shiny::sidebarLayout(
-                     shiny::sidebarPanel(shiny::sliderInput(ns("scan"), "Scan", 1, nscans() ,1),
-                                         shiny::sliderInput(ns("p0"), "P0", -180, 180, 0),
-                                         shiny::sliderInput(ns("p1"), "P1", -180, 180, 0),
-                                         shiny::sliderInput(ns("pivot"), "Pivot", xrange()[[2]], xrange()[[1]], init_apk0_range()[['max']]),
-                                         shiny::sliderInput(ns("yzoom"), "Y Zoom", yrange()[[1]], yrange()[[2]], init_yrange(), ticks=F),
+                     shiny::sidebarPanel(shiny::uiOutput(ns('scan_slider')),
+                                         shiny::uiOutput(ns('p0_slider')),
+                                         shiny::uiOutput(ns('p1_slider')),
+                                         shiny::uiOutput(ns('pivot_slider')),
+                                         shiny::uiOutput(ns('zoom_slider')),
                                          shiny::fluidRow(
-                                           shiny::column(10, shiny::sliderInput(ns("apk0"), "APK P0 Range", 0, 1, init_apk0_range()[['range']], ticks=F)),
+                                           shiny::column(10, shiny::uiOutput(ns('apk0_slider'))),
                                            shiny::column(2, shiny::actionButton(ns('apk0_button'), 'Set', style='margin-top:35px;', disabled=TRUE))
                                          ),
                                          shiny::fluidRow(
-                                           shiny::column(10, shiny::sliderInput(ns("apk1"), "APK P1 Range", 0, 1, init_apk1_range()[['range']], ticks=F)),
+                                           shiny::column(10, shiny::uiOutput(ns('apk1_slider'))),
                                            shiny::column(2, shiny::actionButton(ns('apk1_button'), 'Set', style='margin-top:35px;', disabled=TRUE))
                                          ),
                                          shiny::includeCSS(system.file('www/pretty-checkbox.css', package='NMR.Utils')),
@@ -53,9 +50,9 @@ interactive_phase_mod_renderUI <- function(ns, nscans, xrange, yrange, init_yran
   )
 }
 
-
 interactive_phase_mod <- function(input, output, session, data, data_name, complex_error_dismissable=FALSE, check_complex_reactive=function() TRUE) {
 
+  ##### WARNING DIALOGS ####
   modal_shown <- list(shown=FALSE)
   observe({
     if(!check_complex_reactive()) return()
@@ -80,6 +77,8 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   })
 
   shiny::observeEvent(data(), {modal_shown$shown <- FALSE})
+
+  ##### RANGES ####
 
   xrange <- shiny::reactive({
     if(length(data()) == 0) return(c(NA, NA))
@@ -115,12 +114,63 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   init_apk0_range = shiny::reactive({init_apk_range(c(0.5, 1))})
   init_apk1_range = shiny::reactive({init_apk_range(c(0, 0.5))})
 
-  output$ui <- shiny::renderUI(interactive_phase_mod_renderUI(session$ns, nscans, xrange, yrange, init_yrange, init_apk0_range, init_apk1_range))
+  ##### CURRENT PARAMETERS ####
 
-  shiny::observe({
-    shiny::updateSliderInput(session, 'pivot', value=input$dblclick$x)
+  phased_parameters <- shiny::reactiveValues(last_scan = 1)
+
+  current_scan <- shiny::reactive({
+    scan <- input$scan
+    if(is.null(scan)) return(1)
+    return(scan)
   })
 
+  phasing_matrix <- shiny::reactive({
+    mat <- phased_parameters$phases
+    mat[order(as.numeric(rownames(mat))),]
+  })
+
+  current_parameters <- shiny::reactive({
+    mat <- phasing_matrix()
+    if(is.null(mat)) return(list())
+    known_scans = as.numeric(rownames(mat)[!is.na(mat[,1])])
+    if(!current_scan() %in% known_scans) {
+      # Go to the nearset parameters if we don't have anything saved for the current scan
+      phased_parameters$phases[current_scan(),] <- mat[which.min(abs(known_scans-current_scan())),]
+    }
+    mat[current_scan(),]
+  })
+
+  p0 <- shiny::reactive({current_parameters()[['p0']]})
+  p1 <- shiny::reactive({current_parameters()[['p1']]})
+  pivot <- shiny::reactive({current_parameters()[['pivot']]})
+
+  apk0 <- shiny::reactive({(1 - input$apk0) * diff(xrange())*-1 + xrange()[[2]]})
+  apk1 <- shiny::reactive({(1 - input$apk1) * diff(xrange())*-1 + xrange()[[2]]})
+
+  yzoom <- shiny::reactive({
+    yr=input$yzoom
+    if(is.null(yr)) return(init_yrange())
+    return(yr)
+  })
+
+
+  # Reset phase params when data changes
+
+  observeEvent(data(),{
+    mat <- matrix(nrow=nscans(), ncol=3, dimnames=list(1:nscans(), c('p0', 'p1', 'pivot')))
+    mat[1,] <- c(0, 0, init_apk0_range()[['max']])
+    phased_parameters$phases <- mat
+  })
+
+  # Update phase params from slider
+  observeEvent(input$p0, {phased_parameters$phases[current_scan(),'p0'] <- input$p0})
+  observeEvent(input$p1, {phased_parameters$phases[current_scan(),'p1'] <- input$p1})
+  observeEvent(input$pivot, {phased_parameters$phases[current_scan(),'pivot'] <- input$pivot})
+
+  # Update phase params from plot
+  shiny::observeEvent(input$dblclick, {phased_parameters$phases[current_scan(),'pivot'] <- input$dblclick$x})
+
+  # Enable / Disable set buttons depending on whether the plot has been annotated
   shiny::observe({
     if(is.null(input$brush)) {
       jms.classes:::disableInput('apk0_button', session)
@@ -131,6 +181,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     }
   })
 
+  # Just update the sliders directly as we don't need to store these values anywhere
   shiny::observeEvent(input$apk0_button, {
     brush = input$brush
     if(!is.null(brush)) {
@@ -147,110 +198,91 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     }
   })
 
-  output$phase_params <- shiny::renderText({sprintf("P0: %s; P1: %s; Pivot: %s", input$p0, input$p1, input$pivot)})
+  ##### OUTPUT ####
 
-  apk0 <- shiny::reactive({(1 - input$apk0) * diff(xrange())*-1 + xrange()[[2]]})
-  apk1 <- shiny::reactive({(1 - input$apk1) * diff(xrange())*-1 + xrange()[[2]]})
-
-  phased_parameters <- shiny::reactiveValues(last_scan = 1)
-
-  observe({
-    s = input$scan
-    if(is.null(s)) return() # Before UI rendered
-    s = as.character(s)
-
-    if(s %in% names(phased_parameters)) {
-      if(input$scan != phased_parameters$last_scan) {
-        shiny::updateSliderInput(session, 'p0', value=phased_parameters[[s]][['p0']])
-        shiny::updateSliderInput(session, 'p1', value=phased_parameters[[s]][['p1']])
-        shiny::updateSliderInput(session, 'pivot', value=phased_parameters[[s]][['pivot']])
-        phased_parameters$last_scan <- input$scan
-      } else {
-        phased_parameters[[s]][['p0']] = input$p0
-        phased_parameters[[s]][['p1']] = input$p1
-        phased_parameters[[s]][['pivot']] = input$pivot
-      }
-    } else {
-      phased_parameters[[s]] = list()
-      phased_parameters[[s]][['p0']] = input$p0
-      phased_parameters[[s]][['p1']] = input$p1
-      phased_parameters[[s]][['pivot']] = input$pivot
-    }
+  output$scan_slider <- shiny::renderUI({
+    shiny::sliderInput(session$ns("scan"), "Scan", 1, nscans() ,1)
   })
 
-  output$scan_title <- shiny::renderText(sprintf("Scan #%s", input$scan))
+  output$p0_slider <- shiny::renderUI({
+    shiny::sliderInput(session$ns("p0"), "P0", -180, 180, p0(), step=0.01)
+  })
+
+  output$p1_slider <- shiny::renderUI({
+    shiny::sliderInput(session$ns("p1"), "P1", -180, 180, p1(), step=0.01)
+  })
+
+  output$pivot_slider <- shiny::renderUI({
+    shiny::sliderInput(session$ns("pivot"), "Pivot", xrange()[[2]], xrange()[[1]], pivot(), step=0.01)
+  })
+
+  output$zoom_slider <- shiny::renderUI({
+    shiny::sliderInput(session$ns("yzoom"), "Y Zoom", yrange()[[1]], yrange()[[2]], init_yrange(), ticks=F)
+  })
+
+  output$apk0_slider <- shiny::renderUI({
+    shiny::sliderInput(session$ns("apk0"), "APK P0 Range", 0, 1, init_apk0_range()[['range']], ticks=F)
+  })
+
+  output$apk1_slider <- shiny::renderUI({
+    shiny::sliderInput(session$ns("apk1"), "APK P1 Range", 0, 1, init_apk1_range()[['range']], ticks=F)
+  })
+
+
+  output$scan_title <- shiny::renderText(sprintf("Scan #%s", current_scan()))
+
+  output$phase_params <- shiny::renderText({sprintf("P0: %s; P1: %s; Pivot: %s", p0(), p1(), pivot())})
 
   output$spectrum <- shiny::renderPlot({
     if(length(data()) == 0) return()
-
-    ls = as.character(phased_parameters$last_scan)
-    p0 = phased_parameters[[ls]][['p0']]
-    p1 = phased_parameters[[ls]][['p1']]
-    pivot = phased_parameters[[ls]][['pivot']]
-
-    if( ! isolate(p0 == input$p0 && p1 == input$p1 && pivot == input$pivot)) return()
-    phased=.single_phase(data()[,c(1,phased_parameters$last_scan+1)], p0, p1, pivot)
+    yr=yzoom()
+    if(is.null(yr) || any(is.na(yr))) return()
+    phased=.single_phase(data()[,c(1,current_scan() + 1)], p0(), p1(), pivot())
     phased=makeReal(phased)
-    yr=input$yzoom
     plot(phased,type='l',xlim=xrange(),xaxs='i',yaxs='i',yaxt='n',ylab='Intensity',ylim=yr)
-    abline(v=pivot, col='red')
+    abline(v=pivot(), col='red')
 
     if(input$show_apk) {
-      rect(apk0()[[1]], yr[[1]], apk0()[[2]], yr[[2]], col=rgb(0,0,1, alpha=0.2))
-      rect(apk1()[[1]], yr[[1]], apk1()[[2]], yr[[2]], col=rgb(0,1,0, alpha=0.2))
+      apk0 <- apk0()
+      if(length(apk0) == 0) return()
+      apk1 <- apk1()
+      if(length(apk1) == 0) return()
+
+      rect(apk0[[1]], yr[[1]], apk0[[2]], yr[[2]], col=rgb(0,0,1, alpha=0.2))
+      rect(apk1[[1]], yr[[1]], apk1[[2]], yr[[2]], col=rgb(0,1,0, alpha=0.2))
     }
   }
   )
 
+  ##### APK ####
+
   shiny::observeEvent(input$do_apk, {
-    values = apk_values(data()[,c(1,input$scan+1)], apk0(), apk1(), input$pivot, c(-180, 180), c(-180, 180))
-    if(!is.null(values[['p0']])) shiny::updateSliderInput(session, 'p0', value=values[['p0']])
-    if(!is.null(values[['p1']])) shiny::updateSliderInput(session, 'p1', value=values[['p1']])
+    values = apk_values(data()[,c(1,input$scan+1)], apk0(), apk1(), pivot(), c(-180, 180), c(-180, 180))
+    values = round(values, 2)
+    if(!is.null(values[['p0']])) phased_parameters$phases[current_scan(), 'p0'] <-values[['p0']]
+    if(!is.null(values[['p1']])) phased_parameters$phases[current_scan(), 'p1'] <- values[['p1']]
+    phased_parameters$phases[current_scan(), 'pivot'] <- pivot()
   })
 
   shiny::observeEvent(input$do_apk_all, {
     shiny::withProgress(message = 'APK', min=0, max=nscans(), value = 1, {
       fun <- function(x) incProgress(1, detail = paste("scan ", x))
-      values = apkpseudo2d_values(data(), apk0(), apk1(), input$pivot, c(-180, 180), c(-180, 180), .progress=fun)
-      shiny::withProgress(message = 'APK - storing values', min=0, max=nscans(), value = 1, {
-        for(i in 1:nscans()) {
-          phased_parameters[[as.character(i)]][['p0']] <- values[i, 'p0']
-          phased_parameters[[as.character(i)]][['p1']] <- values[i, 'p1']
-          phased_parameters[[as.character(i)]][['pivot']] <- input$pivot
-          incProgress(1, detail = paste("scan ", i))
-        }
+      values = apkpseudo2d_values(data(), apk0(), apk1(), pivot(), c(-180, 180), c(-180, 180), .progress=fun)
+      values = round(values, 2)
+      shiny::withProgress(message = 'APK - storing values', value = 1, {
+        values = cbind(values, pivot=pivot())
+        phased_parameters$phases <- as.matrix(values)
       })
-      # shiny::updateSliderInput(session, 'p0', value=values[input$scan, 'p0'])
-      # shiny::updateSliderInput(session, 'p1', value=values[input$scan, 'p1'])
     })
   })
 
-  phasing_matrix <- shiny::reactive({
-    pp <- shiny::reactiveValuesToList(phased_parameters)
-    include = ! names(pp) == 'last_scan'
-    if(!any(include)) return()
-    mat = matrix(unlist(pp[include]), ncol=3, byrow=T, dimnames=list(names(pp[include]), c('p0', 'p1', 'pivot')))
-    mat[order(as.numeric(rownames(mat))),]
-  })
+  ##### RESULT ####
 
   script_input <- shiny::reactive({
     if(is.null(phasing_matrix())) return('')
     df_input = paste(deparse(phasing_matrix()), collapse='\n')
     sprintf("phasing_parameters = %s\n%s = phase(%s, phasing_parameters)", df_input, data_name(), data_name())
   })
-
-  shiny::observeEvent(input$copy_r, {
-    jms.classes::clipboard_copy(script_input())
-  })
-
-  shiny::observeEvent(input$copy_tab, {
-    df_tab = capture.output(print.data.frame(as.data.frame(phasing_matrix())))
-    jms.classes::clipboard_copy(df_tab)
-  })
-
-  output$export_csv <- shiny::downloadHandler(
-    filename = 'Phase_parameters.csv',
-    content = function(file) {write.csv(phasing_matrix(), file)})
 
   phased_data <- shiny::reactive({
     pdata = data()
@@ -265,6 +297,23 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
       script_input = script_input()
     )
   })
+
+  ##### EXPORT ####
+
+  shiny::observeEvent(input$copy_r, {
+    jms.classes::clipboard_copy(script_input())
+  })
+
+  shiny::observeEvent(input$copy_tab, {
+    df_tab = capture.output(print.data.frame(as.data.frame(phasing_matrix())))
+    jms.classes::clipboard_copy(df_tab)
+  })
+
+  output$export_csv <- shiny::downloadHandler(
+    filename = 'Phase_parameters.csv',
+    content = function(file) {write.csv(phasing_matrix(), file)})
+
+
 
   return(phased_data)
 }
