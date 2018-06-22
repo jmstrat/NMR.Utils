@@ -6,23 +6,24 @@ interactive_baseline_mod_UI <- function(id) {
                    shiny::sidebarLayout(
                      shiny::sidebarPanel(shiny::uiOutput(ns('scan_slider')),
                                          shiny::uiOutput(ns('zoom_slider')),
-                                         "some sort of list of different baselines??",
+                                         shiny::HTML("Table of different baselines:<br /> | # | #Points | Scan Ranges | Apply button | Update button | Clear button |"),
                                          shiny::tags$head(shiny::tags$style(shiny::HTML(".irs-from, .irs-to, .irs-min, .irs-max, .irs-single {visibility: hidden !important;}")))
                      ),
                      shiny::mainPanel(
                        shiny::h4(shiny::textOutput(ns('scan_title'))),
-                       shiny::fluidRow(align='center', shiny::div('Interacive plot instructions....')),
+                       shiny::fluidRow(align='center', shiny::div('Click to add a point. Double click to Remove.')),
                        shiny::plotOutput(ns("spectrum"),
                                          height = '600px',
                                          width = '100%',
                                          click = ns('click'),
-                                         dblclick = ns('dblclick'),
-                                         brush = shiny::brushOpts(id = ns('brush'), direction = "x", resetOnNew = TRUE)
+                                         dblclick = ns('dblclick')
+                                         # https://github.com/rstudio/shiny/issues/947
+                                         # brush = shiny::brushOpts(id = ns('brush'), direction = "y", resetOnNew = TRUE)
                        ),
                        shiny::fluidRow(align='center', "some sort of descriptive output..."),
                        shiny::hr(),
                        shiny::fluidRow(align='center',
-                                       "buttons to do stuff go here..."
+                                       shiny::HTML("buttons:<br /> * Apply<br /> *Apply to all<br /> *Reset<br /> *Export stuff...")
                        )
                      )
                    )
@@ -66,12 +67,21 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
   init_yrange <- shiny::reactive({
     if(nrow(data()) == 0) return(c(NA, NA))
     r = grDevices::extendrange(range(data()[,2]), f=0.05)
-    r[[2]] = r[[2]] * 0.1
+    r[[2]] = r[[2]] * 0.1 # Zoom into the baseline
     r
   })
 
 
   ##### CURRENT PARAMETERS ####
+
+  baseline_parameters <- shiny::reactiveValues(current=c()) # baselines, baselines_by_scan, current
+
+  baseline_parameter_matrix <- shiny::reactive({
+    mat <- baseline_parameters$baselines_by_scan
+    mat[order(as.numeric(rownames(mat))),, drop=FALSE]
+  })
+
+  current_baseline_x <- shiny::reactive({baseline_parameters$current})
 
   current_scan <- shiny::reactive({
     scan <- input$scan
@@ -85,15 +95,28 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
     return(yr)
   })
 
-  shiny::observeEvent(input$click, {print('click')})
-  shiny::observeEvent(input$dblclick, {print('dbl click')})
-  shiny::observe({
-    if(is.null(input$brush)) {
-      print("brush off")
-    } else {
-      print("brush on")
+  shiny::observeEvent(input$click, {
+    # TODO: check y
+    baseline_parameters$current = append(baseline_parameters$current, input$click$x)
+  })
+
+  shiny::observeEvent(input$dblclick, {
+    bsl_x <- current_baseline_x()
+    x <- input$dblclick$x
+    nearest <- which.min(abs(bsl_x-x))
+    if(abs(bsl_x[[nearest]]-x) < abs(diff(xrange()))*0.05) {
+      # TODO: check y
+      baseline_parameters$current = bsl_x[-nearest]
     }
   })
+
+  # Cannot differentiate click and brush
+  # https://github.com/rstudio/shiny/issues/947
+  # shiny::observe({
+  #   if(!is.null(input$brush)) {
+  #     shiny::updateSliderInput(session, 'yzoom', value=input$brush$y)
+  #   }
+  # })
 
   ##### OUTPUT ####
 
@@ -108,12 +131,21 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
   output$scan_title <- shiny::renderText(sprintf("Scan #%s", current_scan()))
 
   output$spectrum <- shiny::renderPlot({
-    if(nrow(data()) == 0) return()
-    yr=yzoom()
-    if(is.null(yr) || any(is.na(yr))) return()
+    shiny::withProgress(message = 'Preparing plot', value = 1, {
+      if(nrow(data()) == 0) return()
+      yr=yzoom()
+      if(is.null(yr) || any(is.na(yr))) return()
 
-    plot(data()[,c(1,current_scan() + 1)],type='l',xlim=xrange(),xaxs='i',yaxs='i',yaxt='n',ylab='Intensity',ylim=yr)
+      xy <- data()[,c(1,current_scan() + 1)]
+      plot(xy, xlim=xrange(), ylim=yr)
 
+      baseline_x <- current_baseline_x()
+      if(length(baseline_x) == 0) return()
+      baseline <- make_background(xy, baseline_x, returnFunc = TRUE)
+      x = xy[,1]
+      lines(x, baseline(x), col='red')
+      points(baseline_x, baseline(baseline_x), col='red', pch=16, cex=3)
+    })
   })
 
   baseline_data <- shiny::reactive({
