@@ -13,9 +13,9 @@ phase <- function(data,p0,p1,pivot) {
   ppm = data[, 1]
   pdata = as.matrix(data[, 2:ncol(data)])
 
-  n_points = nrow(pdata)
-  if(is.null(n_points))
-    n_points = length(pdata)
+  n = nrow(pdata)
+  if(is.null(n))
+    n = length(pdata)
 
   if(missing(p1) && missing(pivot)) {
     if(!all(c('p0','p1','pivot') %in% colnames(p0))) stop('Could not determine phase coefficients. Unsupported arguments provided.')
