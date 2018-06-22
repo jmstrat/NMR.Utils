@@ -38,7 +38,11 @@ wizzard_mod_UI <- function(id) {
 wizzard_mod <- function(input, output, session) {
   import_parameters <- shiny::callModule(interactive_import_mod, "import")
 
-  import_data <- shiny::reactive({import_parameters()$data})
+  import_data <- shiny::reactive({
+    shiny::withProgress(message = 'Importing', value = 1, {
+      import_parameters()$data
+    })
+  })
   data_name <- shiny::reactive({import_parameters()$data_name})
   data_filename <- shiny::reactive({
     path = import_parameters()$nmr_paths[[1]]
@@ -56,14 +60,22 @@ wizzard_mod <- function(input, output, session) {
                                               complex_error_dismissable=TRUE,
                                               check_complex_reactive=should_check_complex)
 
-  phased_data <- shiny::reactive({makeReal(phased_data_parameters()$data)})
+  phased_data <- shiny::reactive({
+    shiny::withProgress(message = 'Phasing', value = 1, {
+      makeReal(phased_data_parameters()$data)
+    })
+  })
   phased_script <- shiny::reactive({phased_data_parameters()$script_input})
 
   should_check_empty <- shiny::reactive({input$tabs == 'Baseline'})
 
   baseline_data_parameters <- shiny::callModule(interactive_baseline_mod, "baseline", phased_data, data_name, should_check_empty)
 
-  baseline_data <- shiny::reactive({baseline_data_parameters()$data})
+  baseline_data <- shiny::reactive({
+    shiny::withProgress(message = 'Subtracting baseline', value = 1, {
+      baseline_data_parameters()$data
+    })
+  })
   baseline_script <- shiny::reactive({baseline_data_parameters()$script_input})
 
   plot_parameters <- shiny::callModule(interactive_plotting_mod, "plot", baseline_data, data_name)

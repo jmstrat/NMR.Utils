@@ -242,25 +242,26 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   output$phase_params <- shiny::renderText({sprintf("P0: %s; P1: %s; Pivot: %s", p0(), p1(), pivot())})
 
   output$spectrum <- shiny::renderPlot({
-    if(length(data()) == 0) return()
-    yr=yzoom()
-    if(is.null(yr) || any(is.na(yr))) return()
-    phased=.single_phase(data()[,c(1,current_scan() + 1)], p0(), p1(), pivot())
-    phased=makeReal(phased)
-    plot(phased,type='l',xlim=xrange(),xaxs='i',yaxs='i',yaxt='n',ylab='Intensity',ylim=yr)
-    abline(v=pivot(), col='red')
+    shiny::withProgress(message = 'Preparing plot', value = 1, {
+      if(length(data()) == 0) return()
+      yr=yzoom()
+      if(is.null(yr) || any(is.na(yr))) return()
+      phased=.single_phase(data()[,c(1,current_scan() + 1)], p0(), p1(), pivot())
+      phased=makeReal(phased)
+      plot(phased, xlim=xrange(), ylim=yr)
+      abline(v=pivot(), col='red')
 
-    if(input$show_apk) {
-      apk0 <- apk0()
-      if(length(apk0) == 0) return()
-      apk1 <- apk1()
-      if(length(apk1) == 0) return()
+      if(input$show_apk) {
+        apk0 <- apk0()
+        if(length(apk0) == 0) return()
+        apk1 <- apk1()
+        if(length(apk1) == 0) return()
 
-      rect(apk0[[1]], yr[[1]], apk0[[2]], yr[[2]], col=rgb(0,0,1, alpha=0.2))
-      rect(apk1[[1]], yr[[1]], apk1[[2]], yr[[2]], col=rgb(0,1,0, alpha=0.2))
-    }
-  }
-  )
+        rect(apk0[[1]], yr[[1]], apk0[[2]], yr[[2]], col=rgb(0,0,1, alpha=0.2))
+        rect(apk1[[1]], yr[[1]], apk1[[2]], yr[[2]], col=rgb(0,1,0, alpha=0.2))
+      }
+    })
+  })
 
   ##### APK ####
 
