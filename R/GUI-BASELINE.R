@@ -1,6 +1,6 @@
 interactive_baseline_mod_UI <- function(id) {
   ns = shiny::NS(id)
-  shiny::fluidPage(shiny::h4('Under construction'),
+  shiny::fluidPage(shiny::h4('Under construction -- no data will be saved or exported at this time!'),
                    shiny::tags$script(shiny::HTML('Shiny.addCustomMessageHandler("jsCode",function(message) {eval(message.code);});')),
                    shiny::tags$head(shiny::tags$style(".shiny-notification {height: 50px; width: 400px; position:fixed; top: 5px; right: 5px;}")),
                    shiny::sidebarLayout(
@@ -23,7 +23,7 @@ interactive_baseline_mod_UI <- function(id) {
                        shiny::fluidRow(align='center', "some sort of descriptive output..."),
                        shiny::hr(),
                        shiny::fluidRow(align='center',
-                                       shiny::HTML("buttons:<br /> * Apply<br /> *Apply to all<br /> *Reset<br /> *Export stuff...")
+                                       shiny::HTML("buttons:<br /> * Apply<br /> *Apply to following<br /> *Apply to all<br /> *Reset<br /> *Export stuff...")
                        )
                      )
                    )
