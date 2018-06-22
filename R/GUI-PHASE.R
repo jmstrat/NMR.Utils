@@ -120,7 +120,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
 
   ##### CURRENT PARAMETERS ####
 
-  phased_parameters <- shiny::reactiveValues(last_scan = 1)
+  phased_parameters <- shiny::reactiveValues()
 
   current_scan <- shiny::reactive({
     scan <- input$scan
