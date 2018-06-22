@@ -30,13 +30,14 @@ interactive_baseline_mod_UI <- function(id) {
 }
 
 
-interactive_baseline_mod <- function(input, output, session, data, data_name) {
+interactive_baseline_mod <- function(input, output, session, data, data_name, check_no_data=function() TRUE) {
 
   ##### WARNING DIALOGS ####
   observe({
-    if(length(data()) == 0) {
+    if(!check_no_data()) return()
+    if(nrow(data()) == 0) {
       shiny::showModal(shiny::modalDialog(
-        title = "No data to phase!",
+        title = "No data!",
         "Please import some data and try again.",
         size = 'l'
       ))
@@ -48,11 +49,11 @@ interactive_baseline_mod <- function(input, output, session, data, data_name) {
   ##### RANGES ####
 
   xrange <- shiny::reactive({
-    if(length(data()) == 0) return(c(NA, NA))
+    if(nrow(data()) == 0) return(c(NA, NA))
     rev(range(data()[,1]))
   })
   yrange <- shiny::reactive({
-    if(length(data()) == 0) return(c(NA, NA))
+    if(nrow(data()) == 0) return(c(NA, NA))
     grDevices::extendrange(range(data()), f=0.05)
   })
 
@@ -63,7 +64,7 @@ interactive_baseline_mod <- function(input, output, session, data, data_name) {
   })
 
   init_yrange <- shiny::reactive({
-    if(length(data()) == 0) return(c(NA, NA))
+    if(nrow(data()) == 0) return(c(NA, NA))
     r = grDevices::extendrange(range(data()[,2]), f=0.05)
     r[[2]] = r[[2]] * 0.1
     r
@@ -107,7 +108,7 @@ interactive_baseline_mod <- function(input, output, session, data, data_name) {
   output$scan_title <- shiny::renderText(sprintf("Scan #%s", current_scan()))
 
   output$spectrum <- shiny::renderPlot({
-    if(length(data()) == 0) return()
+    if(nrow(data()) == 0) return()
     yr=yzoom()
     if(is.null(yr) || any(is.na(yr))) return()
 

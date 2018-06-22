@@ -138,7 +138,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     if(is.null(mat)) return(list())
     rows_with_na = sapply(1:nrow(mat), function(i) any(is.na(mat[i,])))
     known_scans = as.numeric(rownames(mat)[!rows_with_na])
-    if(!current_scan() %in% known_scans) {
+    if(!current_scan() %in% known_scans && length(known_scans) > 0) {
       # Go to the nearset parameters if we don't have anything saved for the current scan
       nearest_known = known_scans[[which.min(abs(known_scans-current_scan()))]]
       phased_parameters$phases[current_scan(),] <- mat[nearest_known,]

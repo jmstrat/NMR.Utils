@@ -59,7 +59,9 @@ wizzard_mod <- function(input, output, session) {
   phased_data <- shiny::reactive({makeReal(phased_data_parameters()$data)})
   phased_script <- shiny::reactive({phased_data_parameters()$script_input})
 
-  baseline_data_parameters <- shiny::callModule(interactive_baseline_mod, "baseline", phased_data, data_name)
+  should_check_empty <- shiny::reactive({input$tabs == 'Baseline'})
+
+  baseline_data_parameters <- shiny::callModule(interactive_baseline_mod, "baseline", phased_data, data_name, should_check_empty)
 
   baseline_data <- shiny::reactive({baseline_data_parameters()$data})
   baseline_script <- shiny::reactive({baseline_data_parameters()$script_input})
