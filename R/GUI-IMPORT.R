@@ -2,6 +2,7 @@ interactive_import_mod_UI <- function(id) {
   ns <- shiny::NS(id)
   shiny::fluidPage(
     shiny::tags$head(shiny::tags$style(".shiny-notification {height: 50px; width: 400px; position:fixed; top: 5px; right: 5px;}")),
+    shiny::tags$head(shiny::tags$style(".shiny-notification-error {position: absolute; top: 25%; left: 0; right: 0; margin: auto; width: 400px; height: 200px; opacity: 1;}")),
     shiny::fluidRow(shiny::column(10, "Use topspin's totxt function. Or \"save --> as text file\"")),
     shiny::fluidRow(
       shiny::column(10,shiny::textInput(ns("nmr_real_text"), label=NULL, placeholder = "Path to 2D NMR txt file", width='100%')),
@@ -81,7 +82,14 @@ interactive_import_mod <- function(input, output, session) {
       im_file = if(input$nmr_im_text != '') input$nmr_im_text else NA
       aq_dir = if(input$nmr_acqu_text != '') input$nmr_acqu_text else NA
 
-      data = read.nmr(input$nmr_real_text, imaginary_file = im_file, acqus = aq_dir)
+      data <- tryCatch({
+        read.nmr(input$nmr_real_text, imaginary_file = im_file, acqus = aq_dir)
+      }, error = function(e) {
+        shiny::showNotification('Error: Could not load data!', duration = 10,
+                         type = "error", id='error', session = session)
+        return()
+      })
+      if(is.null(data)) return()
 
       if(input$max_scans > 0) {
         data = reduceScans(data, c(1, input$max_scans))
