@@ -292,18 +292,34 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     sprintf("phasing_parameters = %1$s\n%2$s = phase(%2$s, phasing_parameters)\n%2$s = makeReal(%2$s)",
             df_input, data_name())
   })
+
+  #Phasing matrix with gaps filled in by nearest neighbour
+  complete_phasing_matrix <- shiny::reactive({
+    mat <- phasing_matrix()
+    if(is.null(mat)) return() # Return NULL if phasing matrix doesn't exist
+    rows_with_na = sapply(1:nrow(mat), function(i) any(is.na(mat[i,])))
+    if(all(rows_with_na)) return() # Return NULL if every row has NA
+    if(any(rows_with_na)) {
+      # Find closest known rows and replace
+      known_scans = as.numeric(rownames(mat)[!rows_with_na])
+      na_scans = as.numeric(rownames(mat)[rows_with_na])
+      nearest_known = sapply(na_scans, function(r) {known_scans[[which.min(abs(known_scans-r))]]})
+      mat[na_scans,] <- mat[nearest_known,]
+    }
+    mat
   })
 
   phased_data <- shiny::reactive({
     pdata = data()
     if(length(data()) != 0) {
-      if(!is.null(phasing_matrix())) {
-        pdata = phase(data(), phasing_matrix())
+      mat <- complete_phasing_matrix()
+      if(!is.null(mat)) {
+        pdata = phase(data(), mat)
       }
     }
     list(
       data = pdata,
-      parameters = phasing_matrix(),
+      parameters = complete_phasing_matrix(),
       script_input = script_input()
     )
   })
@@ -315,13 +331,13 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   })
 
   shiny::observeEvent(input$copy_tab, {
-    df_tab = capture.output(print.data.frame(as.data.frame(phasing_matrix())))
+    df_tab = capture.output(print.data.frame(as.data.frame(complete_phasing_matrix())))
     jms.classes::clipboard_copy(df_tab)
   })
 
   output$export_csv <- shiny::downloadHandler(
     filename = 'Phase_parameters.csv',
-    content = function(file) {write.csv(phasing_matrix(), file)})
+    content = function(file) {write.csv(complete_phasing_matrix(), file)})
 
 
 
