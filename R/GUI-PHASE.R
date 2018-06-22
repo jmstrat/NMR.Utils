@@ -288,7 +288,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
 
   script_input <- shiny::reactive({
     if(is.null(phasing_matrix())) return('')
-    df_input = paste(deparse(phasing_matrix()), collapse='\n')
+    df_input = paste(deparse(complete_phasing_matrix()), collapse='\n')
     sprintf("phasing_parameters = %1$s\n%2$s = phase(%2$s, phasing_parameters)\n%2$s = makeReal(%2$s)",
             df_input, data_name())
   })
