@@ -143,8 +143,11 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
       if(length(baseline_x) == 0) return()
       baseline <- make_background(xy, baseline_x, returnFunc = TRUE)
       x = xy[,1]
-      lines(x, baseline(x), col='red')
+      y_bsl <- baseline(x)
+      lines(x, y_bsl, col='red')
       points(baseline_x, baseline(baseline_x), col='red', pch=16, cex=3)
+
+      lines(x, data()[,current_scan() + 1] - y_bsl, col='gray')
     })
   })
 
