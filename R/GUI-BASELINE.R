@@ -1,6 +1,6 @@
 interactive_baseline_mod_UI <- function(id) {
   ns = shiny::NS(id)
-  shiny::fluidPage(shiny::h4('Under construction -- no data will be saved or exported at this time!'),
+  shiny::fluidPage(shiny::h4('Under construction -- no data will be saved or exported at this time! Some UI elements may not work.'),
                    shiny::tags$script(shiny::HTML('Shiny.addCustomMessageHandler("jsCode",function(message) {eval(message.code);});')),
                    shiny::tags$head(shiny::tags$style(".shiny-notification {height: 50px; width: 400px; position:fixed; top: 5px; right: 5px;}")),
                    shiny::sidebarLayout(
@@ -23,7 +23,17 @@ interactive_baseline_mod_UI <- function(id) {
                        shiny::fluidRow(align='center', "some sort of descriptive output..."),
                        shiny::hr(),
                        shiny::fluidRow(align='center',
-                                       shiny::HTML("buttons:<br /> * Apply<br /> *Apply to following<br /> *Apply to all<br /> *Reset<br /> *Export stuff...")
+                                       shiny::actionButton(ns('store'), 'Store'),
+                                       shiny::actionButton(ns('apply_future'), 'Apply to following scans'),
+                                       shiny::actionButton(ns('apply_all'), 'Apply to all scans'),
+                                       shiny::actionButton(ns('reset'), 'Reset this scan'),
+                                       shiny::actionButton(ns('reset_all'), 'Reset all scans')
+                       ),
+                       shiny::hr(),
+                       shiny::fluidRow(align='center',
+                                       shiny::actionButton(ns('copy_r'), 'Copy baseline parameters as R input'),
+                                       shiny::actionButton(ns('copy_tab'), 'Copy baseline parameters as table'),
+                                       shiny::downloadButton(ns('export_csv'), 'Export baseline parameters as CSV')
                        )
                      )
                    )
