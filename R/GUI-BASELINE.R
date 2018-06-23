@@ -6,7 +6,7 @@ interactive_baseline_mod_UI <- function(id) {
                    shiny::sidebarLayout(
                      shiny::sidebarPanel(shiny::uiOutput(ns('scan_slider')),
                                          shiny::uiOutput(ns('zoom_slider')),
-                                         shiny::HTML("Table of different baselines:<br /> | # | #Points | Scan Ranges | Apply button | Update button | Clear button |"),
+                                         DT::dataTableOutput(ns('baselines_table')),
                                          shiny::tags$head(shiny::tags$style(shiny::HTML(".irs-from, .irs-to, .irs-min, .irs-max, .irs-single {visibility: hidden !important;}")))
                      ),
                      shiny::mainPanel(
@@ -84,11 +84,20 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 
   ##### CURRENT PARAMETERS ####
 
-  baseline_parameters <- shiny::reactiveValues(current=c()) # baselines, baselines_by_scan, current
+  baselines <- matrix(NA, 0, 5, dimnames=list(c(), c('x', 'Scans', 'Use buttons', 'Update buttons', 'Clear buttons')))
+  baseline_parameters <- shiny::reactiveValues(current=c(), baselines=baselines) # baselines, current
 
-  baseline_parameter_matrix <- shiny::reactive({
-    mat <- baseline_parameters$baselines_by_scan
-    mat[order(as.numeric(rownames(mat))),, drop=FALSE]
+  shiny::observeEvent(input$store, {
+    # TODO: check if scan # is already in baseline_parameters$baselines
+    # TODO: check whether we're using an existing baseline if so just append to scans
+    n = nrow(baseline_parameters$baselines)
+    baseline_parameters$baselines <- rbind(baseline_parameters$baselines, list(
+      current_baseline_x(),
+      c(current_scan()),
+      as.character(shiny::actionButton(session$ns(paste0('bsl_use_', n)),'Use',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_apply'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))'))),
+      as.character(shiny::actionButton(session$ns(paste0('bsl_update_', n)),'Update',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_update'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))'))),
+      as.character(shiny::actionButton(session$ns(paste0('bsl_clear_', n)),'Clear',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_clear'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))')))
+    ))
   })
 
   current_baseline_x <- shiny::reactive({baseline_parameters$current})
@@ -140,6 +149,28 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 
   output$scan_title <- shiny::renderText(sprintf("Scan #%s", current_scan()))
 
+  output$baselines_table <- DT::renderDataTable({
+    mat <- baseline_parameters$baselines
+    bsl_x <- mat[,1]
+    scans <- mat[,2]
+
+    mat[,1] = sapply(bsl_x, length)
+    mat[,2] <- sapply(scans, jms.classes::numeric_to_string_ranges)
+    if(nrow(mat)>1) storage.mode(mat) <- 'character' # renderDataTable has issues if storage mode is list
+    mat
+  },
+  class='compact',
+  escape = c(1,2), # 0 based
+  colnames = c('# Points', "Scans", "", "", ""),
+  autoHideNavigation=TRUE,
+  selection='none',
+  options = list(
+    searching = FALSE,
+    lengthChange=FALSE,
+    ordering=FALSE
+  )
+  )
+
   output$spectrum <- shiny::renderPlot({
     shiny::withProgress(message = 'Preparing plot', value = 1, {
       if(nrow(data()) == 0) return()
@@ -164,7 +195,7 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
   baseline_data <- shiny::reactive({
     list(
       data = data(),
-      parameters = '...',
+      parameters = '...', # create a reactive baseline_parameter_matrix() or something based on baseline_parameters$baselines.
       script_input = '# Baseline correction must currently be done manually. See ?jms.classes::make_background'
     )
   })
