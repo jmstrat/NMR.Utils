@@ -146,7 +146,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     mat[current_scan(),]
   })
 
-  p0 <- shiny::reactive({current_parameters()[['p0']]})
+  p0 <- shiny::reactive({current_parameters()[['p0']]}) #Maybe this shuld be input$p0 for a proper dependency tree??
   p1 <- shiny::reactive({current_parameters()[['p1']]})
   pivot <- shiny::reactive({current_parameters()[['pivot']]})
 
@@ -279,7 +279,6 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
       values = apkpseudo2d_values(data(), apk0(), apk1(), pivot(), c(-180, 180), c(-180, 180), .progress=fun)
       values = round(values, 2)
       shiny::withProgress(message = 'APK - storing values', value = 1, {
-        values = cbind(values, pivot=pivot())
         phased_parameters$phases <- as.matrix(values)
       })
     })
