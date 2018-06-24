@@ -56,6 +56,8 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
     }
   })
 
+  # TODO instructions button and modal popup
+
 
   ##### RANGES ####
 
@@ -87,17 +89,66 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
   baselines <- matrix(NA, 0, 5, dimnames=list(c(), c('x', 'Scans', 'Use buttons', 'Update buttons', 'Clear buttons')))
   baseline_parameters <- shiny::reactiveValues(current=c(), baselines=baselines) # baselines, current
 
-  shiny::observeEvent(input$store, {
-    # TODO: check if scan # is already in baseline_parameters$baselines
-    # TODO: check whether we're using an existing baseline if so just append to scans
+  new_row <- function(scans) {
     n = nrow(baseline_parameters$baselines)
-    baseline_parameters$baselines <- rbind(baseline_parameters$baselines, list(
+    new <- list(
       current_baseline_x(),
-      c(current_scan()),
+      scans,
       as.character(shiny::actionButton(session$ns(paste0('bsl_use_', n)),'Use',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_apply'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))'))),
       as.character(shiny::actionButton(session$ns(paste0('bsl_update_', n)),'Update',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_update'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))'))),
       as.character(shiny::actionButton(session$ns(paste0('bsl_clear_', n)),'Clear',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_clear'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))')))
-    ))
+    )
+    baseline_parameters$baselines <- rbind(baseline_parameters$baselines, new, deparse.level = 0)
+  }
+
+  # In practical use, the for loop here is faster than sapply et al.
+  find_matching_baseline <- function() {
+    baselines <- baseline_parameters$baselines
+    n <- nrow(baselines)
+    if(n == 0) return(NA)
+    cur <- current_baseline_x()
+    for(i in 1:n) {
+      if(identical(cur, baselines[i,1]$x)) {
+        return(i)
+      }
+    }
+    return(NA)
+  }
+
+  add_scans_to_baseline <- function(bsl_idx, scans) {
+    scans = scans[!scans %in% baseline_parameters$baselines[bsl_idx, 2][[1]]]
+    baseline_parameters$baselines[[bsl_idx, 2]] <- sort(c(baseline_parameters$baselines[bsl_idx, 2][[1]], scans))
+  }
+
+  # TODO combine these 3 into a separate function
+  shiny::observeEvent(input$store, {
+    # TODO: check if scan # is already in baseline_parameters$baselines
+    match <- find_matching_baseline()
+    if(!is.na(match)) {
+      add_scans_to_baseline(match, current_scan())
+    } else {
+      new_row(c(current_scan()))
+    }
+  })
+
+  shiny::observeEvent(input$apply_all, {
+    # TODO: check if scan # is already in baseline_parameters$baselines
+    match <- find_matching_baseline()
+    if(!is.na(match)) {
+      add_scans_to_baseline(match, 1:nscans())
+    } else {
+      new_row(1:nscans())
+    }
+  })
+
+  shiny::observeEvent(input$apply_future, {
+    # TODO: check if scan # is already in baseline_parameters$baselines
+    match <- find_matching_baseline()
+    if(!is.na(match)) {
+      add_scans_to_baseline(match, current_scan():nscans())
+    } else {
+      new_row(current_scan():nscans())
+    }
   })
 
   current_baseline_x <- shiny::reactive({baseline_parameters$current})
@@ -151,11 +202,11 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 
   output$baselines_table <- DT::renderDataTable({
     mat <- baseline_parameters$baselines
-    bsl_x <- mat[,1]
-    scans <- mat[,2]
+    bsl_x <- mat[,1, drop=F]
+    scans <- mat[,2, drop=F]
 
     mat[,1] = sapply(bsl_x, length)
-    mat[,2] <- sapply(scans, jms.classes::numeric_to_string_ranges)
+    mat[,2] <- sapply(scans, function(x) paste0(jms.classes::numeric_to_string_ranges(x), collapse=', '))
     if(nrow(mat)>1) storage.mode(mat) <- 'character' # renderDataTable has issues if storage mode is list
     mat
   },
