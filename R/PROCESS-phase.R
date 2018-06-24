@@ -70,10 +70,11 @@ phase <- function(data,p0,p1,pivot) {
 #' @export
 #' @examples
 #' apk(data,c(-200,200),c(1000,1300),0,c(-50,50),c(-5,0))
+#' apk(data)
 apk <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
   values = apk_values(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)
-  print(sprintf("p0 = %s; p1 = %s", values[['p0']], values[['p1']]))
-  phase(spectrum, values[['p0']], values[['p1']], pivot)
+  print(sprintf("p0 = %s; p1 = %s; pivot = %s", values[['p0']], values[['p1']], values[['pivot']]))
+  phase(spectrum, values[['p0']], values[['p1']], values[['pivot']])
 }
 
 #' @export
@@ -81,6 +82,25 @@ apk <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,
 apk_values <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
   # We don't need the fancy subsetting additions here, so cast to data.frame for a significant speed boost
   spectrum = as.data.frame(spectrum)
+
+  if(missing(p0_optim_x_range)) {
+    x = data[,1]
+    xrange = range(x)
+    x_total_range = diff(xrange)
+    m = mean(xrange)
+
+    x_in_apk0 = x < m & x > xrange[[1]]
+    x_in_apk1 = x < xrange[[2]] & x > m
+
+    pivot = x[x_in_apk0][which.max(Re(spectrum[x_in_apk0, 2]))]
+    p0_optim_x_range = pivot + x_total_range * 0.05 * c(-1, 1)
+
+    p1_max = x[x_in_apk1][which.max(Re(spectrum[x_in_apk1, 2]))]
+    p1_optim_x_range = p1_max + x_total_range * 0.05 * c(-1, 1)
+
+    p0_optim_range=c(-180, 180)
+    p1_optim_range=c(-180, 180)
+  }
   ppm=spectrum[,1]
   p0_xmin_points=which(abs(ppm-p0_optim_x_range[[1]])==min(abs(ppm-p0_optim_x_range[[1]])))[[1]]
   p0_xmax_points=which(abs(ppm-p0_optim_x_range[[2]])==min(abs(ppm-p0_optim_x_range[[2]])))[[1]]
@@ -106,19 +126,10 @@ apk_values <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim
   }
   p1=optimise(optim_f,lower=p1_optim_range[[1]],upper=p1_optim_range[[2]],maximum=T)$maximum
 
-  return(c(p0=p0, p1=p1))
+  return(c(p0=p0, p1=p1, pivot=pivot))
 }
 
-#' Autophase NMR Data with constraints for a pseudo 2D dataset (e.g. in-situ echem). Uses (\code{\link[NMR.Utils]{apk}})
-#'
-#' This function phases (complex) NMR data.
 #' @param spectra (complex) dataframe containing spectra
-#' @param p0_optim_x_range x range over which to optimise the p0 value (ppm)
-#' @param p1_optim_x_range x range over which to optimise the p1 value (ppm)
-#' @param pivot Pivot point for 2nd-order phase correction coefficient (ppm)
-#' @param p0_optim_range range over which the p0 value can vary
-#' @param p1_optim_range range over which the p1 value can vary
-#' @return A data frame containing the phased NMR data (ppm,intensity1, ...)
 #' @export
 #' @rdname apk
 #' @examples
