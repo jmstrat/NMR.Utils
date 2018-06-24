@@ -92,8 +92,13 @@ interactive_import_mod <- function(input, output, session) {
       if(is.null(data)) return()
 
       if(input$max_scans > 0) {
-        data = reduceScans(data, c(1, input$max_scans))
+        last_scan <- input$max_scans
+        shiny::updateNumericInput(session, 'max_scans', label = 'Number of scans performed (0 = auto)')
+      } else {
+        last_scan <- find_last_scan(data)
+        shiny::updateNumericInput(session, 'max_scans', label = paste0('Number of scans performed (0 = auto) using ', last_scan))
       }
+      data = reduceScans(data, c(1, last_scan))
 
       if(input$nmr_atmc_text != '') {
         offsets = read.ATMC(input$nmr_atmc_text)
