@@ -1,4 +1,3 @@
-
 #' Reduces the number of scans in the data frame
 #'
 #' @param spectra A dataframe of NMR data
@@ -8,6 +7,7 @@
 #' @examples
 #' reduceScans(spectra,c(1,50))
 reduceScans <-function(spectra,scan_range) {
+  if(missing(scan_range)) scan_range <- c(1, find_last_scan(spectra))
   scan_range=scan_range+1
   if(scan_range[[1]]<2)
     scan_range[[1]]=2
