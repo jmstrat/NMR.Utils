@@ -79,6 +79,8 @@ apk <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,
 #' @export
 #' @rdname apk
 apk_values <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
+  # We don't need the fancy subsetting additions here, so cast to data.frame for a significant speed boost
+  spectrum = as.data.frame(spectrum)
   ppm=spectrum[,1]
   p0_xmin_points=which(abs(ppm-p0_optim_x_range[[1]])==min(abs(ppm-p0_optim_x_range[[1]])))[[1]]
   p0_xmax_points=which(abs(ppm-p0_optim_x_range[[2]])==min(abs(ppm-p0_optim_x_range[[2]])))[[1]]
