@@ -144,7 +144,7 @@ apkpseudo2d <-function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_
 #' @export
 #' @rdname apk
 apkpseudo2d_values <- function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range, .progress=NA) {
-  output = data.frame(p0=NA, p1=NA)
+  output = data.frame(p0=NA, p1=NA, pivot=NA)
   for(i in 2:ncol(spectra)) {
     output[i-1,]=apk_values(spectra[,c(1,i)],p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)
     if(is.function(.progress)) .progress(i-1)
