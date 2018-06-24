@@ -26,6 +26,7 @@ reduceScans <-function(spectra,scan_range) {
 #' @examples
 #' find_last_scan(spectra)
 find_last_scan <- function(spectra, tol=0.01) {
+  if(any_complex(spectra)) spectra = makeReal(spectra)
   not_missing_scans <- which(!sapply(spectra, function(y) abs(max(y) - min(y)) < tol))
   if(length(not_missing_scans)) return(not_missing_scans[[length(not_missing_scans)]]-1)
   0
