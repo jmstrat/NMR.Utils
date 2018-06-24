@@ -168,8 +168,8 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
         y_total_range=ylim[[2]]-ylim[[1]]
         zerofrac=col_max_range[[2]]/(col_max_range[[2]]-col_max_range[[1]])
         zeropos=y_total_range*zerofrac+ylim[[1]]
-        negativecols=color.scale.jms(seq(0,zerofrac,length.out=300),col_r,col_g,col_b,xrange=c(0,1))
-        positivecol=color.scale.jms(seq(zerofrac,1,length.out=300),col_r,col_g,col_b,xrange=c(0,1))
+        negativecols=color.scale.jms(seq(0,zerofrac,length.out=300),col_r,col_g,col_b,xrange=c(0,1), unsafe=TRUE)
+        positivecol=color.scale.jms(seq(zerofrac,1,length.out=300),col_r,col_g,col_b,xrange=c(0,1), unsafe=TRUE)
         color.legend.jms(xleg,ylim[[1]],xleg2,zeropos-break_size,"",rect.col=negativecols,align="rb",gradient="y")
         color.legend.jms(xleg,zeropos+break_size,xleg2,ylim[[2]],"",rect.col=positivecol,align="rb",gradient="y")
         text(xlab,zeropos,'0')
@@ -220,7 +220,8 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
         cvar[cvar<cr[[1]]]<-NA #Set to NA outside of range
         cvar[cvar>cr[[2]]]<-NA
 
-        cols=color.scale.jms(cvar,col_r,col_g,col_b,xrange=cr,na.color=col_na)
+        # Unsafe gives a dramatic speed boost by diabling some saftey tests (plotting is about 5x faster)
+        cols=color.scale.jms(cvar,col_r,col_g,col_b,xrange=cr,na.color=col_na, unsafe=TRUE)
 
         nseg=length(prx)-1
         segments(prx[1:nseg], pry[1:nseg], prx[2:(nseg + 1)], pry[2:(nseg + 1)], col = cols,lwd=lwd)
