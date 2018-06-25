@@ -11,6 +11,7 @@
 \alias{ycol}
 \alias{y2col}
 \alias{make_background}
+\alias{make_backgrounds}
 \alias{undersample}
 \title{Reexported functions from jms.classes}
 \description{

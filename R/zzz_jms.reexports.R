@@ -68,6 +68,13 @@ NULL
 ##' @keywords internal
 NULL
 
+##' @importFrom jms.classes make_backgrounds
+##' @name make_backgrounds
+##' @export
+##' @rdname jms.reexports
+##' @keywords internal
+NULL
+
 ##' @importFrom jms.classes undersample
 ##' @name undersample
 ##' @export
