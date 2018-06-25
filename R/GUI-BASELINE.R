@@ -1,7 +1,6 @@
 interactive_baseline_mod_UI <- function(id) {
   ns = shiny::NS(id)
-  shiny::fluidPage(shiny::h4('Under construction -- no data will be saved or exported at this time! Some UI elements may not work.'),
-                   shiny::tags$script(shiny::HTML('Shiny.addCustomMessageHandler("jsCode",function(message) {eval(message.code);});')),
+  shiny::fluidPage(shiny::tags$script(shiny::HTML('Shiny.addCustomMessageHandler("jsCode",function(message) {eval(message.code);});')),
                    shiny::tags$head(shiny::tags$style(".shiny-notification {height: 50px; width: 400px; position:fixed; top: 5px; right: 5px;}")),
                    shiny::sidebarLayout(
                      shiny::sidebarPanel(shiny::uiOutput(ns('scan_slider')),
@@ -20,7 +19,6 @@ interactive_baseline_mod_UI <- function(id) {
                                          # https://github.com/rstudio/shiny/issues/947
                                          # brush = shiny::brushOpts(id = ns('brush'), direction = "y", resetOnNew = TRUE)
                        ),
-                       shiny::fluidRow(align='center', "TODO: copy r"),
                        shiny::hr(),
                        shiny::fluidRow(align='center',
                                        shiny::actionButton(ns('store'), 'Store'),
@@ -282,9 +280,9 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 
     #Highlight row
     DT::formatStyle(mat,
-      0,
-      target = 'row',
-      backgroundColor = DT::styleEqual(bsl_idx, 'yellow')
+                    0,
+                    target = 'row',
+                    backgroundColor = DT::styleEqual(bsl_idx, 'yellow')
     )
   })
 
@@ -311,9 +309,40 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 
   ##### EXPORT ####
 
-  export_table <- shiny::reactive({baseline_parameters$baselines[,c(1,2)]})
+  export_table <- shiny::reactive({baseline_parameters$baselines[,c(1,2), drop=FALSE]})
 
-  shiny::observeEvent(input$copy_r, {print("TODO: copy R input!!")})
+  baselines_list <- shiny::reactive({
+    if(is.null(export_table())) return()
+
+    scan_list <- export_table()[, 2, drop=FALSE]
+    if(!length(scan_list)) return()
+    where <- sapply(scan_list, function(x) 1:nscans() %in% x)
+
+    lapply(1:nscans(), function(i) {
+      idx <- which(where[i,])
+      if(length(idx) == 0) {
+        NULL
+      } else {
+        export_table()[[idx[[1]],1]]
+      }
+    })
+  })
+
+  script_input <- shiny::reactive({
+    if(is.null(baselines_list())) return('')
+    df_input = paste(deparse(baselines_list()), collapse='\n')
+    sprintf("baseline_parameters = %1$s\n%2$s = %2$s - make_backgrounds(%2$s, baseline_parameters)",
+            df_input, data_name())
+  })
+
+  subtracted_data <- shiny::reactive({
+    if(is.null(baselines_list())) return(data())
+    data() - make_backgrounds(data(), baselines_list())
+  })
+
+  shiny::observeEvent(input$copy_r, {
+    jms.classes::clipboard_copy(script_input())
+  })
 
   shiny::observeEvent(input$copy_tab, {
     df_tab = capture.output(print.data.frame(as.data.frame(export_table())))
@@ -327,9 +356,9 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 
   baseline_data <- shiny::reactive({
     list(
-      data = data(),
-      parameters = '...', # create a reactive baseline_parameter_matrix() or something based on baseline_parameters$baselines.
-      script_input = '# Baseline correction must currently be done manually. See ?jms.classes::make_background'
+      data = subtracted_data(), # TODO: baseline subtracted
+      parameters = export_table(),
+      script_input = script_input()
     )
   })
 

@@ -86,7 +86,7 @@ interactive_import_mod <- function(input, output, session) {
         read.nmr(input$nmr_real_text, imaginary_file = im_file, acqus = aq_dir)
       }, error = function(e) {
         shiny::showNotification('Error: Could not load data!', duration = 10,
-                         type = "error", id='error', session = session)
+                                type = "error", id='error', session = session)
         return()
       })
       if(is.null(data)) return()
