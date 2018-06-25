@@ -221,6 +221,7 @@ interactiveImport <- function() {
   if(!requireNamespace("shiny", quietly=TRUE)) stop('Interactive importing requires the shiny package to be installed')
   if(!requireNamespace("shinyFiles", quietly=TRUE)) stop('Interactive importing requires the shinyFiles package to be installed')
   if(!requireNamespace("shinyBS", quietly=TRUE)) stop('Interactive importing requires the shinyBS package to be installed')
+  shiny::addResourcePath("sbs", system.file("www", package = "shinyBS"))
   shiny::addResourcePath('www', system.file('www', package='jms.classes'))
 
   server <- function(input, output, session) {
