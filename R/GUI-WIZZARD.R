@@ -121,6 +121,7 @@ insitu_gui <- function() {
   if(!requireNamespace("shiny", quietly=TRUE)) stop('Interactive processing requires the shiny package to be installed')
   if(!requireNamespace("shinyFiles", quietly=TRUE)) stop('Interactive processing requires the shinyFiles package to be installed')
   if(!requireNamespace("shinyBS", quietly=TRUE)) stop('Interactive processing requires the shinyBS package to be installed')
+  if(!requireNamespace("DT", quietly=TRUE)) stop('Interactive processing requires the DT package to be installed')
 
 
   shiny::addResourcePath("sbs", system.file("www", package = "shinyBS"))

@@ -342,6 +342,7 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 #' @export
 interactiveBaseline <- function(nmr) {
   if(!requireNamespace("shiny", quietly=TRUE)) stop('Interactive baseline correction requires the shiny package to be installed')
+  if(!requireNamespace("DT", quietly=TRUE)) stop('Interactive baseline correction requires the DT package to be installed')
 
   server <- function(input, output, session) {
     data_name = shiny::reactive({deparse(substitute(data))})
