@@ -20,7 +20,7 @@ interactive_baseline_mod_UI <- function(id) {
                                          # https://github.com/rstudio/shiny/issues/947
                                          # brush = shiny::brushOpts(id = ns('brush'), direction = "y", resetOnNew = TRUE)
                        ),
-                       shiny::fluidRow(align='center', "TODO: copy r, copy tab, export csv, table buttons"),
+                       shiny::fluidRow(align='center', "TODO: copy r, table buttons"),
                        shiny::hr(),
                        shiny::fluidRow(align='center',
                                        shiny::actionButton(ns('store'), 'Store'),
@@ -278,6 +278,20 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
       lines(x, data()[,current_scan() + 1] - y_bsl, col='gray')
     })
   })
+
+  ##### EXPORT ####
+
+  export_table <- shiny::reactive({baseline_parameters$baselines[,c(1,2)]})
+
+  shiny::observeEvent(input$copy_tab, {
+    df_tab = capture.output(print.data.frame(as.data.frame(export_table())))
+    jms.classes::clipboard_copy(df_tab)
+  })
+
+  output$export_csv <- shiny::downloadHandler(
+    filename = 'Baseline_parameters.csv',
+    content = function(file) {write.csv(export_table(), file)})
+
 
   baseline_data <- shiny::reactive({
     list(
