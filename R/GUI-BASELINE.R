@@ -20,7 +20,7 @@ interactive_baseline_mod_UI <- function(id) {
                                          # https://github.com/rstudio/shiny/issues/947
                                          # brush = shiny::brushOpts(id = ns('brush'), direction = "y", resetOnNew = TRUE)
                        ),
-                       shiny::fluidRow(align='center', "some sort of descriptive output..."),
+                       shiny::fluidRow(align='center', "TODO: reset, reset all, copy r, copy tab, export csv, table buttons"),
                        shiny::hr(),
                        shiny::fluidRow(align='center',
                                        shiny::actionButton(ns('store'), 'Store'),
@@ -86,73 +86,6 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 
   ##### CURRENT PARAMETERS ####
 
-  baselines <- matrix(NA, 0, 5, dimnames=list(c(), c('x', 'Scans', 'Use buttons', 'Update buttons', 'Clear buttons')))
-  baseline_parameters <- shiny::reactiveValues(current=c(), baselines=baselines) # baselines, current
-
-  new_row <- function(scans) {
-    n = nrow(baseline_parameters$baselines)
-    new <- list(
-      current_baseline_x(),
-      scans,
-      as.character(shiny::actionButton(session$ns(paste0('bsl_use_', n)),'Use',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_apply'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))'))),
-      as.character(shiny::actionButton(session$ns(paste0('bsl_update_', n)),'Update',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_update'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))'))),
-      as.character(shiny::actionButton(session$ns(paste0('bsl_clear_', n)),'Clear',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_clear'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))')))
-    )
-    baseline_parameters$baselines <- rbind(baseline_parameters$baselines, new, deparse.level = 0)
-  }
-
-  # In practical use, the for loop here is faster than sapply et al.
-  find_matching_baseline <- function() {
-    baselines <- baseline_parameters$baselines
-    n <- nrow(baselines)
-    if(n == 0) return(NA)
-    cur <- current_baseline_x()
-    for(i in 1:n) {
-      if(identical(cur, baselines[i,1]$x)) {
-        return(i)
-      }
-    }
-    return(NA)
-  }
-
-  add_scans_to_baseline <- function(bsl_idx, scans) {
-    scans = scans[!scans %in% baseline_parameters$baselines[bsl_idx, 2][[1]]]
-    baseline_parameters$baselines[[bsl_idx, 2]] <- sort(c(baseline_parameters$baselines[bsl_idx, 2][[1]], scans))
-  }
-
-  # TODO combine these 3 into a separate function
-  shiny::observeEvent(input$store, {
-    # TODO: check if scan # is already in baseline_parameters$baselines
-    match <- find_matching_baseline()
-    if(!is.na(match)) {
-      add_scans_to_baseline(match, current_scan())
-    } else {
-      new_row(c(current_scan()))
-    }
-  })
-
-  shiny::observeEvent(input$apply_all, {
-    # TODO: check if scan # is already in baseline_parameters$baselines
-    match <- find_matching_baseline()
-    if(!is.na(match)) {
-      add_scans_to_baseline(match, 1:nscans())
-    } else {
-      new_row(1:nscans())
-    }
-  })
-
-  shiny::observeEvent(input$apply_future, {
-    # TODO: check if scan # is already in baseline_parameters$baselines
-    match <- find_matching_baseline()
-    if(!is.na(match)) {
-      add_scans_to_baseline(match, current_scan():nscans())
-    } else {
-      new_row(current_scan():nscans())
-    }
-  })
-
-  current_baseline_x <- shiny::reactive({baseline_parameters$current})
-
   current_scan <- shiny::reactive({
     scan <- input$scan
     if(is.null(scan)) return(1)
@@ -188,6 +121,90 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
   #   }
   # })
 
+  ##### BASELINES ####
+
+  baselines <- matrix(NA, 0, 5, dimnames=list(c(), c('x', 'Scans', 'Use buttons', 'Update buttons', 'Clear buttons')))
+  baseline_parameters <- shiny::reactiveValues(current=c(), baselines=baselines) # baselines, current
+
+
+  # TODO: make the buttons work...
+  new_row <- function(scans) {
+    n = nrow(baseline_parameters$baselines)
+    new <- list(
+      current_baseline_x(),
+      scans,
+      as.character(shiny::actionButton(session$ns(paste0('bsl_use_', n)),'Use',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_apply'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))'))),
+      as.character(shiny::actionButton(session$ns(paste0('bsl_update_', n)),'Update',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_update'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))'))),
+      as.character(shiny::actionButton(session$ns(paste0('bsl_clear_', n)),'Clear',counter=0,onclick = paste0('this.setAttribute(\"counter\",parseInt(this.getAttribute(\"counter\"))+1);Shiny.onInputChange(\"',session$ns('bsl_clear'),'\",  this.id+\"_\"+this.getAttribute(\"counter\"))')))
+    )
+    baseline_parameters$baselines <- rbind(baseline_parameters$baselines, new, deparse.level = 0)
+  }
+
+  # In practical use, the for loop here is faster than sapply et al.
+  find_matching_baseline <- function() {
+    baselines <- baseline_parameters$baselines
+    n <- nrow(baselines)
+    if(n == 0) return(NA)
+    cur <- current_baseline_x()
+    for(i in 1:n) {
+      if(identical(cur, baselines[i,1]$x)) {
+        return(i)
+      }
+    }
+    return(NA)
+  }
+
+  add_scans_to_baseline <- function(bsl_idx, scans) {
+    scans = scans[!scans %in% baseline_parameters$baselines[bsl_idx, 2][[1]]]
+    baseline_parameters$baselines[[bsl_idx, 2]] <- sort(c(baseline_parameters$baselines[bsl_idx, 2][[1]], scans))
+  }
+
+  remove_scans_from_all_baselines <- function(remove_scans) {
+    scan_list <- baseline_parameters$baselines[, 2, drop=FALSE]
+    if(!length(scan_list)) return()
+    new_scan_list <- lapply(scan_list, function(x) x[!x %in% remove_scans])
+    if(!length(new_scan_list)) {
+      baseline_parameters$baselines <- baselines
+      return()
+    }
+    baseline_parameters$baselines[, 2] <- new_scan_list
+    empty <- sapply(new_scan_list, length) == 0
+    baseline_parameters$baselines <- baseline_parameters$baselines[!empty, , drop=FALSE]
+  }
+
+  store_baseline_for_scans <- function(scans) {
+    remove_scans_from_all_baselines(scans)
+    match <- find_matching_baseline()
+    if(!is.na(match)) {
+      add_scans_to_baseline(match, scans)
+    } else {
+      new_row(scans)
+    }
+  }
+
+  shiny::observeEvent(input$store, {store_baseline_for_scans(c(current_scan()))})
+
+  shiny::observeEvent(input$apply_all, {store_baseline_for_scans(1:nscans())})
+
+  shiny::observeEvent(input$apply_future, {store_baseline_for_scans(current_scan():nscans())})
+
+  current_baseline_number <- shiny::reactive({
+    scan_list <- baseline_parameters$baselines[, 2, drop=FALSE]
+    if(!length(scan_list)) return(NA)
+    match <- which(sapply(scan_list, function(x) current_scan() %in% x))
+    if(length(match) == 1) return(match)
+    return(NA)
+  })
+
+  # Update baseline when changing scan if we have a stored baseline for that scan
+  shiny::observeEvent(current_scan(), {
+    bsl_idx <- current_baseline_number()
+    if(!is.na(bsl_idx)) baseline_parameters$current <- baseline_parameters$baselines[[bsl_idx, 1]]
+  })
+
+  current_baseline_x <- shiny::reactive({baseline_parameters$current})
+
+
   ##### OUTPUT ####
 
   output$scan_slider <- shiny::renderUI({
@@ -201,6 +218,8 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
   output$scan_title <- shiny::renderText(sprintf("Scan #%s", current_scan()))
 
   output$baselines_table <- DT::renderDataTable({
+    bsl_idx <- current_baseline_number()
+
     mat <- baseline_parameters$baselines
     bsl_x <- mat[,1, drop=F]
     scans <- mat[,2, drop=F]
@@ -208,19 +227,31 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
     mat[,1] = sapply(bsl_x, length)
     mat[,2] <- sapply(scans, function(x) paste0(jms.classes::numeric_to_string_ranges(x), collapse=', '))
     if(nrow(mat)>1) storage.mode(mat) <- 'character' # renderDataTable has issues if storage mode is list
-    mat
-  },
-  class='compact',
-  escape = c(1,2), # 0 based
-  colnames = c('# Points', "Scans", "", "", ""),
-  autoHideNavigation=TRUE,
-  selection='none',
-  options = list(
-    searching = FALSE,
-    lengthChange=FALSE,
-    ordering=FALSE
-  )
-  )
+
+    mat <- DT::datatable(as.data.frame(mat), # Needed to allow highlighting as has rownames attribute
+                         class='compact',
+                         escape = c(1,2), # 0 based
+                         colnames = c('# Points', "Scans", "", "", ""),
+                         autoHideNavigation=TRUE,
+                         selection='none',
+                         options = list(
+                           searching = FALSE,
+                           lengthChange=FALSE,
+                           ordering=FALSE,
+                           processing = FALSE,
+                           paging=FALSE
+                         )
+    )
+
+    if(is.na(bsl_idx)) return(mat)
+
+    #Highlight row
+    DT::formatStyle(mat,
+      0,
+      target = 'row',
+      backgroundColor = DT::styleEqual(bsl_idx, 'yellow')
+    )
+  })
 
   output$spectrum <- shiny::renderPlot({
     shiny::withProgress(message = 'Preparing plot', value = 1, {
