@@ -20,7 +20,7 @@ interactive_baseline_mod_UI <- function(id) {
                                          # https://github.com/rstudio/shiny/issues/947
                                          # brush = shiny::brushOpts(id = ns('brush'), direction = "y", resetOnNew = TRUE)
                        ),
-                       shiny::fluidRow(align='center', "TODO: reset, reset all, copy r, copy tab, export csv, table buttons"),
+                       shiny::fluidRow(align='center', "TODO: copy r, copy tab, export csv, table buttons"),
                        shiny::hr(),
                        shiny::fluidRow(align='center',
                                        shiny::actionButton(ns('store'), 'Store'),
@@ -163,12 +163,13 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
     scan_list <- baseline_parameters$baselines[, 2, drop=FALSE]
     if(!length(scan_list)) return()
     new_scan_list <- lapply(scan_list, function(x) x[!x %in% remove_scans])
-    if(!length(new_scan_list)) {
-      baseline_parameters$baselines <- baselines
-      return()
-    }
     baseline_parameters$baselines[, 2] <- new_scan_list
     empty <- sapply(new_scan_list, length) == 0
+    if(all(empty)) {
+      baseline_parameters$baselines <- baselines
+      print(baselines)
+      return()
+    }
     baseline_parameters$baselines <- baseline_parameters$baselines[!empty, , drop=FALSE]
   }
 
@@ -187,6 +188,10 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
   shiny::observeEvent(input$apply_all, {store_baseline_for_scans(1:nscans())})
 
   shiny::observeEvent(input$apply_future, {store_baseline_for_scans(current_scan():nscans())})
+
+  shiny::observeEvent(input$reset, {remove_scans_from_all_baselines(current_scan())})
+
+  shiny::observeEvent(input$reset_all, {remove_scans_from_all_baselines(1:nscans())})
 
   current_baseline_number <- shiny::reactive({
     scan_list <- baseline_parameters$baselines[, 2, drop=FALSE]
