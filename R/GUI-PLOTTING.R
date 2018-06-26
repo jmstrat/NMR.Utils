@@ -6,8 +6,10 @@ interactive_plotting_mod_UI <- function(id) {
 interactive_plotting_mod <- function(input, output, session, data, data_name) {
   plot_data <- shiny::reactive({
     list(
+      data = data(),
       parameters = '...',
-      script_input = '# Plotting must currently be done manually. See ?plot.nmr2dinsitu.data.object'
+      script_input = sprintf('# Plotting must currently be done manually. See ?plot.nmr2dinsitu.data.object\nplot(%s)',
+                             data_name())
     )
   })
 

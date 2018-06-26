@@ -5,6 +5,7 @@ interactive_baseline_mod_UI <- function(id) {
                    shiny::sidebarLayout(
                      shiny::sidebarPanel(shiny::uiOutput(ns('scan_slider')),
                                          shiny::uiOutput(ns('zoom_slider')),
+                                         shiny::sliderInput(ns('bkg_avg'),'Number of points to average over (increase for noisy data)', 1, 20, 4, step=1),
                                          DT::dataTableOutput(ns('baselines_table')),
                                          shiny::tags$head(shiny::tags$style(shiny::HTML(".irs-from, .irs-to, .irs-min, .irs-max, .irs-single {visibility: hidden !important;}")))
                      ),
@@ -297,7 +298,7 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 
       baseline_x <- current_baseline_x()
       if(length(baseline_x) == 0) return()
-      baseline <- make_background(xy, baseline_x, returnFunc = TRUE)
+      baseline <- make_background(xy, baseline_x, returnFunc = TRUE, bkg_y_avg_points = input$bkg_avg)
       x = xy[,1]
       y_bsl <- baseline(x)
       lines(x, y_bsl, col='red')
@@ -331,13 +332,13 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
   script_input <- shiny::reactive({
     if(is.null(baselines_list())) return('')
     df_input = paste(deparse(baselines_list()), collapse='\n')
-    sprintf("baseline_parameters = %1$s\n%2$s = %2$s - make_backgrounds(%2$s, baseline_parameters)",
-            df_input, data_name())
+    sprintf("baseline_parameters = %1$s\n%2$s = %2$s - make_backgrounds(%2$s, baseline_parameters, bkg_y_avg_points = %3$s)",
+            df_input, data_name(), input$bkg_avg)
   })
 
   subtracted_data <- shiny::reactive({
     if(is.null(baselines_list())) return(data())
-    data() - make_backgrounds(data(), baselines_list())
+    data() - make_backgrounds(data(), baselines_list(), bkg_y_avg_points = input$bkg_avg)
   })
 
   shiny::observeEvent(input$copy_r, {
