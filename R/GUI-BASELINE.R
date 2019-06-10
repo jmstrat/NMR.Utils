@@ -1,9 +1,10 @@
 interactive_baseline_mod_UI <- function(id) {
   ns = shiny::NS(id)
-  shiny::fluidPage(shiny::tags$script(shiny::HTML('Shiny.addCustomMessageHandler("jsCode",function(message) {eval(message.code);});')),
-                   shiny::tags$head(shiny::tags$style(".shiny-notification {height: 50px; width: 400px; position:fixed; top: 5px; right: 5px;}")),
+  shiny::fluidPage(jms.classes::jsCodeHandler(),
+                   NotificationStyle(),
                    shiny::sidebarLayout(
                      shiny::sidebarPanel(shiny::uiOutput(ns('scan_slider')),
+                                         shiny::uiOutput(ns('xzoom_slider')),
                                          shiny::uiOutput(ns('zoom_slider')),
                                          shiny::sliderInput(ns('bkg_avg'),'Number of points to average over (increase for noisy data)', 1, 20, 4, step=1),
                                          DT::dataTableOutput(ns('baselines_table')),
@@ -12,6 +13,7 @@ interactive_baseline_mod_UI <- function(id) {
                      shiny::mainPanel(
                        shiny::h4(shiny::textOutput(ns('scan_title'))),
                        shiny::fluidRow(align='center', shiny::div('Click to add a point. Double click to Remove.')),
+                       shiny::fluidRow(align='center', shiny::div('Make sure to store a baseline for every scan else the baseline will not be subtracted in the output. ')),
                        shiny::plotOutput(ns("spectrum"),
                                          height = '600px',
                                          width = '100%',
@@ -22,9 +24,9 @@ interactive_baseline_mod_UI <- function(id) {
                        ),
                        shiny::hr(),
                        shiny::fluidRow(align='center',
-                                       shiny::actionButton(ns('store'), 'Store'),
-                                       shiny::actionButton(ns('apply_future'), 'Apply to following scans'),
-                                       shiny::actionButton(ns('apply_all'), 'Apply to all scans'),
+                                       shiny::actionButton(ns('store'), 'Store', style='background: #77dd77;'),
+                                       shiny::actionButton(ns('apply_future'), 'Store for following scans', style='background: #77dd77;'),
+                                       shiny::actionButton(ns('apply_all'), 'Store for all scans', style='background: #77dd77;'),
                                        shiny::actionButton(ns('reset'), 'Reset this scan'),
                                        shiny::actionButton(ns('reset_all'), 'Reset all scans')
                        ),
@@ -40,11 +42,11 @@ interactive_baseline_mod_UI <- function(id) {
 }
 
 
-interactive_baseline_mod <- function(input, output, session, data, data_name, check_no_data=function() TRUE) {
+interactive_baseline_mod <- function(input, output, session, data, data_name, visible=function() TRUE, ...) {
 
   ##### WARNING DIALOGS ####
   observe({
-    if(!check_no_data()) return()
+    if(!visible()) return()
     if(nrow(data()) == 0) {
       shiny::showModal(shiny::modalDialog(
         title = "No data!",
@@ -95,6 +97,12 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
     yr=input$yzoom
     if(is.null(yr)) return(init_yrange())
     return(yr)
+  })
+
+  xzoom <- shiny::reactive({
+    xr=input$xzoom
+    if(is.null(xr)) return(xrange())
+    return(xr * -1)
   })
 
   shiny::observeEvent(input$click, {
@@ -242,11 +250,23 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
   ##### OUTPUT ####
 
   output$scan_slider <- shiny::renderUI({
-    shiny::sliderInput(session$ns("scan"), "Scan", 1, nscans() ,1)
+    shiny::withProgress(message = 'Loading Data', value = 1, {
+      shiny::sliderInput(session$ns("scan"), "Scan", 1, nscans() ,1)
+    })
+  })
+
+  output$xzoom_slider <- shiny::renderUI({
+    shiny::withProgress(message = 'Loading Data', value = 1, {
+      xr = xrange() * - 1
+      if(any(is.na(xr))) return()
+      shiny::sliderInput(session$ns("xzoom"), "X Zoom", xr[[1]], xr[[2]], xr, ticks=F)
+    })
   })
 
   output$zoom_slider <- shiny::renderUI({
-    shiny::sliderInput(session$ns("yzoom"), "Y Zoom", yrange()[[1]], yrange()[[2]], init_yrange(), ticks=F)
+    shiny::withProgress(message = 'Loading Data', value = 1, {
+      shiny::sliderInput(session$ns("yzoom"), "Y Zoom", yrange()[[1]], yrange()[[2]], init_yrange(), ticks=F)
+    })
   })
 
   output$scan_title <- shiny::renderText(sprintf("Scan #%s", current_scan()))
@@ -292,10 +312,13 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
       if(nrow(data()) == 0) return()
       yr=yzoom()
       if(is.null(yr) || any(is.na(yr))) return()
+      xr=xzoom()
+      if(is.null(xr) || any(is.na(xr))) return()
 
       xy <- data()[,c(1,current_scan() + 1)]
-      plot(xy, xlim=xrange(), ylim=yr)
-
+      plot(xy, xlim=xr, ylim=yr)
+      abline(h=0, col=rgb(0,0,255,128,maxColorValue=255))
+      mtext(0, side=2, line=0.2, at=0, las=1, col='blue')
       baseline_x <- current_baseline_x()
       if(length(baseline_x) == 0) return()
       baseline <- make_background(xy, baseline_x, returnFunc = TRUE, bkg_y_avg_points = input$bkg_avg)
@@ -312,72 +335,96 @@ interactive_baseline_mod <- function(input, output, session, data, data_name, ch
 
   export_table <- shiny::reactive({baseline_parameters$baselines[,c(1,2), drop=FALSE]})
 
-  baselines_list <- shiny::reactive({
-    if(is.null(export_table())) return()
-
-    scan_list <- export_table()[, 2, drop=FALSE]
-    if(!length(scan_list)) return()
-    where <- sapply(scan_list, function(x) 1:nscans() %in% x)
-
-    lapply(1:nscans(), function(i) {
-      idx <- which(where[i,])
-      if(length(idx) == 0) {
-        NULL
-      } else {
-        export_table()[[idx[[1]],1]]
-      }
-    })
-  })
-
   script_input <- shiny::reactive({
-    if(is.null(baselines_list())) return('')
-    df_input = paste(deparse(baselines_list()), collapse='\n')
-    sprintf("baseline_parameters = %1$s\n%2$s = %2$s - make_backgrounds(%2$s, baseline_parameters, bkg_y_avg_points = %3$s)",
-            df_input, data_name(), input$bkg_avg)
+    if(is.null(export_table())) return('')
+    df_input = paste(deparse(export_table()), collapse='\n')
+    sprintf("# The following code was automatically generated using the interactiveBaseline command\n
+# Do not edit the following, if you wish to manually change the parameters, use the GUI or see ?make_background\n
+baseline_parameters = %1$s\n%2$s = %2$s - make_backgrounds(%2$s, expand_baseline_parameters(baseline_parameters, %3$s), bkg_y_avg_points=%4$s)",
+            df_input, data_name(), nscans(), input$bkg_avg)
   })
 
   subtracted_data <- shiny::reactive({
-    if(is.null(baselines_list())) return(data())
-    data() - make_backgrounds(data(), baselines_list(), bkg_y_avg_points = input$bkg_avg)
+    if(is.null(export_table())) return(data())
+    if(length(data()) == 0 || nrow(data()) == 0) return(data())
+    data() - make_backgrounds(data(), expand_baseline_parameters(export_table(), nscans()), bkg_y_avg_points = input$bkg_avg)
   })
 
   shiny::observeEvent(input$copy_r, {
     jms.classes::clipboard_copy(script_input())
   })
 
+  fullTable <- shiny::reactive({
+    expanded = expand_baseline_parameters(export_table(), nscans())
+    maxL <- max(sapply(expanded, length))
+    expanded <- lapply(expanded, function(l) {
+      if(is.null(l)) {
+        return(rep_len(NA, maxL))
+      }
+      length(l) <- maxL
+      l
+    })
+    df <- do.call(rbind.data.frame, expanded)
+    colnames(df) <- paste0('x_', 1:maxL)
+    df
+  })
+
   shiny::observeEvent(input$copy_tab, {
-    df_tab = capture.output(print.data.frame(as.data.frame(export_table())))
+    df_tab = capture.output(print.data.frame(fullTable(), max=.Machine$integer.max))
     jms.classes::clipboard_copy(df_tab)
   })
 
   output$export_csv <- shiny::downloadHandler(
     filename = 'Baseline_parameters.csv',
-    content = function(file) {write.csv(export_table(), file)})
+    content = function(file) {write.csv(fullTable(), file, na="")}
+  )
 
 
-  baseline_data <- shiny::reactive({
-    list(
-      data = subtracted_data(), # TODO: baseline subtracted
-      parameters = export_table(),
-      script_input = script_input()
-    )
+  #### State saving ####
+
+  # Save extra values in state$values when we bookmark
+  shiny::onBookmark(function(state) {
+    state$values$current <- baseline_parameters$current
+    state$values$baselines <- baseline_parameters$baselines
+    state$values$last_id <- baseline_parameters$last_id
   })
 
-  return(baseline_data)
+  # Read values from state$values when we restore
+  shiny::onRestored(function(state) {
+    jms.classes::log.debug("Restoring baseline")
+    baseline_parameters$current <- state$values$current
+    baseline_parameters$baselines <- state$values$baselines
+    baseline_parameters$last_id <- state$values$last_id
+  })
+
+  # Exclude from bookmarking
+  shiny::setBookmarkExclude(c("click", "dblclick", "store", "apply_future", "apply_all", "reset", "reset_all",
+                       "copy_r", "copy_tab", "export_csv", use, update, clear))
+
+  #### Return ####
+  list(
+    data = subtracted_data,
+    script = script_input,
+    packages = shiny::reactive({c('NMR.Utils')}),
+    action='Subtracting baseline'
+  )
 }
 
-#' Creates a GUI for correcting the baseline of NMR data
-#'
-#' @param nmr The NMR data
 #' @export
+#' @rdname insitu_gui
 interactiveBaseline <- function(nmr) {
-  if(!requireNamespace("shiny", quietly=TRUE)) stop('Interactive baseline correction requires the shiny package to be installed')
-  if(!requireNamespace("DT", quietly=TRUE)) stop('Interactive baseline correction requires the DT package to be installed')
+  if(missing(nmr) || is.null(nmr)) {
+    stop('No data to plot! The nmr argument is required.\n\nUse insitu_gui() if you wish to import and process data interactively.')
+  }
+
+  jms.classes::assert_packages('shiny', 'DT', purpose='Interactive baseline correction')
+
+  data_name = deparse(substitute(nmr))
 
   server <- function(input, output, session) {
-    data_name = shiny::reactive({deparse(substitute(data))})
-    data = shiny::reactive({nmr})
-    shiny::callModule(interactive_baseline_mod, "baseline", data, data_name)
+    shiny::callModule(interactive_baseline_mod, "baseline",
+                      shiny::reactive({nmr}), shiny::reactive({data_name})
+                      )
   }
 
   ui <- interactive_baseline_mod_UI("baseline")

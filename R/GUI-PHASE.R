@@ -1,12 +1,13 @@
 interactive_phase_mod_UI <- function(id) {
   ns = shiny::NS(id)
-  shiny::fluidPage(shiny::tags$script(shiny::HTML('Shiny.addCustomMessageHandler("jsCode",function(message) {eval(message.code);});')),
-                   shiny::tags$head(shiny::tags$style(".shiny-notification {height: 50px; width: 400px; position:fixed; top: 5px; right: 5px;}")),
+  shiny::fluidPage(jms.classes::jsCodeHandler(),
+                   NotificationStyle(),
                    shiny::sidebarLayout(
                      shiny::sidebarPanel(shiny::uiOutput(ns('scan_slider')),
                                          shiny::uiOutput(ns('p0_slider')),
                                          shiny::uiOutput(ns('p1_slider')),
                                          shiny::uiOutput(ns('pivot_slider')),
+                                         shiny::uiOutput(ns('xzoom_slider')),
                                          shiny::uiOutput(ns('zoom_slider')),
                                          shiny::fluidRow(
                                            shiny::column(10, shiny::uiOutput(ns('apk0_slider'))),
@@ -30,6 +31,7 @@ interactive_phase_mod_UI <- function(id) {
                      shiny::mainPanel(
                        shiny::h4(shiny::textOutput(ns('scan_title'))),
                        shiny::fluidRow(align='center', shiny::div('Double click to set pivot. Drag to set P0 / P1 range.')),
+                       shiny::fluidRow(align='center', shiny::div('The P0 range should just cover the electrolyte peak; p1 the metal. Pivot should be at the centre of the electrolyte peak.')),
                        shiny::plotOutput(ns("spectrum"),
                                          height = '600px',
                                          width = '100%',
@@ -39,8 +41,8 @@ interactive_phase_mod_UI <- function(id) {
                        shiny::fluidRow(align='center',shiny::textOutput(ns('phase_params'))),
                        shiny::hr(),
                        shiny::fluidRow(align='center',
-                                       shiny::actionButton(ns('do_apk'), 'APK Single'),
-                                       shiny::actionButton(ns('do_apk_all'), 'APK All'),
+                                       shiny::actionButton(ns('do_apk'), 'APK Single', style='background: #77dd77;'),
+                                       shiny::actionButton(ns('do_apk_all'), 'APK All', style='background: #77dd77;'),
                                        shiny::actionButton(ns('copy_r'), 'Copy phase parameters as R input'),
                                        shiny::actionButton(ns('copy_tab'), 'Copy phase parameters as table'),
                                        shiny::downloadButton(ns('export_csv'), 'Export phase parameters as CSV')
@@ -50,12 +52,17 @@ interactive_phase_mod_UI <- function(id) {
   )
 }
 
-interactive_phase_mod <- function(input, output, session, data, data_name, complex_error_dismissable=FALSE, check_complex_reactive=function() TRUE) {
+interactive_phase_mod <- function(input, output, session, data, data_name, embedded=FALSE, visible=function() TRUE, ...) {
 
   ##### WARNING DIALOGS ####
   modal_shown <- list(shown=FALSE)
+
+  is_complex <- shiny::reactive({
+    any_complex(data())
+  })
+
   observe({
-    if(!check_complex_reactive()) return()
+    if(!visible()) return()
     if(length(data()) == 0) {
       shiny::showModal(shiny::modalDialog(
         title = "No data to phase!",
@@ -65,8 +72,8 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
       return()
     }
 
-    footer = if(complex_error_dismissable) modalButton('Dismiss') else ''
-    if(!any_complex(data()) && !modal_shown$shown)
+    footer = if(embedded) modalButton('Dismiss') else ''
+    if(!is_complex() && !modal_shown$shown)
       shiny::showModal(shiny::modalDialog(
         title = "Data are not complex!",
         "Real data cannot be phased.",
@@ -120,7 +127,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
 
   ##### CURRENT PARAMETERS ####
 
-  phased_parameters <- shiny::reactiveValues()
+  phased_parameters <- shiny::reactiveValues(preventReset=FALSE)
 
   current_scan <- shiny::reactive({
     scan <- input$scan
@@ -159,10 +166,21 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     return(yr)
   })
 
+  xzoom <- shiny::reactive({
+    xr=input$xzoom
+    if(is.null(xr)) return(xrange())
+    return(xr * -1)
+  })
 
   # Reset phase params when data changes
 
-  observeEvent(data(),{
+  observeEvent(data(), {
+    if(phased_parameters$preventReset) {
+      phased_parameters$preventReset <- FALSE
+      jms.classes::log.debug('Got new data: skipping reset of phase parameters')
+      return()
+    }
+    jms.classes::log.debug('Got new data: resetting phase parameters')
     n = nscans()
     if(n == 0) n = 1
     mat <- matrix(nrow=n, ncol=3, dimnames=list(1:n, c('p0', 'p1', 'pivot')))
@@ -209,7 +227,9 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   ##### OUTPUT ####
 
   output$scan_slider <- shiny::renderUI({
-    shiny::sliderInput(session$ns("scan"), "Scan", 1, nscans() ,1)
+    shiny::withProgress(message = 'Loading Data', value = 1, {
+      shiny::sliderInput(session$ns("scan"), "Scan", 1, nscans() ,1)
+    })
   })
 
   output$p0_slider <- shiny::renderUI({
@@ -224,8 +244,18 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     shiny::sliderInput(session$ns("pivot"), "Pivot", xrange()[[2]], xrange()[[1]], pivot(), step=0.01)
   })
 
+  output$xzoom_slider <- shiny::renderUI({
+    shiny::withProgress(message = 'Loading Data', value = 1, {
+      xr = xrange() * - 1
+      if(any(is.na(xr))) return()
+      shiny::sliderInput(session$ns("xzoom"), "X Zoom", xr[[1]], xr[[2]], xr, ticks=F)
+    })
+  })
+
   output$zoom_slider <- shiny::renderUI({
-    shiny::sliderInput(session$ns("yzoom"), "Y Zoom", yrange()[[1]], yrange()[[2]], init_yrange(), ticks=F)
+    shiny::withProgress(message = 'Loading Data', value = 1, {
+      shiny::sliderInput(session$ns("yzoom"), "Y Zoom", yrange()[[1]], yrange()[[2]], init_yrange(), ticks=F)
+    })
   })
 
   output$apk0_slider <- shiny::renderUI({
@@ -246,9 +276,11 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
       if(length(data()) == 0) return()
       yr=yzoom()
       if(is.null(yr) || any(is.na(yr))) return()
+      xr=xzoom()
+      if(is.null(xr) || any(is.na(xr))) return()
       phased=.single_phase(data()[,c(1,current_scan() + 1)], p0(), p1(), pivot())
       phased=makeReal(phased)
-      plot(phased, xlim=xrange(), ylim=yr)
+      plot(phased, xlim=xr, ylim=yr)
       abline(v=pivot(), col='red')
 
       if(input$show_apk) {
@@ -288,9 +320,15 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
 
   script_input <- shiny::reactive({
     if(is.null(complete_phasing_matrix())) return('')
-    df_input = paste(deparse(complete_phasing_matrix()), collapse='\n')
-    sprintf("phasing_parameters = %1$s\n%2$s = phase(%2$s, phasing_parameters)\n%2$s = makeReal(%2$s)",
-            df_input, data_name())
+    if(is_complex()) {
+      df_input = paste(deparse(complete_phasing_matrix()), collapse='\n')
+      return(sprintf("# The following code was automatically generated using the interactivePhase command\n
+# Do not edit the following, if you wish to manually change the parameters, use the GUI or see ?apkpseudo2d for an alternate phasing mechanism\n
+phasing_parameters = %1$s\n%2$s = phase(%2$s, phasing_parameters)\n%2$s = makeReal(%2$s)",
+              df_input, data_name()))
+    } else {
+      return('# Only data with complex intensities may be phased.')
+    }
   })
 
   #Phasing matrix with gaps filled in by nearest neighbour
@@ -309,21 +347,6 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     mat
   })
 
-  phased_data <- shiny::reactive({
-    pdata = data()
-    if(length(data()) != 0) {
-      mat <- complete_phasing_matrix()
-      if(!is.null(mat)) {
-        pdata = phase(data(), mat)
-      }
-    }
-    list(
-      data = pdata,
-      parameters = complete_phasing_matrix(),
-      script_input = script_input()
-    )
-  })
-
   ##### EXPORT ####
 
   shiny::observeEvent(input$copy_r, {
@@ -331,7 +354,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
   })
 
   shiny::observeEvent(input$copy_tab, {
-    df_tab = capture.output(print.data.frame(as.data.frame(complete_phasing_matrix())))
+    df_tab = capture.output(print.data.frame(as.data.frame(complete_phasing_matrix(), max=.Machine$integer.max)))
     jms.classes::clipboard_copy(df_tab)
   })
 
@@ -339,23 +362,60 @@ interactive_phase_mod <- function(input, output, session, data, data_name, compl
     filename = 'Phase_parameters.csv',
     content = function(file) {write.csv(complete_phasing_matrix(), file)})
 
+  phased_data <- shiny::reactive({
+    pdata = data()
+    if(is_complex() && length(data()) != 0) {
+      mat <- complete_phasing_matrix()
+      if(!is.null(mat)) {
+        pdata = phase(data(), mat)
+      }
+    }
+    makeReal(pdata)
+  })
 
 
-  return(phased_data)
+  #### State saving ####
+
+  # Save extra values in state$values when we bookmark
+  shiny::onBookmark(function(state) {
+    state$values$phases <- phased_parameters$phases
+  })
+
+  # Read values from state$values when we restore
+  shiny::onRestored(function(state) {
+    jms.classes::log.debug("Restoring phase")
+    phased_parameters$preventReset <- TRUE
+    phased_parameters$phases <- state$values$phases
+  })
+
+  # Exclude from bookmarking
+  shiny::setBookmarkExclude(c("apk0_button", "apk1_button", "dblclick", "brush", "do_apk", "do_apk_all", "copy_r", "copy_tab", "export_csv"))
+
+  #### Return ####
+
+  list(
+    data = phased_data,
+    script = script_input,
+    packages = shiny::reactive({c('NMR.Utils')}),
+    action='Phasing'
+  )
 }
 
-#' Creates a GUI for phasing data
-#'
-#' @param nmr Complex NMR data to be phased
-#' @param allow_real Allow the error message that is shown if real data are provided to be dismissed
 #' @export
-interactivePhase <- function(nmr, allow_real=FALSE) {
-  if(!requireNamespace("shiny", quietly=TRUE)) stop('Interactive phasing requires the shiny package to be installed')
+#' @rdname insitu_gui
+interactivePhase <- function(nmr) {
+  if(missing(nmr) || is.null(nmr)) {
+    stop('No data to plot! The nmr argument is required.\n\nUse insitu_gui() if you wish to import and process data interactively.')
+  }
+
+  jms.classes::assert_packages('shiny', purpose='Interactive phasing')
+
+  data_name = deparse(substitute(nmr))
 
   server <- function(input, output, session) {
-    data_name = shiny::reactive({deparse(substitute(data))})
-    data = shiny::reactive({nmr})
-    shiny::callModule(interactive_phase_mod, "phase", data, data_name, complex_error_dismissable=allow_real)
+    shiny::callModule(interactive_phase_mod, "phase",
+                      shiny::reactive({nmr}), shiny::reactive({data_name})
+                      )
   }
   ui <- interactive_phase_mod_UI("phase")
   shiny::shinyApp(ui, server)
