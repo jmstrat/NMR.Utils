@@ -26,7 +26,7 @@
 #' @param plot.colour (TRUE / FALSE) Should the plot be coloured?
 #' @param plot.colour.ranges list of x ranges to colour (can be NA to cover entire range)
 #' @param plot.colour.ylims list of y ranges to scale colours over (can be 'auto')
-#' @param damp_colour_scaling_percent Apply a linear damping to the values used for colour scaling to this percent of the end of the range to help avoi a "hard" end (NA to disable)
+#' @param damp_colour_scaling_percent Apply a linear damping to the values used for colour scaling to this percent of the end of the range to help avoid a "hard" end (NA to disable)
 #' @param xaxismline The margin line on which to draw the x-axis
 #' @param xaxislabelmline The margin line on which to draw the x-axis label
 #' @param colour_scheme If plot.colour is TRUE, each colour y-range (as specified in plot.colour.ylims) will be split into a number of equal ranges based on the number of colours specified in this vector. Each range will be assigned to one of the colours, starting from the smallest y-value.
@@ -34,7 +34,7 @@
 #' @param colour.legend (TRUE / FALSE) Show a basic legend of the chosen colour_scheme
 #' @param colour.legend.show.zero (TRUE / FALSE) If the colour range extends beyond zero, indicate this value in the legend (WARNING: Only valid if there is a single colour scaling range)
 #' @return List of alignment_parameters
-#' @export
+#' @export plot.nmr2d.data.object
 #' @examples
 #' plot(data)
 plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
@@ -55,16 +55,28 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
                                  y_trunc_text_col='grey',
                                  y_trunc_line_col='grey', y_trunc_lwd=2,
                                  y_trunc_cex=1,
-                                 show_ppm_label=TRUE) {
+                                 show_ppm_label=TRUE,
+                                 ticksOut=T,
+                                 #pretty_axes:
+                                 lowerTickLimit = NA,
+                                 lowerLabelLimit = NA,
+                                 upperTickLimit = NA,
+                                 upperLabelLimit = NA,
+                                 forcedInterval = NA,
+                                 forcePrint = FALSE) {
+
+  jms.classes::log.debug('Plotting a 2D NMR object')
 
   if(any_complex(nmrdata)) nmrdata = makeReal(nmrdata)
   n=ncol(nmrdata)
-  x=nmrdata[,1] #ppm
+  x=as.numeric(nmrdata[,1]) #ppm (as.numeric strips attributes)
   offsets=as.numeric(names(nmrdata)[2:n])
 
   #Subsetting drops attributes, but we only care about the nucleus
   nucleus=attr(nmrdata,'nuc1')
   if(is.null(nucleus)) nucleus='Unknown Nucleus'
+
+  nmrdata = as.data.frame(nmrdata)
 
   #Remove scans where offset = NA
   nmrdata=nmrdata[,c(TRUE,!is.na(offsets))]
@@ -72,11 +84,11 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
   n=ncol(nmrdata)
 
   if(any(is.na(xlim))) {
-    xlim=c(max(nmrdata[,1]),min(nmrdata[,1]))
+    xlim=c(max(x),min(x))
   }
 
-  if(plot_offset=='auto') {
-    plot_offset=max(nmrdata[,c(2:n)])/sqrt(ncol(nmrdata)-1)
+  if(is.null(plot_offset) || plot_offset=='auto') {
+    plot_offset=max(nmrdata[,c(2:n)])/sqrt(n-1)
   }
   #convert offsets in hours to plot coordinates
   pos=offsets*plot_offset
@@ -106,7 +118,16 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
   }
 
   if(!show_ppm_label) axis_label=''
-  Plotting.Utils::pretty_plot(xlim=xlim,ylim=ylim,axes=axes,xlab=axis_label,line=xaxismline,labline=xaxislabelmline, frac=TRUE, div = 5)
+  ticklabels = if(!show_ppm_label) F else c(T,F,F)
+  Plotting.Utils::pretty_plot(xlim=xlim,ylim=ylim,axes=axes,xlab=axis_label,
+                              line=xaxismline,labline=xaxislabelmline, frac=TRUE,
+                              div = 5,ticklabels=ticklabels, ticksOut=ticksOut,
+                              lowerTickLimit = lowerTickLimit,
+                              lowerLabelLimit = lowerLabelLimit,
+                              upperTickLimit = upperTickLimit,
+                              upperLabelLimit = upperLabelLimit,
+                              forcedInterval = forcedInterval,
+                              forcePrint = forcePrint)
 
   # Add data
   if(plot.colour) {
@@ -182,24 +203,23 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
       par(xpd=xpd)
     }
   }
-
+  npoints = length(x)
   #loop over scans to plot (reverse order)
   for(i in n:2) {
     #calculate offset for scan
     off=pos[[(i-1)]]
     #add offset to intensity
-    y=nmrdata[,i]+off
+    y=as.numeric(nmrdata[,i]+off)
     #plot scan
     if(plot.colour) {
-      allx=x
-      ally=y
+      cols = rep_len(col, npoints)
       for(r in 1:length(plot.colour.ranges)) {
         prx=plot.colour.ranges[[r]]
         prx=sort(prx,T)
         pry=y[x<prx[[1]]&x>prx[[2]]]
         prx=x[x<prx[[1]]&x>prx[[2]]]
 
-        ally[allx %in% prx] <- NA # Don't replot these points outside of this loop
+        which_points = x %in% prx
 
         cr=col_ranges[[r]]
 
@@ -220,15 +240,12 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
         cvar[cvar<cr[[1]]]<-NA #Set to NA outside of range
         cvar[cvar>cr[[2]]]<-NA
 
-        # Unsafe gives a dramatic speed boost by diabling some saftey tests (plotting is about 5x faster)
-        cols=color.scale.jms(cvar,col_r,col_g,col_b,xrange=cr,na.color=col_na, unsafe=TRUE)
-
-        nseg=length(prx)-1
-        segments(prx[1:nseg], pry[1:nseg], prx[2:(nseg + 1)], pry[2:(nseg + 1)], col = cols,lwd=lwd)
+        # Unsafe gives a dramatic speed boost by disabling some saftey tests (plotting is about 5x faster)
+        prcols=color.scale.jms(cvar,col_r,col_g,col_b,xrange=cr,na.color=col_na, unsafe=TRUE)
+        cols[which_points] <- prcols
       }
-
-      nseg=length(allx)
-      segments(allx[1:nseg], ally[1:nseg], allx[2:(nseg + 1)], ally[2:(nseg + 1)], col = col,lwd=lwd)
+      # Plot the data
+      segments(x[1:npoints], y[1:npoints], x[2:(npoints + 1)], y[2:(npoints + 1)], col = cols,lwd=lwd)
     } else {
       lines(x,y,col=col_na,lwd=lwd)
     }
