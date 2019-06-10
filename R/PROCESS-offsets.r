@@ -8,8 +8,8 @@
 #' @examples
 #' noATMoffsets(spectra,0.5)
 noATMoffsets <-function(spectra,scan_length,initial_offset=0) {
-    n=ncol(spectra)-1
-    return(0:n*scan_length+initial_offset)
+  n=ncol(spectra)-1
+  return(0:n*scan_length+initial_offset)
 }
 
 #' Stores the time offsets in the data frame
@@ -21,13 +21,14 @@ noATMoffsets <-function(spectra,scan_length,initial_offset=0) {
 #' @examples
 #' storeOffsets(data,offsets)
 storeOffsets <-function(spectra,offsets) {
-    lenO=length(offsets)
-    lenS=ncol(spectra)-1
-    if(lenO<lenS) {
-      offsets=append(offsets,(lenO+1):lenS)
-    } else if(lenS<lenO) {
-      offsets=offsets[c(1:lenS)]
-    }
-    names(spectra)[c(2:(lenS+1))]<-offsets
-    return(spectra)
+  jms.classes::log.info('Adding scan offsets to 2D NMR data')
+  lenO=length(offsets)
+  lenS=ncol(spectra)-1
+  if(lenO<lenS) {
+    offsets=append(offsets,(lenO+1):lenS)
+  } else if(lenS<lenO) {
+    offsets=offsets[c(1:lenS)]
+  }
+  names(spectra)[c(2:(lenS+1))]<-offsets
+  return(spectra)
 }
