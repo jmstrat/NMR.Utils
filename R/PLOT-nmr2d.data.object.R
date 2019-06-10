@@ -289,6 +289,5 @@ plot.nmr2d.data.object<-function(nmrdata,xlim=NA,ylim=NA,plot_offset='auto',
   }
 
   #return alignment parameters
-  invisible(list(time_scan_1=offsets[[1]], offset_scan_1=pos[[1]],time_scan_last=offsets[[n-1]], offset_scan_last=pos[[n-1]], yrange=ylim))
-
+  invisible(pos[c(1, n-1)])
 }
