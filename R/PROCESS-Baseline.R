@@ -10,7 +10,7 @@
 correct_baseline <-function(data,...) {
   #Perform baseline correction
   base <- baseline::baseline(t(data[,2:ncol(data)]),...)
-  data[,2:ncol(data)]=t(getCorrected(base))
+  data[,2:ncol(data)]=t(baseline::getCorrected(base))
   data
 }
 
