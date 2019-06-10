@@ -29,5 +29,20 @@ associate_echem_with_nmr <- function(nmr,echem) {
   jms.classes::log.info('Combining echem and NMR objects')
   nmr=as.nmr2dinsitu.data.object(nmr)
   attr(nmr, "echem")<- echem
-  return(nmr)
+  if(is.null(attr(nmr, ".scantimes"))) attr(nmr, ".scantimes")<- as.numeric(colnames(nmr)[-1])
+  transformOffsetsToXAxis(nmr, echem)
+}
+
+transformOffsetsToXAxis <- function(nmr, echem) {
+  # Do we need to transform?
+  xc <- jms.classes::xcol(echem)
+  currencXC <- attr(nmr, '.offset_xcol')
+  if(is.null(currencXC)) currencXC = which(colnames(echem) == 'Test_Time.s.')
+  if(currencXC == xc) return(nmr)
+  attr(nmr, '.offset_xcol') <- xc
+  jms.classes::log.info('Adjusting offsets to match %s', colnames(echem)[xc])
+  # Transform the offsets
+  offsets = attr(nmr, ".scantimes")
+  new_offsets = Plotting.Utils::nearest(echem, Test_Time.s.=offsets*3600)[,xc] * jms.classes::xscale(echem)
+  storeOffsets(nmr, new_offsets)
 }
