@@ -2,13 +2,10 @@
 #'
 #' This function plots a single frame from the fit.
 #' @param fit The fit object
-#' @param data The data object
-#' @param echem The echem object
+#' @param data The insitu data object
 #' @param frame_number Which frame to plot
-#' @param xrange x range of data to plot
-#' @param yrange Y range of data to plot (or 'auto')
-#' @param include_fit include the deconvolution etc. in the plot
-#' @param xTickInterval Tick interval for x axis
+#' @param xlim x range of data to plot
+#' @param ylim Y range of data to plot
 #' @param cols Colour for each deconvolution
 #' @param fit_col Colour for the fit
 #' @param data_col Colour for the data
@@ -16,67 +13,60 @@
 #' @param lty Line type for each deconvolution
 #' @param fit_lwd Line width for the fit
 #' @param data_lwd Line width for the data
+#' @param ... Additional parameters passed to the NMR plotting function
 #' @return None
 #' @examples
-#' plot_animation_frame(fit,data,echem,100,c(200,-200),c(0,2))
+#' plot_animation_frame(data, 100, fit)
 #' @keywords internal
-plot_animation_frame <-function(fit,data,echem,frame_number,xrange,V_range,yrange='auto',include_fit=TRUE,data_col='black',data_lwd=1,cols=c('forestgreen','blue','magenta','cyan','orange','brown'),lwd=1,lty='dashed',fit_col='red',fit_lwd=2,xTickInterval=50) {
-  #2 adjacent horizontal plot width ratio 5:1
-  layout(matrix(c(1, 2), 1, 2, byrow=F), widths=c(5,1))
-  #set margins for LH plot to leave no margin on RHS
-  par(mar=c(3,3,1,0),xpd=FALSE)
+plot_animation_frame <-function(data, frame_number, fit=NULL, xlim=NULL, V_range=NULL, ylim=NULL,
+                                data_col='black', data_lwd=1,
+                                cols=c('forestgreen','blue','magenta','cyan','orange','brown'), lwd=1, lty='dashed',
+                                fit_col='red', fit_lwd=2, ...) {
 
-  x=data[,1] #ppm
-  y=data[,frame_number+1]
-  #plot (blank plot)
-  if(any(yrange=='auto')) {
-  	yr=c(min(y),max(y))
-  } else {
-	  yr=yrange
+  echem = attr(data, 'echem')
+
+  if(!is.null(echem)) {
+    #2 adjacent horizontal plot width ratio 3:1
+    layout(matrix(c(1, 2), 1, 2, byrow=F), widths=c(3,1))
   }
-  plot(0,0, type="n", xaxs="i", yaxs="i", xlim=xrange, ylim=yr, axes = FALSE, xlab = NA, ylab = NA)
+
+  #set margins for LH plot
+  par(mai=c(0.5, 0.2, 0.05, 0.2),xpd=FALSE)
+
+  #plot (blank plot)
+  plot(data[,c(1,frame_number+1)], xlim=xlim, ylim=ylim, col=data_col, lwd=data_lwd, line=-0.6, labline=c(1.7, 1.6), ...)
   #plot data
-  lines(x,y,col=data_col,lwd=data_lwd)
-  if(include_fit) {
+  if(!is.null(fit)) {
     #Get fitted models
     fit_models=make_fitted_models(fit$models,fit$result[frame_number,])
 
+    x=data[,1] #ppm
     #Plot the deconvolution:
     for(f in fit_models) {
-      curve(f[[2]](x),from=xrange[[1]],to=xrange[[2]],lwd=lwd,lty=lty,col=cols[[f[[1]]]],add=T,n=length(data[,1]))
+      curve(f[[2]](x),from=xlim[[1]],to=xlim[[2]],lwd=lwd,lty=lty,col=cols[[f[[1]]]],add=T,n=length(data[,1]))
     }
 
     #Build a total fit model
     total_fit_function=get_fit_function(fit_models)
 
     #plot overall fit
-    curve(total_fit_function(x),from=xrange[[1]],to=xrange[[2]],col=fit_col,lwd=fit_lwd,add=T,n=length(data[,1]))
+    curve(total_fit_function(x),from=xlim[[1]],to=xlim[[2]],col=fit_col,lwd=fit_lwd,add=T,n=length(data[,1]))
   }
 
-  #make plot pretty
-  box()
-  ticksat=seq(xrange[[1]],xrange[[2]],xTickInterval*sign(xrange[[2]]-xrange[[1]]))
-  #Add axis with no labels
-  axis(side = 2, tck = -.015, tick=FALSE, labels=NA)
-  axis(side = 1, tck = -.015, labels = NA,at=ticksat)
-  ##Add axis With labels (With reduced spacing from axis -- line=.4)
-  axis(side = 2, lwd = 0, line = -.4, tick=FALSE, labels=NA)
-  axis(side = 1, lwd = 0, line = -.4, las = 1,at=ticksat,labels=ticksat)
-  ##Add axis titles
-  mtext(side = 2, "Intensity", line = 1)
-  mtext(side = 1, "ppm", line = 2)
+  if(!is.null(echem)) {
+    #set margins of RH plot
+	  par(mai=c(0.5, 0, 0.05, 0.6))
+    plot_echem_vertical(echem, V_range=V_range, col=data_col, lwd=data_lwd, xaxismline=-0.6, xaxislabelmline=1.7, yaxismline=-0.2, yaxislabelmline=2)
 
-	#set margins of RH plot to leave no margin on LHS
-	par(mar=c(3,0,1,3))
-  plot_echem_vertical(echem,V_range)
+    #add point
+    time_scan = as.numeric(names(data)[[frame_number+1]]) / jms.classes::xscale(echem)
 
-  #add point
-  time_scan=as.numeric(names(data)[[frame_number+1]])*3600
-  index=which(abs(echem$Test_Time.s.-time_scan)==min(abs(echem$Test_Time.s.-time_scan)))[[1]]
-  points(x=-echem$Voltage.V[[index]],y=time_scan*1/(max(echem$Test_Time.s.)-min(echem$Test_Time.s.)),col='red',pch=16,cex=1)
-
+    args = list(echem)
+    args[[colnames(echem)[[jms.classes::xcol(echem)]]]] = time_scan
+    v = as.numeric(do.call(Plotting.Utils::nearest, args)[,jms.classes::ycol(echem)])
+    points(v * jms.classes::yscale(echem), time_scan * jms.classes::xscale(echem),col='red',pch=16,cex=1)
+  }
 }
-
 
 #' Make an animation
 #'
@@ -92,8 +82,13 @@ plot_animation_frame <-function(fit,data,echem,frame_number,xrange,V_range,yrang
 #' @return None
 #' @export
 #' @examples
-#' save_animation(fit,data,echem,c(200,-200),c(0,2))
-save_animation <-function(fit,data,echem,xrange,V_range,yrange='auto',include_fit=TRUE,data_col='black',data_lwd=1,cols=c('forestgreen','blue','magenta','cyan','orange','brown'),lwd=1,lty='dashed',fit_col='red',fit_lwd=2,xTickInterval=50, delay=0.1,width=400, height=400,type='gif',name='Animation.gif',image_dev='png',image_type='png') {
+#' save_animation(data, fit)
+save_animation <-function(data, fit=NULL, xlim=NULL, V_range=NULL, ylim=NULL,
+                          data_col='black', data_lwd=1,
+                          cols=c('forestgreen','blue','magenta','cyan','orange','brown'), lwd=1, lty='dashed',
+                          fit_col='red', fit_lwd=2,
+                          delay=0.1, width=600, height=400, type='gif',
+                          name='Animation.gif', image_dev='png', image_type='png', ...) {
   #requires ImageMagick to also be installed
   animation::ani.options(interval=delay,ani.width=width,ani.height=height)
   if(type=="HTML"){
@@ -103,15 +98,18 @@ save_animation <-function(fit,data,echem,xrange,V_range,yrange='auto',include_fi
   }
 suppressMessages(
   func({
-    cat("Making Plots for Animation:")
+    cat("Making Plots for Animation:\n")
     nc=ncol(data)
     progress=time_remaining_start(nc-1)
 
     for (i in 1:(nc-1)) {
-      plot_animation_frame(fit,data,echem,i,xrange,V_range,yrange,include_fit,data_col,data_lwd,cols,lwd,lty,fit_col,fit_lwd,xTickInterval)
+      plot_animation_frame(data, i, fit=fit, xlim=xlim, V_range=V_range, ylim=ylim,
+                           data_col=data_col, data_lwd=data_lwd,
+                           cols=cols, lwd=lwd, lty=lty,
+                           fit_col=fit_col, fit_lwd=fit_lwd, ...)
       progress(i)
     }
-
-  },movie.name = name,navigator=FALSE,ani.dev=image_dev,ani.type=image_type))
+    cat("\nSaving Animation\n")
+  },movie.name = name, navigator=FALSE, ani.dev=image_dev, ani.type=image_type))
   cat(paste0("Animation saved at: ",normalizePath(dirname(name)),"/",name))
 }
