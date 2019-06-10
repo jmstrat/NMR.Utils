@@ -7,7 +7,10 @@
 #' @export
 #' @examples
 #' run_fit_for_data(fit, data)
-run_fit_for_data <-function(fit,data) {
+run_fit_for_data <-function(fit, data) {
+  # No need for additions provided by jms.data.object here, so stick to a data.frame for a minor speed boost
+  data = as.data.frame(data)
+
 	#Number of scans to fit = number of columns - 1 (first col == x values)
 	nc=ncol(data)
 
@@ -15,8 +18,7 @@ run_fit_for_data <-function(fit,data) {
 
 	if(fit$determine_parameters_dynamically) {
     warning("Automatic parameter calculation has not been re-written for this library yet... (& it may never be)")
-		#TODO:
-    #run function to determine parameters here...
+		#TODO: run function to determine parameters here...
 	}
 
   fit=fix_unconstrained_parameters(fit)
@@ -26,7 +28,7 @@ run_fit_for_data <-function(fit,data) {
   #Begin loop over scans
   for(i in 2:nc) {
     fit=fit_single_scan(fit, data[,c(1,i)])
-    fit=integrate_last_scan(fit,data[,c(1,i)])
+    fit=integrate_last_scan(fit, data[,c(1,i)])
 
     fit$last_scan=i-1
     progress(i-1)
