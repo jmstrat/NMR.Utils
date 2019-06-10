@@ -51,8 +51,13 @@ as.nmr2d.data.object <- function(...) {
 ##' @rdname data_objects_null_exports
 ##' @keywords internal
 as.nmr2dinsitu.data.object <- function(x) {
+  if(!requireNamespace("Echem.Data", quietly=TRUE)) {
+    stop('Insitu data processing requires the Echem.Data package')
+  }
   if(is.nmr2d.data.object(x)) {
+    xl <- jms.classes::xlab(x)
     x=as.nmr2dinsitu.data.object.super(x)
+    jms.classes::xlab(x) <- xl
     attr(x, "echem") <- Echem.Data::echem.data.object()
   } else {
     stop("as.nmr2dinsitu.data.object can only be called with an nmr2d.data.object")
