@@ -4,8 +4,8 @@
 \alias{plot_parameter}
 \title{Plot a fitted parameter}
 \usage{
-plot_parameter(fit, parameter_name, pch = 4, cols = c("forestgreen", "blue",
-  "magenta", "cyan", "orange", "brown"), show_axes = TRUE)
+plot_parameter(fit, parameter_name, pch = 4, cols = c("forestgreen",
+  "blue", "magenta", "cyan", "orange", "brown"), show_axes = TRUE)
 }
 \arguments{
 \item{fit}{The fit object}

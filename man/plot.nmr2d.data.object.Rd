@@ -11,12 +11,15 @@
   colour_scheme = c("blue", "green", "yellow", "magenta", "red"),
   colour.legend = FALSE, colour.legend.show.zero = TRUE,
   damp_colour_scaling_percent = NA, col = "Black", lwd = par("lwd"),
-  shade_under = FALSE, shade_col = "grey", shade_min_intensity = -Inf,
-  y_trunc = NA, y_trunc_x_points = c(), y_trunc_amp_div = 200,
-  y_trunc_label_offset_factor = 20, y_trunc_sin_period = 5,
-  y_trunc_labels = c(), y_trunc_text_col = "grey",
-  y_trunc_line_col = "grey", y_trunc_lwd = 2, y_trunc_cex = 1,
-  show_ppm_label = TRUE)
+  shade_under = FALSE, shade_col = "grey",
+  shade_min_intensity = -Inf, y_trunc = NA, y_trunc_x_points = c(),
+  y_trunc_amp_div = 200, y_trunc_label_offset_factor = 20,
+  y_trunc_sin_period = 5, y_trunc_labels = c(),
+  y_trunc_text_col = "grey", y_trunc_line_col = "grey",
+  y_trunc_lwd = 2, y_trunc_cex = 1, show_ppm_label = TRUE,
+  ticksOut = T, lowerTickLimit = NA, lowerLabelLimit = NA,
+  upperTickLimit = NA, upperLabelLimit = NA, forcedInterval = NA,
+  forcePrint = FALSE)
 }
 \arguments{
 \item{nmrdata}{Data frame of (real) NMR data (ppm, intensity1, ...)}
@@ -43,7 +46,7 @@
 
 \item{colour.legend.show.zero}{(TRUE / FALSE) If the colour range extends beyond zero, indicate this value in the legend (WARNING: Only valid if there is a single colour scaling range)}
 
-\item{damp_colour_scaling_percent}{Apply a linear damping to the values used for colour scaling to this percent of the end of the range to help avoi a "hard" end (NA to disable)}
+\item{damp_colour_scaling_percent}{Apply a linear damping to the values used for colour scaling to this percent of the end of the range to help avoid a "hard" end (NA to disable)}
 
 \item{col}{Line colour for plot}
 

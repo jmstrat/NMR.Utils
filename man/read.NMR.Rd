@@ -5,24 +5,27 @@
 \alias{read.NMR}
 \title{Read NMR Data}
 \usage{
-read.nmr(nmrfile, mass = 1, nucleus = "Unknown Nucleus", acqus = NA, ...)
+read.nmr(nmrfile, mass = 1, nucleus = "Unknown Nucleus", acqus = NA,
+  ...)
 
-read.NMR(nmrfile, mass = 1, nucleus = "Unknown Nucleus", acqus = NA, ...)
+read.NMR(nmrfile, mass = 1, nucleus = "Unknown Nucleus", acqus = NA,
+  ...)
 }
 \arguments{
 \item{nmrfile}{Path to txt file saved using topspin's File->Save as->Save data of currently displayed region in a text file. Or a directory of files (see above)}
 
-\item{nucleus}{The nucleus to which the data corresponds}
+\item{nucleus}{The nucleus to which the data corresponds (automatically determined if an acqus file is available)}
 
-\item{acqus}{The path to the directory containing the acqus file for the data}
+\item{acqus}{The path to the directory containing the acqus file for the data (automatically found if a bruker directory is provided)}
+
+\item{...}{Further parameters passed to the underlying funcition calls (controlling whether immaginary data is imported, ...)}
 }
 \value{
 A data frame containing the NMR data (ppm,intensity1, ...)
 }
 \description{
 This function is used to import 1D or 2D NMR data.
-To import 1D data, you must export it from topspin.
-2D data may be imported by passing the path to the directory, provided it has been processed using topspin (this allows for imaginary data to be imported) (Doesn't yet work!).
+Data may be imported either by passing the experiment directory, or a file exported from topspin.
 }
 \details{
 If a folder is passed as the parameter to nmrfile, read.NMR will attempt to guess whether it is a folder containing individual scans from an in-situ experiement, a folder containing raw data or a folder containing 1D spectra to be summed. It will then process accordingly.

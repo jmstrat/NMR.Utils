@@ -4,26 +4,21 @@
 \alias{plot_animation_frame}
 \title{Plot a raw frame for a fit animation}
 \usage{
-plot_animation_frame(fit, data, echem, frame_number, xrange, V_range,
-  yrange = "auto", include_fit = TRUE, data_col = "black", data_lwd = 1,
+plot_animation_frame(data, frame_number, fit = NULL, xlim = NULL,
+  V_range = NULL, ylim = NULL, data_col = "black", data_lwd = 1,
   cols = c("forestgreen", "blue", "magenta", "cyan", "orange", "brown"),
-  lwd = 1, lty = "dashed", fit_col = "red", fit_lwd = 2,
-  xTickInterval = 50)
+  lwd = 1, lty = "dashed", fit_col = "red", fit_lwd = 2, ...)
 }
 \arguments{
-\item{fit}{The fit object}
-
-\item{data}{The data object}
-
-\item{echem}{The echem object}
+\item{data}{The insitu data object}
 
 \item{frame_number}{Which frame to plot}
 
-\item{xrange}{x range of data to plot}
+\item{fit}{The fit object}
 
-\item{yrange}{Y range of data to plot (or 'auto')}
+\item{xlim}{x range of data to plot}
 
-\item{include_fit}{include the deconvolution etc. in the plot}
+\item{ylim}{Y range of data to plot}
 
 \item{data_col}{Colour for the data}
 
@@ -39,7 +34,7 @@ plot_animation_frame(fit, data, echem, frame_number, xrange, V_range,
 
 \item{fit_lwd}{Line width for the fit}
 
-\item{xTickInterval}{Tick interval for x axis}
+\item{...}{Additional parameters passed to the NMR plotting function}
 }
 \value{
 None
@@ -48,6 +43,6 @@ None
 This function plots a single frame from the fit.
 }
 \examples{
-plot_animation_frame(fit,data,echem,100,c(200,-200),c(0,2))
+plot_animation_frame(data, 100, fit)
 }
 \keyword{internal}

@@ -2,15 +2,15 @@
 % Please edit documentation in R/IMPORT-nmr.text.1d.R
 \name{read.nmr.text.1d.2col}
 \alias{read.nmr.text.1d.2col}
-\title{Read 1D NMR Data (2 col)}
+\title{Read 1D NMR Data (2 / 4 col)}
 \usage{
-read.nmr.text.1d.2col(file, skip)
+read.nmr.text.1d.2col(file, skip, sep = "")
 }
 \arguments{
-\item{nmrfile}{Path to txt file saved using topspin's File->Save->Save visible region as text file (with or without imaginary)}
+\item{nmrfile}{Path to txt file}
 }
 \value{
-A data frame containing the NMR data (ppm,intensity)
+A data frame containing the NMR data (ppm,intensity,...)
 }
 \description{
 This function is used to import NMR data.

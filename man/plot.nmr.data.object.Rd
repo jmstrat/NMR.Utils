@@ -4,7 +4,8 @@
 \alias{plot.nmr.data.object}
 \title{Plot ex situ NMR data}
 \usage{
-\method{plot}{nmr.data.object}(x, ..., axes = 1, xlim = NULL)
+\method{plot}{nmr.data.object}(x, ..., axes = 1, xlim = NULL,
+  div = 2)
 }
 \arguments{
 \item{x}{An nmr.data.object}

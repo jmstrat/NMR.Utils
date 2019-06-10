@@ -33,4 +33,7 @@ is.nmr2dinsitu.data.object(x)
 \arguments{
 \item{x}{The object}
 }
+\description{
+NMR data objects
+}
 \keyword{internal}

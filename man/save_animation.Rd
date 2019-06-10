@@ -4,26 +4,21 @@
 \alias{save_animation}
 \title{Make an animation}
 \usage{
-save_animation(fit, data, echem, xrange, V_range, yrange = "auto",
-  include_fit = TRUE, data_col = "black", data_lwd = 1,
+save_animation(data, fit = NULL, xlim = NULL, V_range = NULL,
+  ylim = NULL, data_col = "black", data_lwd = 1,
   cols = c("forestgreen", "blue", "magenta", "cyan", "orange", "brown"),
   lwd = 1, lty = "dashed", fit_col = "red", fit_lwd = 2,
-  xTickInterval = 50, delay = 0.1, width = 400, height = 400,
-  type = "gif", name = "Animation.gif", image_dev = "png",
-  image_type = "png")
+  delay = 0.1, width = 600, height = 400, type = "gif",
+  name = "Animation.gif", image_dev = "png", image_type = "png", ...)
 }
 \arguments{
+\item{data}{The insitu data object}
+
 \item{fit}{The fit object}
 
-\item{data}{The data object}
+\item{xlim}{x range of data to plot}
 
-\item{echem}{The echem object}
-
-\item{xrange}{x range of data to plot}
-
-\item{yrange}{Y range of data to plot (or 'auto')}
-
-\item{include_fit}{include the deconvolution etc. in the plot}
+\item{ylim}{Y range of data to plot}
 
 \item{data_col}{Colour for the data}
 
@@ -39,8 +34,6 @@ save_animation(fit, data, echem, xrange, V_range, yrange = "auto",
 
 \item{fit_lwd}{Line width for the fit}
 
-\item{xTickInterval}{Tick interval for x axis}
-
 \item{delay}{Delay between frames in the animation}
 
 \item{width}{Width of the animation}
@@ -54,6 +47,8 @@ save_animation(fit, data, echem, xrange, V_range, yrange = "auto",
 \item{image_dev}{Image device to use (if you get error messages about png, try setting this to 'jpeg')}
 
 \item{image_type}{Image type to use (if you get error messages about png, try setting this to 'jpg')}
+
+\item{...}{Additional parameters passed to the NMR plotting function}
 }
 \value{
 None
@@ -62,5 +57,5 @@ None
 This function makes an animation for the fit.
 }
 \examples{
-save_animation(fit,data,echem,c(200,-200),c(0,2))
+save_animation(data, fit)
 }

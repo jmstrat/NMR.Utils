@@ -21,3 +21,4 @@ A list of plotting options to be displayed to the user (invisibly)
 WARNING: LEGACY FUNCTION, USE plot(...) INSTEAD
 This function is used to plot ex situ NMR data. A grid of plots is produced per nucleus present in the data list.
 }
+\concept{Ploting Methods}

@@ -4,12 +4,13 @@
 \alias{iplot.nmr.data.object}
 \title{Plot ex situ NMR data}
 \usage{
-\method{iplot}{nmr.data.object}(..., axes = 1, offset = NULL, xlim = NULL,
-  ylim = NULL, y2lim = NULL, xlab = NULL, ylab = NULL, y2lab = NULL,
-  col = NULL, lwd = NULL, pch = NULL, labels = NULL, group = NULL)
+\method{iplot}{nmr.data.object}(..., axes = 1, offset = NULL,
+  xlim = NULL, ylim = NULL, y2lim = NULL, xlab = NULL,
+  ylab = NULL, y2lab = NULL, col = NULL, lwd = NULL, pch = NULL,
+  labels = NULL, group = NULL)
 }
 \arguments{
-\item{...}{Additional parameters passed to \code{\link[jms.classes]{plot.jms.data.object}}}
+\item{...}{Additional parameters passed to \code{\link[jms.classes]{iplot.jms.data.object}}}
 
 \item{x}{An nmr.data.object}
 }

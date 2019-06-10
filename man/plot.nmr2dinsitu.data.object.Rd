@@ -27,16 +27,32 @@ where nmr,echem are one of 1=bottom, 2=left, 3=top, 4=right}
 \item{...}{Further parameters will be passed to the plotting methods}
 }
 \value{
-Returns a function to convert voltage, time into x,y values for the echem plot
+Returns a function that will change the active plot to the NMR plot without disrupting the current layout
+(the echem plot is active by default when the plot function returns).
 }
 \description{
-This function plots in-situ NMR data.
+This function plots in situ NMR data.
+}
+\details{
+The echem function will always be passed the echem data restricted to the NMR scans plotted as its first argument,
+and a ylim parameter which will align its data as another argument. Any further named arguments provided via \code{...}
+are passed through. \cr\cr
+The NMR function will always be passed the NMR data as its first argument. Any further named arguments provided via \code{...}
+are passed through. It is expected to return a numeric vector of the y values corresponding to an intensity of 0 for the
+first and last scans.
 }
 \examples{
 plot(data)
 
-rescale <- plot(data)
+set_nmr <- plot(data)
+
+# Add some annotations to the echem plot
 time = c(1, 2)
 V = Plotting.Utils::nearest(echem, Test_Time.s.=time*3600)$Voltage.V
-points(rescale(V, time), col='red')
+points(V, time, col=c('red', 'blue'))
+
+# Activate the nmr plot
+set_nmr()
+# Add annotations to the NMR plot
+points(0, 10000, col='green')
 }

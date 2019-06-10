@@ -4,7 +4,7 @@
 \alias{read.nmr.directory.text.1d.2col}
 \title{Process a folder of two column text files}
 \usage{
-read.nmr.directory.text.1d.2col(files, skip)
+read.nmr.directory.text.1d.2col(files, skip, sep)
 }
 \arguments{
 \item{files}{List of file paths to read}

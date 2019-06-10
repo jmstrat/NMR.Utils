@@ -4,10 +4,11 @@
 \alias{plot_examples}
 \title{Plot examples of fitted frames}
 \usage{
-plot_examples(fit, data, scans, plot_offset, yrange = "auto", xrange = NA,
-  cols = c("forestgreen", "blue", "magenta", "cyan", "orange", "brown"),
-  fit_col = "red", data_col = "black", fit_lwd = 2, lwd = 1,
-  data_lwd = 1, lty = "dashed", xTickInterval = 50, show_axes = TRUE)
+plot_examples(fit, data, scans, plot_offset, yrange = "auto",
+  xrange = NA, cols = c("forestgreen", "blue", "magenta", "cyan",
+  "orange", "brown"), fit_col = "red", data_col = "black",
+  fit_lwd = 2, lwd = 1, data_lwd = 1, lty = "dashed",
+  xTickInterval = 50, show_axes = TRUE)
 }
 \arguments{
 \item{fit}{The fit object}

@@ -4,28 +4,44 @@
 \alias{plot_echem_vertical}
 \title{Plot electrochemisty data (vertically)}
 \usage{
-plot_echem_vertical(data, V_range = NA, time_start = 0, time_end = Inf,
-  yrange = c(0, 1), offset_start = 0, offset_end = 1, xaxismline = -0.8,
-  xaxislabelmline = 1.1)
+plot_echem_vertical(data, V_range = NULL, ylim = NULL,
+  echemAxes = c(1, 4), echemDiv = c(2, 5), xaxismline = -0.8,
+  xaxislabelmline = 1.1, yaxismline = -0.8, yaxislabelmline = 1.1,
+  upperVTickLimit = NA, lowerVTickLimit = NA, ticklabels = c(T, T,
+  T), ticksOut = c(T, T), forcedVInterval = NA, forcePrint = FALSE,
+  centreTimeTitle = T, ...)
 }
 \arguments{
 \item{data}{Echem data}
 
-\item{V_range}{Voltage range of echem data to plot}
+\item{V_range}{X range of echem data to plot}
 
-\item{time_start, time_end}{Range of time to plot}
+\item{ylim}{Numeric vectors of length 2, giving the x, y (and y2) coordinate ranges.}
 
-\item{offset_start, offset_end}{y values of 1st and last data point}
+\item{echemAxes}{Axes for the echem plot}
 
-\item{xaxismline}{Margin line on which to draw the x axis}
+\item{echemDiv}{Number of minor ticks per major c(voltage, y)}
 
-\item{xaxislabelmline}{Margin line on which to draw the x axis title}
+\item{xaxismline, yaxismline}{Margin line on which to draw the axes}
 
-\item{y_range}{Y range to scale the data to}
-}
-\value{
-Returns a function to convert voltage, time into x,y values for the plot
+\item{xaxislabelmline, yaxislabelmline}{Margin line on which to draw the axis titles}
+
+\item{upperVTickLimit, lowerVTickLimit}{Voltage tick limits}
+
+\item{ticklabels}{Print labels?}
+
+\item{ticksOut}{Ticks point outwards?}
+
+\item{forcedVInterval}{Forced voltage tick interval}
+
+\item{forcePrint}{Attempt to print all labels even if they are closely spaced}
+
+\item{centreTimeTitle}{Centre the y axis label to the tick marks?}
+
+\item{...}{Additional parameters are passed to the underlying function calls}
 }
 \description{
-This function plots in-situ echem data.
+This function plots in-situ echem data. It is effectively the same as plot,
+but swaps the x and y axes, and renames some arguments to avoid clashes with
+\code{\link{plot.nmr2d.data.object}}.
 }

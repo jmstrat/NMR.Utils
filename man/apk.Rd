@@ -10,11 +10,11 @@
 apk(spectrum, p0_optim_x_range, p1_optim_x_range, pivot, p0_optim_range,
   p1_optim_range)
 
-apk_values(spectrum, p0_optim_x_range, p1_optim_x_range, pivot, p0_optim_range,
-  p1_optim_range)
+apk_values(spectrum, p0_optim_x_range, p1_optim_x_range, pivot,
+  p0_optim_range, p1_optim_range)
 
-apkpseudo2d(spectra, p0_optim_x_range, p1_optim_x_range, pivot, p0_optim_range,
-  p1_optim_range)
+apkpseudo2d(spectra, p0_optim_x_range, p1_optim_x_range, pivot,
+  p0_optim_range, p1_optim_range)
 
 apkpseudo2d_values(spectra, p0_optim_x_range, p1_optim_x_range, pivot,
   p0_optim_range, p1_optim_range, .progress = NA)
