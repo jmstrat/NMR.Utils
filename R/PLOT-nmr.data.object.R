@@ -4,11 +4,11 @@
 #' @param x An nmr.data.object
 #' @param ... Additional parameters passed to \code{\link[jms.classes]{plot.jms.data.object}}
 #' @export
-plot.nmr.data.object <- function(x,...,axes=1,xlim=NULL) {
+plot.nmr.data.object <- function(x,...,axes=1,xlim=NULL, div=2) {
   if(any_complex(x)) x = makeReal(x)
   if(any(is.null(xlim))) xlim=range(x[,jms.classes::xcol(x)][is.finite(x[,jms.classes::xcol(x)])])
   xlim=rev(range(xlim))
-  NextMethod(x,axes=axes,xlim=xlim,div=2,...)
+  NextMethod(x,axes=axes,xlim=xlim,div=div,...)
 }
 
 #' @export
@@ -27,7 +27,7 @@ lines.nmr.data.object <- function(x,...) {
 #'
 #' This function is used to plot ex situ NMR data.
 #' @param x An nmr.data.object
-#' @param ... Additional parameters passed to \code{\link[jms.classes]{plot.jms.data.object}}
+#' @param ... Additional parameters passed to \code{\link[jms.classes]{iplot.jms.data.object}}
 #' @export
 iplot.nmr.data.object <- function(...,axes=1,offset=NULL,xlim=NULL,ylim=NULL,y2lim=NULL,xlab=NULL,ylab=NULL,y2lab=NULL,col=NULL,lwd=NULL,pch=NULL,labels=NULL,group=NULL) {
   data=list(...)
@@ -59,7 +59,9 @@ iplot.nmr.data.object <- function(...,axes=1,offset=NULL,xlim=NULL,ylim=NULL,y2l
   } else {
     if(any_complex(data[[1]])) data[[1]] = makeReal(data[[1]])
   }
+
   data=jms.classes::combine(unname(data),interpolate=TRUE)
+
   if(any(is.null(xlim))) {
     xlim=range(data[,jms.classes::xcol(data)][is.finite(data[,jms.classes::xcol(data)])])
   }
