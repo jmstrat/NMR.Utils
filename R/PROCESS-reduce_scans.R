@@ -8,6 +8,7 @@
 #' reduceScans(spectra,c(1,50))
 reduceScans <-function(spectra,scan_range) {
   if(missing(scan_range)) scan_range <- c(1, find_last_scan(spectra))
+  jms.classes::log.info('Removing scans outside of range %s - %s', scan_range[[1]], scan_range[[2]])
   scan_range=scan_range+1
   if(scan_range[[1]]<2)
     scan_range[[1]]=2
