@@ -1,7 +1,45 @@
-#' @author Josh Stratford, \email{}
-#' ...
+#' @author Josh Stratford
+#'
 #' @import Plotting.Utils
-NULL
+#' @section Importing NMR data:
+#' Use the function \code{\link{read.nmr}} to import 1D or 2D nmr data. Use \code{plot} or \code{iplot} to plot the data.
+#'
+#' @section In situ NMR data:
+#'
+#' \itemize{
+#'   \item Import the NMR data using \code{\link{read.nmr}}; import the echem data using \code{\link[Echem.Data]{read.echem}}.
+#'   \item Set the time for each scan using \code{\link{storeOffsets}}. These times can be automatically generated from an ATMC log file
+#' using \code{\link{read.ATMC}} or without a log file using \code{\link{noATMoffsets}}.
+#'   \item Combine the NMR and echem data with \code{\link{associate_echem_with_nmr}}.
+#'   \item If complex, data can then be phased (\code{\link{apkpseudo2d}}), and made real (\code{\link{makeReal}}).
+#'   \item Baseline subtraction can be performed using \code{\link[jms.classes]{make_background}} OR \code{\link{correct_baseline}}
+#'   \item Use \code{plot} to plot the data -- see \code{\link{plot.nmr2dinsitu.data.object}} for options.
+#' }
+#' Any / all of these steps can be performed graphically using the command \code{\link{insitu_gui}} or any of the
+#' \code{interactive} family of commands (\code{\link{interactiveImport}}, \code{\link{interactivePhase}},
+#' \code{\link{interactiveBaseline}} and \code{\link{interactivePlotting}}).\cr
+#' Data can be exported as a csv file using the \code{\link[jms.classes]{export}} function.
+#'
+#' @section Fitting in situ NMR data:
+#' Import and process the data as described in the in situ NMR section. Note that it is very important that the baseline is 0 for fitting,
+#' if your baseline is reasonably flat the command \code{data = correct_baseline(data, method="modpolyfit",degree=1)} will fit a straight
+#' line to the data. Otherwise consider using \code{\link{interactiveBaseline}}.\cr\cr
+#'
+#' Create a fit object using \code{\link{new_fit}}, e.g.\cr
+#' \code{fit = new_fit(integration_range=c(-50, 50))} \cr\cr
+#' Create one or more peaks using \code{\link{new_model}}, e.g.:\cr
+#' \code{electrolyte = new_model(pseudoVoigt, height=1e6, centre=0.2, hwhm=2.0, shape=0.5)}\cr\cr
+#' Define which parameters of the model will be fitted using \code{\link{add_constraint_to_model}}, e.g.:\cr
+#' \code{electrolyte = add_constraint_to_model(electrolyte, parameter='height', constraint_type='vary', constraint=1e5)}\cr\cr
+#' Add each model to the fit using \code{\link{add_model_to_fit}}, e.g.:\cr
+#' \code{fit = add_model_to_fit(fit, electrolyte)}\cr\cr
+#' Run the fit using \code{\link{run_fit_for_data}}.\cr\cr
+#' Results are available in the fit object under \code{result}, e.g. \code{fit$result}. These can be exported to a csv file
+#' using \code{\link[jms.classes]{export}}. A simple plot can be made using \code{plot(fit)}, or an animation as described below.
+#'
+#' @section Animations:
+#' A simple animation of in situ NMR data can be made using \code{\link{save_animation}}, optionally including a fit.
+"_PACKAGE"
 
 .onLoad <- function(libname, pkgname){
   jms.classes::create_data_type('nmr','ppm','',envir=asNamespace('NMR.Utils'))
