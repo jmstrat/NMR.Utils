@@ -10,7 +10,8 @@
 #' @examples
 #' phase(data,45,0,0)
 phase <- function(data,p0,p1,pivot) {
-  ppm = data[, 1]
+  jms.classes::log.info('Phasing spectra using provided p0, p1 and pivot values')
+  ppm = as.numeric(data[, 1])
   pdata = as.matrix(data[, 2:ncol(data)])
 
   n = nrow(pdata)
@@ -30,21 +31,26 @@ phase <- function(data,p0,p1,pivot) {
     p0 = p0[,'p0']
   }
 
-  x = sapply(pivot, function(p) (1:n - which(abs(ppm-p) == min(abs(ppm-p)))[[1]]) / n )
+  # 30/5/19 optimisation, changed the following (not 100% tested tho...)
+  # x = sapply(pivot, function(p) (1:n - which(abs(ppm-p) == min(abs(ppm-p)))[[1]]) / n )
+  # phi = t(mapply(function(pp0, pp1, x_i) pp0 / 180 * pi + pp1 / 180 * pi * x[,x_i], p0, p1, 1:ncol(x) ))
+  # result = sapply(1:nrow(phase_vector), function(i) {pdata[,i] * phase_vector[i,]})
 
-  # Support for vectors
-  phi = t(mapply(function(pp0, pp1, x_i) pp0 / 180 * pi + pp1 / 180 * pi * x[,x_i], p0, p1, 1:ncol(x) ))
+  x = vapply(pivot, function(p) (1:n - which(abs(ppm-p) == min(abs(ppm-p)))[[1]]) / n , numeric(n))
+
+  phi = p0 / 180 * pi + p1 / 180 * pi * t(x)
 
   phase_vector = matrix(complex(real=cos(phi), imaginary=-sin(phi)), nrow(phi), ncol(phi))
-  result = sapply(1:nrow(phase_vector), function(i) {pdata[,i] * phase_vector[i,]})
+
+  result = pdata * t(phase_vector)
 
   data[, 2:ncol(data)] = result
   return(data)
 }
 
 .single_phase <- function(data, p0, p1, pivot) {
-  x = data[,1]
-  y = data[,2]
+  x = as.numeric(data[,1])
+  y = as.complex(data[,2])
   n = nrow(data)
 
   # Which can give 2 values if equidistent -- just take the first...
@@ -74,7 +80,7 @@ phase <- function(data,p0,p1,pivot) {
 #' apk(data)
 apk <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
   values = apk_values(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)
-  print(sprintf("p0 = %s; p1 = %s; pivot = %s", values[['p0']], values[['p1']], values[['pivot']]))
+  jms.classes::log.info("p0 = %s; p1 = %s; pivot = %s", values[['p0']], values[['p1']], values[['pivot']])
   phase(spectrum, values[['p0']], values[['p1']], values[['pivot']])
 }
 
@@ -85,7 +91,7 @@ apk_values <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim
   spectrum = as.data.frame(spectrum)
 
   if(missing(p0_optim_x_range)) {
-    x = data[,1]
+    x = spectrum[,1]
     xrange = range(x)
     x_total_range = diff(xrange)
     m = mean(xrange)
@@ -136,6 +142,7 @@ apk_values <- function(spectrum,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim
 #' @examples
 #' apkpseudo2d(data,c(-200,200),c(1000,1300),0,c(-50,50),c(-5,0))
 apkpseudo2d <-function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range) {
+  jms.classes::log.info('Autophasing 2D spectra scan-by-scan')
   for(i in 2:ncol(spectra)) {
     spectra[,i]=as.complex(apk(spectra[,c(1,i)],p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)[,2])
   }
@@ -145,6 +152,7 @@ apkpseudo2d <-function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_
 #' @export
 #' @rdname apk
 apkpseudo2d_values <- function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range, .progress=NA) {
+  jms.classes::log.info('Autophasing 2D spectra scan-by-scan')
   output = data.frame(p0=NA, p1=NA, pivot=NA)
   for(i in 2:ncol(spectra)) {
     output[i-1,]=apk_values(spectra[,c(1,i)],p0_optim_x_range,p1_optim_x_range,pivot,p0_optim_range,p1_optim_range)
@@ -161,6 +169,8 @@ apkpseudo2d_values <- function(spectra,p0_optim_x_range,p1_optim_x_range,pivot,p
 #' @examples
 #' makeReal(data)
 makeReal <-function(spectra) {
+  jms.classes::log.debug('Discarding complex part of NMR data')
+  if(length(spectra)==0) return(spectra)
   atts = attributes(spectra)
   cls = class(spectra)
   new = as.data.frame(apply(as.matrix(spectra),2,Re))
