@@ -6,8 +6,9 @@
 #' @examples
 #' read.nmr.directory.1d.2col(files)
 #' @keywords internal
-read.nmr.directory.text.1d.2col <- function(files,skip) {
-  .read.nmr.directory.text(files, read.nmr.text.1d.2col, skip=skip)
+read.nmr.directory.text.1d.2col <- function(files,skip,sep) {
+  jms.classes::log.info('Processing directory containing 1D 2 column files')
+  .read.nmr.directory.text(files, read.nmr.text.1d.2col, skip=skip, sep=sep)
 }
 
 #' Process a folder of one column text files
@@ -19,6 +20,7 @@ read.nmr.directory.text.1d.2col <- function(files,skip) {
 #' read.nmr.directory.1d.2col(files)
 #' @keywords internal
 read.nmr.directory.text.1d.1col <- function(files) {
+  jms.classes::log.info('Processing directory containing 1D 1 column files')
   .read.nmr.directory.text(files, read.nmr.text.1d.1col)
 }
 
@@ -29,7 +31,7 @@ read.nmr.directory.text.1d.1col <- function(files) {
 
   #Are they the same?
   if(all(ppm1==ppm2)) {
-    #Assume case 1
+    #Assume in situ
     #Now we have to read each file as a subsequent column for a data frame
     columns=c()
     for(f in 1:length(files)) {
@@ -45,8 +47,7 @@ read.nmr.directory.text.1d.1col <- function(files) {
     #return data
     return(nmrdata)
   } else {
-    #Assume case 2
-    #TODO
-    stop("Summing 1D spectra has not yet been implemented. (Coming soon!)")
+    #TODO Assume VOCS
+    stop("Handling a directory of 1D spectra with different ppm axes has not yet been implemented.")
   }
 }

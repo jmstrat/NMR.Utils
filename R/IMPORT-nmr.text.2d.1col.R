@@ -8,6 +8,7 @@
 #' read.nmr.text.2d.1col("/path/to/file.txt")
 #' @keywords internal
 read.nmr.text.2d.1col <- function(nmrfile,imaginary_file=NA) {
+  jms.classes::log.info('Reading 2D 1 column file: %s', nmrfile)
   #Open file for reading
   con=file(nmrfile,open='r')
   #Read first 8 lines
@@ -31,6 +32,7 @@ read.nmr.text.2d.1col <- function(nmrfile,imaginary_file=NA) {
   #Read all data ignoring comment lines (Thus also ignoring row separators)
   fullTable=read.table(nmrfile)
   if(!is.na(imaginary_file)) {
+    jms.classes::log.info('Reading 2D 1 column file: %s', imaginary_file)
     imaginaryTable=read.table(imaginary_file)
   }
 

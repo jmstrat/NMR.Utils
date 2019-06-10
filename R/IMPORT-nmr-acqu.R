@@ -7,8 +7,10 @@
 #' @examples
 #' read.acqu("/path/to/nmr/expName/expNo")
 read.acqu <- function(dir) {
-  if(file.exists(paste0(dir,"/acqus"))) {
-    con=file(paste0(dir,"/acqus"),open='r')
+  path = paste0(dir,"/acqus")
+  if(file.exists(path)) {
+    jms.classes::log.info('Reading acquisition parameters from %s', path)
+    con=file(path,open='r')
     head0=readLines(con)
     close(con)
     position = grep('^\\$\\$',head0)[[1]]
@@ -46,6 +48,7 @@ read.acqu <- function(dir) {
     acqu$pulprog    = substr(acqu$pulprog,2,nchar(acqu$pulprog)-1)
     acqu$rg         = suppressWarnings(as.numeric(get_pat('##\\$RG=')))
     acqu$sfo1       = suppressWarnings(as.numeric(get_pat('##\\$SFO1=')))
+    acqu$o1p         = suppressWarnings(as.numeric(acqu$o1/acqu$sfo1))
     acqu$sw         = suppressWarnings(as.numeric(get_pat('##\\$SW=')))
     acqu$sw_h       = suppressWarnings(as.numeric(get_pat('##\\$SW_h=')))
     acqu$td         = suppressWarnings(as.numeric(get_pat('##\\$TD=')))
@@ -66,8 +69,10 @@ read.acqu <- function(dir) {
   }
 
   if(acqu$parmode > 0) {
-    if(file.exists(paste0(dir,"/acqu2s"))) {
-      con=file(paste0(dir,"/acqu2s"),open='r')
+    path = paste0(dir,"/acqu2s")
+    if(file.exists(path)) {
+      jms.classes::log.info('Reading acquisition parameters from %s', path)
+      con=file(path,open='r')
       head0=readLines(con)
       close(con)
 
@@ -76,8 +81,10 @@ read.acqu <- function(dir) {
       acqu$td[[2]]         = as.numeric(get_pat('##\\$TD='))
 
       if(acqu$parmode > 1) {
-        if(file.exists(paste0(dir,"/acqu3s"))) {
-          con=file(paste0(dir,"/acqu3s"),open='r')
+        path = paste0(dir,"/acqu3s")
+        jms.classes::log.info('Reading acquisition parameters from %s', path)
+        if(file.exists(path)) {
+          con=file(path,open='r')
           head0=readLines(con)
           close(con)
           acqu$sw[[3]]         = as.numeric(get_pat('##\\$SW='))
@@ -85,19 +92,21 @@ read.acqu <- function(dir) {
           acqu$td[[3]]         = as.numeric(get_pat('##\\$TD='))
 
           if(acqu$parmode > 2) {
-            if(file.exists(paste0(dir,"/acqu4s"))) {
-              con=file(paste0(dir,"/acqu4s"),open='r')
+            path = paste0(dir,"/acqu4s")
+            jms.classes::log.info('Reading acquisition parameters from %s', path)
+            if(file.exists(path)) {
+              con=file(path,open='r')
               head0=readLines(con)
               close(con)
               acqu$sw[[4]]         = as.numeric(get_pat('##\\$SW='))
               acqu$sw_h[[4]]       = as.numeric(get_pat('##\\$SW_h='))
               acqu$td[[4]]         = as.numeric(get_pat('##\\$TD='))
             } else {
-              stop('ERROR: Could not find "acqu4s"');
+              stop('ERROR: Could not find "acqu4s"')
             }
           }
         } else {
-          stop('ERROR: Could not find "acqu3s"');
+          stop('ERROR: Could not find "acqu3s"')
         }
       }
     } else {
@@ -119,6 +128,7 @@ read.nmr.title <- function(dir) {
   title=""
   fileName=paste0(dir,"/pdata/1/title")
   if(file.exists(fileName)) {
+    jms.classes::log.info('Reading title from %s', fileName)
     title=readChar(fileName, file.info(fileName)$size)
   } else jms.classes::log.warn('Unable to find title for NMR data at "%s"',dir)
   return(title)

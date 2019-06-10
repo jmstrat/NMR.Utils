@@ -7,6 +7,7 @@
 #' read.nmr.text.1d.1col("/path/to/file.txt")
 #' @keywords internal
 read.nmr.text.1d.1col <- function(nmrfile) {
+  jms.classes::log.info('Reading 1D 1 column file: %s', nmrfile)
   ppmscale=read.nmr.text.1d.1col.ppm(nmrfile)
 
   #Read all data ignoring comment lines (Thus also ignoring row separators)
@@ -19,17 +20,24 @@ read.nmr.text.1d.1col <- function(nmrfile) {
   return(nmrdata)
 }
 
-#' Read 1D NMR Data (2 col)
+#' Read 1D NMR Data (2 / 4 col)
 #'
 #' This function is used to import NMR data.
-#' @param nmrfile Path to txt file saved using topspin's File->Save->Save visible region as text file (with or without imaginary)
-#' @return A data frame containing the NMR data (ppm,intensity)
+#' @param nmrfile Path to txt file
+#' @return A data frame containing the NMR data (ppm,intensity,...)
 #' @examples
 #' read.nmr.text.1d.2col("/path/to/file.txt")
 #' @keywords internal
-read.nmr.text.1d.2col <- function(file, skip) {
-  tab = read.table.nmr(file,skip=skip)
-  names(tab) <- c("ppm","intensity")
+read.nmr.text.1d.2col <- function(file, skip, sep = "") {
+  jms.classes::log.info('Reading 1D 2 column file: %s', file)
+  tab = read.table.nmr(file,skip=skip, sep = sep)
+  n = ncol(tab)
+  if(n == 2) {
+    names(tab) <- c("ppm","intensity")
+  } else {
+    # ascii-spec
+    names(tab) <- c("point","intensity","hz","ppm")
+  }
   tab
 }
 
@@ -44,12 +52,15 @@ read.nmr.text.1d.2col <- function(file, skip) {
 read.nmr.text.1d <- function(file) {
   type_skip=determine_1d_file_type(file)
   if(type_skip[[1]]==1) {
-    return(read.nmr.text.1d.1col(file))
+    data = read.nmr.text.1d.1col(file)
   } else if(type_skip[[1]]==2) {
-    return(read.nmr.text.1d.2col(file,type_skip[[2]]))
+    data = read.nmr.text.1d.2col(file,type_skip[[2]],type_skip[[3]])
   } else {
     stop("File type not supported")
   }
+  jms.classes::xcol(data) <- 'ppm'
+  jms.classes::ycol(data) <- 'intensity'
+  data
 }
 
 #' Read ppm scale for 1D data

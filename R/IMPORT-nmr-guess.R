@@ -3,13 +3,16 @@ NMR_TEXT_FILE_PATTERN = "*.(txt|dat)"
 read.nmr.guess <- function(path, ...) {
   if(dir.exists(path)) {
     return(read.nmr.guess.directory(path, ...))
-  } else {
+  } else if(file.exists(path)) {
     #We're working with a text file
     return(read.nmr.guess.file(path, ...))
+  } else {
+    stop(path, ' was not found.')
   }
 }
 
 read.nmr.guess.directory <- function(path, ...) {
+  jms.classes::log.debug('Treating %s as a directory', path)
   #File is a directory, determine whether it is a bruker folder or a normal folder
 
   # First look for numbered subfolders
@@ -25,7 +28,7 @@ read.nmr.guess.directory <- function(path, ...) {
     # We have a bruker process directory
     return(read.nmr.directory.bruker.process(path, ...))
   }
-
+  jms.classes::log.debug('Treating %s as a non-bruker directory', path)
   #We now assume we're working with a folder of text files
   #Two options:
   #1) In-situ files saved as individual scans (e.g. if carrier frequency is changed during scan)
@@ -37,7 +40,7 @@ read.nmr.guess.directory <- function(path, ...) {
 
   #Firstly we find all of the files
   files = jms.classes::list.files.sorted(path,pattern=NMR_TEXT_FILE_PATTERN,full.names=TRUE)
-
+  jms.classes::log.debug('%s contains %s files', path, length(files))
   #We check that we have some files
   if(length(files)==0) {
     stop("No files were found.")
@@ -49,13 +52,14 @@ read.nmr.guess.directory <- function(path, ...) {
   if(type_skip[[1]]==1) {
     return(read.nmr.directory.text.1d.1col(files))
   } else if(type_skip[[1]]==2) {
-    return(read.nmr.directory.text.1d.2col(files,type_skip[[2]]))
+    return(read.nmr.directory.text.1d.2col(files,type_skip[[2]]),type_skip[[3]])
   } else {
     stop("File type not supported")
   }
 }
 
 read.nmr.guess.file <- function(path, imaginary_file=NA, ...) {
+  jms.classes::log.debug('Treating %s as a file', path)
   dim=determine_dimensions_from_text_file(path)
   if(dim==1) {
     return(read.nmr.text.1d(path))
@@ -79,24 +83,35 @@ determine_1d_file_type <- function(file) {
     #Extract info from preamble
     #Open file for reading
     con=file(file,open='r')
-    #Read first 8 lines
-    lines=readLines(con,n=1)
+    #Read first line
+    lines=readLines(con,n=2)
     #Close file
     close(con)
     #Extract lines
     l1=lines[[1]]
 
     if(grepl("^# File created", l1)) {
-      return(c(1,NA))
+      return(c(1,NA,NA))
     } else if(grepl("^ppm scale", l1)) {
-      return(c(2,3))
+      return(c(2,3,""))
     } else if(grepl("^[-+eE.0-9]* [-+eE.0-9]*$", l1)) {
       #2 columns of data, no header
-      return(c(2,0))
+      return(c(2,0,""))
     } else {
+      n <- tryCatch({
+        ncol(read.table(text=lines[[2]]))
+      }, error = function(e) {
+        0
+      })
+      if( n == 4) {
+        # ascii-spec
+        return(c(2,1,","))
+      }
+
       stop("Input file not supported.")
     }
   }, error = function(e) {
+    jms.classes::log.error(e)
     stop("Input file not supported.")
   })
 }
@@ -114,8 +129,8 @@ determine_dimensions_from_text_file <-function(file) {
     #Extract info from preamble
     #Open file for reading
     con=file(file,open='r')
-    #Read first 8 lines
-    lines=readLines(con,n=8)
+    #Read first 5 lines
+    lines=readLines(con, n=5)
     #Close file
     close(con)
     #Extract lines
@@ -127,9 +142,19 @@ determine_dimensions_from_text_file <-function(file) {
     } else if(grepl("^# F2LEFT", l5)) {
       return(2)
     } else {
+      n <- tryCatch({
+        ncol(read.table(text=lines[[2]]))
+      }, error = function(e) {
+        0
+      })
+      if( n == 4) {
+        # ascii-spec
+        return(1)
+      }
       stop("Input file not supported.")
     }
   }, error = function(e) {
+    jms.classes::log.error(e)
     stop("Input file not supported.")
   })
 }
