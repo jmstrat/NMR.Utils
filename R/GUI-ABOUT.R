@@ -114,6 +114,10 @@ about_mod_UI <- function(id) {
                  shiny::column(4, shiny::uiOutput(ns('optional_database')))
                )
     ),
+    shiny::div(class='about-heading', 'Updates'),
+    shiny::div(class='about-section',
+               shiny::uiOutput(ns('updatesUI'))
+               ),
     shiny::div(class='about-heading', 'Settings'),
     shiny::div(
       class='about-section overflow',
@@ -274,6 +278,52 @@ about_mod <- function(input, output, session) {
       zip(file, files, flags = "-j9X")
     }
   )
+
+  checked_outdated <- FALSE
+  outdated_packages <- shiny::reactive({
+    try(remotes::dev_package_deps(system.file(package='NMR.Utils')))
+  })
+
+  shiny::observe({
+    # Crude hack to avoid blocking startup... (if only R had async...)
+    if(!checked_outdated) {
+      checked_outdated <<- TRUE
+      shiny::invalidateLater(2000)
+      return()
+    }
+
+    pkgs <- outdated_packages()
+    if (inherits(pkgs, 'try-error')) {
+      return()
+    }
+    if ("NMR.Utils" %in% pkgs[pkgs$diff < 0, 'package']) {
+      shiny::showNotification(shiny::tagList(
+        'An updated version of NMR.Utils is available:',
+        shiny::br(),
+        shiny::a(href=packageDescription('NMR.Utils')$URL, packageDescription('NMR.Utils')$URL),
+        shiny::br()
+        ), type='message', duration = 10
+      )
+    }
+  })
+
+  output$updatesUI <- shiny::renderUI({
+    pkgs <- outdated_packages()
+
+    if (inherits(pkgs, 'try-error')) {
+      jms.classes::log.error(pkgs)
+      return(shiny::div('Unable to check for updates'))
+    }
+
+    outdated_pkgs <- pkgs[pkgs$diff < 0, 'package']
+
+    if(length(outdated_pkgs) == 0) {
+      return(shiny::div('All necessary packages are up to date'))
+    }
+
+    outdated_pkgs <- paste0(outdated_pkgs, collapse=', ')
+    shiny::div('The following packages have available updates:', shiny::br(), outdated_pkgs)
+  })
 
   shiny::setBookmarkExclude(c('loglevel', 'saving', 'zoom', 'debug_mode', 'debug_log'))
 }
