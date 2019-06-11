@@ -86,8 +86,8 @@ about_mod_UI <- function(id) {
                                    shiny::tags$td('Josh Stratford')
                                  ),
                                  shiny::tags$tr(
-                                   shiny::tags$td('Email'),
-                                   shiny::tags$td(shiny::a('51674722+jmstrat@users.noreply.github.com', href='mailto:51674722+jmstrat@users.noreply.github.com'))
+                                   shiny::tags$td('Url'),
+                                   shiny::tags$td(shiny::a('https://github.com/jmstrat/NMR.Utils', href='https://github.com/jmstrat/NMR.Utils'))
                                  ),
                                  shiny::tags$tr(
                                    shiny::tags$td('Examples'),
