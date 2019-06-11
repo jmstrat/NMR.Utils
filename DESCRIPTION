@@ -7,6 +7,8 @@ Maintainer: Josh Stratford <51674722+jmstrat@users.noreply.github.com>
 Description: Contains functions to automatically import, process and plot
     Bruker NMR data. Primarily designed to speed up the processing of in-situ
     electrochemical experiments.
+URL: https://github.com/jmstrat/NMR.Utils
+BugReports: https://github.com/jmstrat/NMR.Utils/issues
 Imports: jms.classes,
          Plotting.Utils,
          minpack.lm,
