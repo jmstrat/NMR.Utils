@@ -212,6 +212,8 @@ wizard_mod <- function(input, output, session, modules=default_modules) {
 }
 
 
+.wizard_package_deps <- c('shiny', 'shinyFiles', 'shinyBS', 'DT', 'colourpicker', 'rstudioapi')
+
 #' Wizard for processing insitu data
 #'
 #' Use \code{insitu_gui} for the main wizard, or access an individual tab with its respective command.
@@ -227,7 +229,9 @@ wizard_mod <- function(input, output, session, modules=default_modules) {
 #' @examples
 #' insitu_gui()
 insitu_gui <- function(nmr) {
-  jms.classes::assert_packages('shiny', 'shinyFiles', 'shinyBS', 'DT', 'colourpicker', 'rstudioapi', purpose='Interactive processing')
+  deps <- as.list(.wizard_package_deps)
+  deps$purpose <- 'Interactive processing'
+  do.call(jms.classes::assert_packages, deps)
 
   shiny::addResourcePath("sbs", system.file("www", package = "shinyBS"))
   shiny::addResourcePath('www', system.file('www', package='jms.classes'))
