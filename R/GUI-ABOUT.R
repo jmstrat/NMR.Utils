@@ -123,8 +123,12 @@ about_mod_UI <- function(id) {
     ),
     shiny::div(class='about-heading', 'Debug Mode'),
     shiny::div(class='about-section',
-               shiny::p('If you find an issue with the wizard that you cannot solve yourself, you will need to collect some debugging information. This is easiest to do by clicking the debug mode button below, which will reset the interface and enable additional logging. You should then repeat the steps that caused the issue, then click the retrieve debug info button to download the necessary information.'),
-
+               shiny::p('If you find an issue with the wizard that you cannot solve yourself, you will need to collect some debugging information.
+                        This is easiest to do by clicking the debug mode button below, which will reset the interface and enable additional logging.
+                        You should then repeat the steps that caused the issue, then click the retrieve debug info button to download the necessary
+                        information. Bug reports can be submitted at ',
+                        shiny::a(href=packageDescription('NMR.Utils')$BugReports, packageDescription('NMR.Utils')$BugReports)
+               ),
                shiny::uiOutput(ns('debug_mode_ui'), inline=T, style='display: inline-block; margin-top: 10px; vertical-align: middle;'),
                shiny::downloadButton(ns('debug_log'), 'Retrieve Debug Info', style='margin-left: 10px; margin-top: 10px;')
     ),
