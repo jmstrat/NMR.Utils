@@ -300,8 +300,18 @@ about_mod <- function(input, output, session) {
     }
   )
 
-  outdated_packages <- shiny::reactive({
-    try(remotes::dev_package_deps(system.file(package='NMR.Utils')))
+  is_outdated <- shiny::reactive({
+    jms.classes::log.info('Checking for updates to NMR.Utils')
+    try({
+      res <- remotes::dev_package_deps(system.file(package='NMR.Utils'), dependencies=FALSE)
+      if (any(res$diff < 0)) {
+        jms.classes::log.info('Update available')
+        return(T)
+      } else {
+        jms.classes::log.info('NMR.Utils is up to date')
+        return(F)
+      }
+    })
   })
 
   checked_outdated <- FALSE
@@ -313,11 +323,11 @@ about_mod <- function(input, output, session) {
       return()
     }
 
-    pkgs <- outdated_packages()
-    if (inherits(pkgs, 'try-error')) {
+    outdated <- is_outdated()
+    if (inherits(outdated, 'try-error')) {
       return()
     }
-    if ("NMR.Utils" %in% pkgs[pkgs$diff < 0, 'package']) {
+    if (outdated) {
       shiny::showNotification(shiny::tagList(
         'An updated version of NMR.Utils is available:',
         shiny::br(),
@@ -328,16 +338,36 @@ about_mod <- function(input, output, session) {
     }
   })
 
-
+  opt_pkgs <- c('Echem.Data', 'Echem.Process', 'Echem.Database')
   all_outdated <- shiny::reactive({
-    try({
-      extras <- remotes::package_deps(.wizard_package_deps)
-      all <- rbind(outdated_packages(), extras)
-      as.data.frame(all)[all$diff < 0, c('package', 'installed', 'available')]
+    jms.classes::log.info('Checking for updates to NMR.Utils and dependencies')
+    try ({
+      deps <- remotes::dev_package_deps(system.file(package='NMR.Utils'), dependencies=TRUE)
+
+      opt_installed <- sapply(opt_pkgs, requireNamespace, package, quietly=TRUE)
+      if (any(opt_installed)) {
+        opt_installed <- opt_pkgs[opt_installed]
+        for (pkg in opt_installed) {
+          deps <- rbind(deps, remotes::dev_package_deps(system.file(package=pkg)))
+        }
+      }
+
+      wiz_extras <- remotes::package_deps(.wizard_package_deps)
+      all <- rbind(deps, wiz_extras)
+      all <- as.data.frame(all)[all$diff < 0, c('package', 'installed', 'available')]
+      unique(all)
     })
   })
 
+  checked_all_outdated <- FALSE
   output$updatesUI <- shiny::renderUI({
+    # Crude hack to avoid blocking page load (if only R had async...)
+    if(!checked_all_outdated) {
+      checked_all_outdated <<- TRUE
+      shiny::invalidateLater(500)
+      return('Checking for updates...')
+    }
+
     pkgs <- all_outdated()
 
     if (inherits(pkgs, 'try-error')) {
