@@ -8,6 +8,7 @@ padding: 0.5em;
 }
 .about-section {
 margin: 3em;
+text-align: justify;
 }
 .about-author td:first-child {
 padding-right: 10px;
