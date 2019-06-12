@@ -307,6 +307,7 @@ about_mod <- function(input, output, session) {
     }
   })
 
+  # TODO styling
   output$updatesUI <- shiny::renderUI({
     pkgs <- outdated_packages()
 
