@@ -68,6 +68,27 @@ padding-bottom: 0.5em;
 
 .overflow {
  padding-bottom: 25vh;
+}
+
+.about-success-icon {
+  color: #77dd77;
+  font-weight: bold;
+  font-size: 3em;
+}
+
+.about-fail-icon {
+  color: #ff4f4f;
+  font-weight: bold;
+  font-size: 3em;
+}
+
+.about-code {
+  background-color: rgba(27,31,35,.05);
+  border-radius: 3px;
+  font-size: 85%;
+  margin: 0;
+  padding: .2em .4em;
+  font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
 }"
 
 about_mod_UI <- function(id) {
@@ -279,11 +300,11 @@ about_mod <- function(input, output, session) {
     }
   )
 
-  checked_outdated <- FALSE
   outdated_packages <- shiny::reactive({
     try(remotes::dev_package_deps(system.file(package='NMR.Utils')))
   })
 
+  checked_outdated <- FALSE
   shiny::observe({
     # Crude hack to avoid blocking startup... (if only R had async...)
     if(!checked_outdated) {
@@ -307,23 +328,65 @@ about_mod <- function(input, output, session) {
     }
   })
 
-  # TODO styling
+
+  all_outdated <- shiny::reactive({
+    try({
+      extras <- remotes::package_deps(.wizard_package_deps)
+      all <- rbind(outdated_packages(), extras)
+      as.data.frame(all)[all$diff < 0, c('package', 'installed', 'available')]
+    })
+  })
+
   output$updatesUI <- shiny::renderUI({
-    pkgs <- outdated_packages()
+    pkgs <- all_outdated()
 
     if (inherits(pkgs, 'try-error')) {
       jms.classes::log.error(pkgs)
       return(shiny::div('Unable to check for updates'))
     }
 
-    outdated_pkgs <- pkgs[pkgs$diff < 0, 'package']
-
-    if(length(outdated_pkgs) == 0) {
-      return(shiny::div('All necessary packages are up to date'))
+    if(nrow(pkgs) == 0) {
+      return(
+        shiny::div(style='display: flex; align-items: center;',
+                   shiny::icon('check', class='about-success-icon'),
+                   shiny::span('All necessary packages are up to date', style='margin-left: 20px;')
+        )
+      )
     }
 
-    outdated_pkgs <- paste0(outdated_pkgs, collapse=', ')
-    shiny::div('The following packages have available updates:', shiny::br(), outdated_pkgs)
+    shiny::tagList(
+      shiny::div(style='display: flex; align-items: center;',
+                 shiny::icon('times', class='about-fail-icon'),
+                 shiny::span('Some packages required for this interface are not up to date', style='margin-left: 20px;')
+      ),
+
+      DT::dataTableOutput(session$ns('outdatedTBl'), width="50%"),
+      shiny::div(style='margin-top: 30px; font-size: 1.5em;',
+                 shiny::span('Update all packages with the following command, then restart R:'),
+                 shiny::br(),
+                 shiny::span('remotes::update_packages()', class='about-code')
+      ))
+  })
+
+  output$outdatedTBl <- DT::renderDataTable({
+    df <- all_outdated()
+    jms.classes::log.debug('Outdated packages: %s', paste0(df$package, collapse=', '))
+
+    colnames(df) <- c('Package', 'Installed Version', 'Available Version')
+
+    table <- DT::datatable(
+      df,
+      class="compact hover",
+      rownames=FALSE,
+      options=list(
+        paging=FALSE,
+        ordering=FALSE,
+        searching=FALSE,
+        info=FALSE,
+        columnDefs = list(list(className='dt-center', targets="_all"))
+      )
+    )
+    DT::formatStyle(table, 1,`border-right` = '1px solid black')
   })
 
   shiny::setBookmarkExclude(c('loglevel', 'saving', 'zoom', 'debug_mode', 'debug_log'))
