@@ -9,10 +9,10 @@ Description: Contains functions to automatically import, process and plot
     electrochemical experiments.
 URL: https://github.com/jmstrat/NMR.Utils
 BugReports: https://github.com/jmstrat/NMR.Utils/issues
-Imports: jms.classes,
-         Plotting.Utils,
-         minpack.lm,
-         nls2
+Imports: jms.classes (>= 1.0.0),
+         Plotting.Utils (>= 1.0.0),
+         minpack.lm (>= 1.2-1),
+         nls2 (>= 0.2)
 Depends: R (>= 3.2.0)
 License: GNU Affero General Public License v3.0 
 Encoding: UTF-8
