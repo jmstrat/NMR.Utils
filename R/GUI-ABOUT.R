@@ -108,7 +108,7 @@ about_mod_UI <- function(id) {
                                  ),
                                  shiny::tags$tr(
                                    shiny::tags$td('Url'),
-                                   shiny::tags$td(shiny::a('https://github.com/jmstrat/NMR.Utils', href='https://github.com/jmstrat/NMR.Utils'))
+                                   shiny::tags$td(shiny::a(packageDescription('NMR.Utils')$URL, href=packageDescription('NMR.Utils')$URL))
                                  ),
                                  shiny::tags$tr(
                                    shiny::tags$td('Examples'),
