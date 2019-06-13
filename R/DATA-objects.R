@@ -40,10 +40,10 @@ NULL
 ##' @rdname data_objects_null_exports
 ##' @keywords internal
 as.nmr2d.data.object <- function(...) {
-  df=as.nmr2d.data.object.super(...)
-  ycols=1:ncol(df)
-  ycols=ycols[!ycols%in%attr(df,'x_column')]
-  attr(df,'y_column')<-ycols
+  df <- as.nmr2d.data.object.super(...)
+  ycols <- 1:ncol(df)
+  ycols <- ycols[!ycols %in% attr(df, "x_column")]
+  attr(df, "y_column") <- ycols
   df
 }
 
@@ -51,12 +51,12 @@ as.nmr2d.data.object <- function(...) {
 ##' @rdname data_objects_null_exports
 ##' @keywords internal
 as.nmr2dinsitu.data.object <- function(x) {
-  if(!requireNamespace("Echem.Data", quietly=TRUE)) {
-    stop('Insitu data processing requires the Echem.Data package')
+  if (!requireNamespace("Echem.Data", quietly=TRUE)) {
+    stop("Insitu data processing requires the Echem.Data package")
   }
-  if(is.nmr2d.data.object(x)) {
+  if (is.nmr2d.data.object(x)) {
     xl <- jms.classes::xlab(x)
-    x=as.nmr2dinsitu.data.object.super(x)
+    x <- as.nmr2dinsitu.data.object.super(x)
     jms.classes::xlab(x) <- xl
     attr(x, "echem") <- Echem.Data::echem.data.object()
   } else {
@@ -87,15 +87,15 @@ NULL
 NULL
 
 #' @export
-`[.nmr2d.data.object` <- function(x,...) {
-  r<-`[.nmr2d.data.object.super`(x,...)
-  if(length(attributes(r)[['y_column']])<2) {
-    #Result now a 1D scan -- change class
-    classR=class(r)
-    class(r)<-classR[!(classR=='nmr2dinsitu.data.object'|classR=='nmr2d.data.object')]
+`[.nmr2d.data.object` <- function(x, ...) {
+  r <- `[.nmr2d.data.object.super`(x, ...)
+  if (length(attributes(r)[["y_column"]]) < 2) {
+    # Result now a 1D scan -- change class
+    classR <- class(r)
+    class(r) <- classR[!(classR == "nmr2dinsitu.data.object" | classR == "nmr2d.data.object")]
   }
   r
 }
 
 #' @export
-`[.nmr2dinsitu.data.object`  <- `[.nmr2d.data.object`
+`[.nmr2dinsitu.data.object` <- `[.nmr2d.data.object`
