@@ -12,44 +12,43 @@
 #' @export
 #' @examples
 #' rebin(data, 10)
-#' rebin(data, 10, 'average_before')
-rebin <- function(data, min_offset, method=c('discard', 'average_before', 'average_after')) {
-  method = method[[1]]
-  jms.classes::log.info('Rebinning data (method=%s)', method)
+#' rebin(data, 10, "average_before")
+rebin <- function(data, min_offset, method=c("discard", "average_before", "average_after")) {
+  method <- method[[1]]
+  jms.classes::log.info("Rebinning data (method=%s)", method)
 
-  offsets = as.numeric(colnames(data)[-1])
+  offsets <- as.numeric(colnames(data)[-1])
 
-  scans_to_remove = c()
-  scans_to_average = c()
+  scans_to_remove <- c()
+  scans_to_average <- c()
 
-  poff=-Inf
-  last_good=NA
-  for(i in 1:length(offsets)) {
-    off=offsets[[i]]
+  poff <- -Inf
+  last_good <- NA
+  for (i in 1:length(offsets)) {
+    off <- offsets[[i]]
     if (abs(off - poff) < min_offset) {
-      scans_to_remove = append(scans_to_remove, i)
+      scans_to_remove <- append(scans_to_remove, i)
 
-      if (method == 'average_before') {
-        data[,last_good + 1] <- rowMeans(data[,c(last_good, i) + 1])
-      } else if (method == 'average_after') {
-        scans_to_average = append(scans_to_average, i)
+      if (method == "average_before") {
+        data[, last_good + 1] <- rowMeans(data[, c(last_good, i) + 1])
+      } else if (method == "average_after") {
+        scans_to_average <- append(scans_to_average, i)
       }
-
     } else {
-      poff = off
-      last_good = i
+      poff <- off
+      last_good <- i
 
       if (length(scans_to_average) > 0) {
-        scans_to_average = append(scans_to_average, i)
-        data[,i+1] <- rowMeans(data[, scans_to_average + 1])
+        scans_to_average <- append(scans_to_average, i)
+        data[, i + 1] <- rowMeans(data[, scans_to_average + 1])
       }
-      scans_to_average = c()
+      scans_to_average <- c()
     }
   }
   if (length(scans_to_remove) > 0) {
-    jms.classes::log.debug('Rebinning removed %s scans', length(scans_to_remove))
+    jms.classes::log.debug("Rebinning removed %s scans", length(scans_to_remove))
     return(data[, -(scans_to_remove + 1)])
   }
-  jms.classes::log.debug('Rebinning did not remove any scans')
+  jms.classes::log.debug("Rebinning did not remove any scans")
   data
 }
