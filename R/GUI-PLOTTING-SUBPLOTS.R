@@ -1,8 +1,8 @@
 # TODO Modules can return data:
-#        reactive passed to annotator and used to align annotations
+#      reactive passed to annotator and used to align annotations
 
 
-registeredExtraInsituPlotTypes = list()
+registeredExtraInsituPlotTypes <- list()
 
 #' Register an interface for drawing a subplot within \code{\link{interactivePlotting}}
 #'
@@ -19,60 +19,70 @@ registeredExtraInsituPlotTypes = list()
 #' @seealso  \link{http://shiny.rstudio.com/articles/modules.htm}
 register_insitu_subplot_module <- function(name, uiFunction, serverFunction) {
   registeredExtraInsituPlotTypes[[name]] <<- list(
-    name = name,
-    ui = uiFunction,
-    server = serverFunction
+    name=name,
+    ui=uiFunction,
+    server=serverFunction
   )
 }
 
 extra_plot_mod_UI <- function(id) {
-  ns = shiny::NS(id)
+  ns <- shiny::NS(id)
   shiny::tagList(
-    shiny::uiOutput(ns('plotTypeSelectorUI')),
+    shiny::uiOutput(ns("plotTypeSelectorUI")),
     shiny::hr(),
-    shiny::uiOutput(ns('plotOptionsUI'))
+    shiny::uiOutput(ns("plotOptionsUI"))
   )
 }
 
 extra_plot_mod <- function(input, output, session, data, data_name) {
   plotTypes <- list()
-  if(length(registeredExtraInsituPlotTypes)) {
+  if (length(registeredExtraInsituPlotTypes)) {
     for (i in 1:length(registeredExtraInsituPlotTypes)) {
-      plotType = registeredExtraInsituPlotTypes[[i]]
+      plotType <- registeredExtraInsituPlotTypes[[i]]
       plotTypes[[plotType$name]] <- list(
-        ui = plotType$ui,
-        result = shiny::callModule(plotType$server, paste0('plotType', i), data, data_name)
+        ui=plotType$ui,
+        result=shiny::callModule(plotType$server, paste0("plotType", i), data, data_name)
       )
     }
   }
 
   output$plotTypeSelectorUI <- shiny::renderUI({
-    if(length(plotTypes) == 0) {
+    if (length(plotTypes) == 0) {
       return(
         shiny::tagList(
-          shiny::h3('No additional plot types have been registered.'),
-          shiny::span('See ?register_insitu_subplot_module')
+          shiny::h3("No additional plot types have been registered."),
+          shiny::span("See ?register_insitu_subplot_module")
         )
       )
     }
-    selected = NULL
-    if('Placeholder' %in% names(plotTypes)) {
-      selected = 'Placeholder'
+    selected <- NULL
+    if ("Placeholder" %in% names(plotTypes)) {
+      selected <- "Placeholder"
     }
     shiny::tagList(
-      shiny::selectInput(session$ns('plotTypeSelector'), 'Choose a type for this plot', names(plotTypes), selected=selected),
-      shiny::span('Add additional custom plot types to this list with the command\n',shiny::code('register_insitu_subplot_module'))
+      shiny::selectInput(
+        session$ns("plotTypeSelector"),
+        "Choose a type for this plot",
+        names(plotTypes),
+        selected=selected
+      ),
+      shiny::span("Add additional custom plot types to this list with the command
+", shiny::code("register_insitu_subplot_module"))
     )
   })
 
   output$plotOptionsUI <- shiny::renderUI({
-    if(is.null(input$plotTypeSelector)) return()
+    if (is.null(input$plotTypeSelector)) {
+      return()
+    }
     w <- which(input$plotTypeSelector == names(plotTypes))
-    (plotTypes[[w]])$ui(session$ns(paste0('plotType', w)))
+    (plotTypes[[w]])$ui(session$ns(paste0("plotType", w)))
   })
 
   selectedPlotParameters <- shiny::reactive({
-    if(is.null(input$plotTypeSelector)) return()
+    if (is.null(input$plotTypeSelector)) {
+      return()
+    }
     (plotTypes[[input$plotTypeSelector]])$result
   })
 
@@ -83,16 +93,16 @@ extra_plot_mod <- function(input, output, session, data, data_name) {
   # Hopefully would be able to get rid of nested onFlushed...
   shiny::onRestored(function(state) {
     jms.classes::log.debug("Restoring subplot")
-    shiny::outputOptions(output, "plotTypeSelectorUI", suspendWhenHidden = FALSE)
-    shiny::outputOptions(output, "plotOptionsUI", suspendWhenHidden = FALSE)
+    shiny::outputOptions(output, "plotTypeSelectorUI", suspendWhenHidden=FALSE)
+    shiny::outputOptions(output, "plotOptionsUI", suspendWhenHidden=FALSE)
     # Renders plotOptionsUI
     session$onFlushed(function() {
       # Renders plot module
       session$onFlushed(function() {
         # RenderUI within plot module?
         session$onFlushed(function() {
-        shiny::outputOptions(output, "plotTypeSelectorUI", suspendWhenHidden = TRUE)
-        shiny::outputOptions(output, "plotOptionsUI", suspendWhenHidden = TRUE)
+          shiny::outputOptions(output, "plotTypeSelectorUI", suspendWhenHidden=TRUE)
+          shiny::outputOptions(output, "plotOptionsUI", suspendWhenHidden=TRUE)
         })
       })
     })
@@ -100,4 +110,3 @@ extra_plot_mod <- function(input, output, session, data, data_name) {
 
   return(selectedPlotParameters)
 }
-
