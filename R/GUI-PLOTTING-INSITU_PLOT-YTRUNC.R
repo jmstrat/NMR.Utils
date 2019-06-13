@@ -1,82 +1,151 @@
 y_trunc_mod_UI <- function(id) {
-  ns = shiny::NS(id)
-  shiny::uiOutput(ns('ytruncUI'))
+  ns <- shiny::NS(id)
+  shiny::uiOutput(ns("ytruncUI"))
 }
 
 y_trunc_mod <- function(input, output, session, enabled, yrange) {
   ytrunc_regions <- shiny::reactiveValues(regions=list(), labels=c())
 
   output$ytruncUI <- shiny::renderUI({
-    if(enabled()) {
+    if (enabled()) {
       shiny::tagList(
-        shiny::fluidRow(shiny::column(12,shiny::div("Enter the left and right limits of a region in which data should be truncated, then hit add.",
-                                                    style="text-align: justify;"))),
+        shiny::fluidRow(
+          shiny::column(
+            12,
+            shiny::div("Enter the left and right limits of a region in which data
+                       should be truncated, then hit add.",
+              style="text-align: justify;"
+            )
+          )
+        ),
         shiny::fluidRow(
           shiny::column(
             4,
-            shiny::numericInput(session$ns('ytruncleft'), 'Left limit', NA, step=10, width='100%')
+            shiny::numericInput(session$ns("ytruncleft"), "Left limit", NA, step=10, width="100%")
           ),
           shiny::column(
             4,
-            shiny::numericInput(session$ns('ytruncright'), 'Right limit', NA, step=10, width='100%')
+            shiny::numericInput(session$ns("ytruncright"), "Right limit", NA, step=10, width="100%")
           ),
           shiny::column(
             4,
-            shiny::actionButton(session$ns('addytruncregion'), 'Add region', style='width: 100%; margin-top: 25px; height:34px')
+            shiny::actionButton(session$ns("addytruncregion"), "Add region",
+              style="width: 100%; margin-top: 25px; height:34px"
+            )
           )
         ),
-        shiny::uiOutput(session$ns('ytruncregions')),
-        shiny::numericInput(session$ns('truncLimit'), 'Y value to truncate above (% of upper y limit)', 90, width='100%'),
-        shiny::fluidRow(
-          shiny::column(
-            6,
-            restorableColourInput(session$ns('ytrunccolour'), 'Colour of truncation line', value='#bebebe')
-          ),
-          shiny::column(
-            6,
-            restorableColourInput(session$ns('ytrunctextcolour'), 'Colour of truncation labels', value='black')
-          )
+        shiny::uiOutput(session$ns("ytruncregions")),
+        shiny::numericInput(
+          session$ns("truncLimit"),
+          "Y value to truncate above (% of upper y limit)",
+          90,
+          width="100%"
         ),
         shiny::fluidRow(
           shiny::column(
             6,
-            shiny::numericInput(session$ns('ytruncamp'), 'Factor to divide amplitude of truncation line', 200, 0, step=10, width='100%')
+            restorableColourInput(
+              session$ns("ytrunccolour"),
+              "Colour of truncation line",
+              value="#bebebe"
+            )
           ),
           shiny::column(
             6,
-            shiny::numericInput(session$ns('ytruncoff'), 'Factor to offset truncation line label by', 20, 0, step=5, width='100%')
+            restorableColourInput(
+              session$ns("ytrunctextcolour"),
+              "Colour of truncation labels",
+              value="black"
+            )
           )
         ),
         shiny::fluidRow(
           shiny::column(
             6,
-            shiny::numericInput(session$ns('ytruncsin'), 'Period of sine wave for truncation line', 5, 0, step=1, width='100%')
+            shiny::numericInput(
+              session$ns("ytruncamp"),
+              "Factor to divide amplitude of truncation line",
+              200, 0,
+              step=10,
+              width="100%"
+            )
           ),
           shiny::column(
             6,
-            shiny::numericInput(session$ns('ytrunclwd'), 'Thickness of truncation line', 2, 0, step=0.5, width='100%')
+            shiny::numericInput(
+              session$ns("ytruncoff"),
+              "Factor to offset truncation line label by",
+              20, 0,
+              step=5,
+              width="100%"
+            )
           )
         ),
-        shiny::numericInput(session$ns('ytrunccex'), 'Relative font size of truncation label', 1, 0, step=0.5, width='50%')
+        shiny::fluidRow(
+          shiny::column(
+            6,
+            shiny::numericInput(
+              session$ns("ytruncsin"),
+              "Period of sine wave for truncation line",
+              5, 0,
+              step=1,
+              width="100%"
+            )
+          ),
+          shiny::column(
+            6,
+            shiny::numericInput(
+              session$ns("ytrunclwd"),
+              "Thickness of truncation line",
+              2, 0,
+              step=0.5,
+              width="100%"
+            )
+          )
+        ),
+        shiny::numericInput(
+          session$ns("ytrunccex"),
+          "Relative font size of truncation label",
+          1, 0,
+          step=0.5,
+          width="50%"
+        )
       )
     }
   })
 
   output$ytruncregions <- shiny::renderUI({
-    regions = list()
-    if(length(ytrunc_regions$regions) > 0) {
-      delete_buttons = jms.classes:::make_inputs(
-        'removeytruncregion',
+    regions <- list()
+    if (length(ytrunc_regions$regions) > 0) {
+      delete_buttons <- jms.classes:::make_inputs(
+        "removeytruncregion",
         seq_along(ytrunc_regions$regions),
-        shiny::actionButton, 'Remove region', width='100%',
-        session=session)
+        shiny::actionButton, "Remove region",
+        width="100%",
+        session=session
+      )
     }
 
-    for(i in seq_along(ytrunc_regions$regions)) {
-      labelInput = extendedTextInput(session$ns('ytruncLabel'), i, ytrunc_regions$labels[[i]], placeholder='Label')
+    for (i in seq_along(ytrunc_regions$regions)) {
+      labelInput <- extendedTextInput(
+        session$ns("ytruncLabel"),
+        i,
+        ytrunc_regions$labels[[i]],
+        placeholder="Label"
+      )
       regions[[i]] <- shiny::tagList(
         shiny::fluidRow(
-          shiny::column(12,shiny::span(sprintf('Truncate between %.0f – %.0f ppm:', ytrunc_regions$regions[[i]][[1]], ytrunc_regions$regions[[i]][[2]])))),
+          shiny::column(
+            12,
+            shiny::span(
+              sprintf(
+                "Truncate between %.0f – %.0f ppm:",
+                ytrunc_regions$regions[[i]][[1]],
+                ytrunc_regions$regions[[i]][[2]]
+              )
+            )
+          )
+        ),
         shiny::fluidRow(
           shiny::column(
             8,
@@ -93,41 +162,42 @@ y_trunc_mod <- function(input, output, session, enabled, yrange) {
   })
 
   shiny::observeEvent(input$addytruncregion, {
-    n = length(ytrunc_regions$regions)
-    ytrunc_regions$regions[[n+1]] = c(input$ytruncright, input$ytruncleft)
-    ytrunc_regions$labels[[n+1]] = NA
+    n <- length(ytrunc_regions$regions)
+    ytrunc_regions$regions[[n + 1]] <- c(input$ytruncright, input$ytruncleft)
+    ytrunc_regions$labels[[n + 1]] <- NA
   })
 
   shiny::observeEvent(input$removeytruncregion, {
-    components=strsplit(input$removeytruncregion,'_')[[1]]
-    n = as.numeric(components[[length(components)-1]])
+    components <- strsplit(input$removeytruncregion, "_")[[1]]
+    n <- as.numeric(components[[length(components) - 1]])
     ytrunc_regions$regions[[n]] <- NULL
   })
 
-  extendedTextInput <- function(inputId, id, value = "", placeholder = NULL) {
+  extendedTextInput <- function(inputId, id, value="", placeholder=NULL) {
     # oninput will update after each character, but, as plotting is slow, onchange is better in this case
-    if(is.na(value)) value=""
+    if (is.na(value)) value <- ""
     sprintf('<div class="form-group shiny-input-container" style="width: 100%%;">
-      <input id="%1$s_%2$s" type="text" class="form-control" value="%3$s" placeholder="%4$s" onchange="Shiny.onInputChange(\'%1$s\',  \'%2$s_\'+this.value)"/>
+      <input id="%1$s_%2$s" type="text" class="form-control"
+      value="%3$s" placeholder="%4$s" onchange="Shiny.onInputChange(\'%1$s\',  \'%2$s_\'+this.value)"/>
     </div>', inputId, id, value, placeholder)
   }
 
   shiny::observeEvent(input$ytruncLabel, {
-    n = as.numeric(gsub('^([[:digit:]]*)_.*$', '\\1',input$ytruncLabel))
-    lab = gsub('^[[:digit:]]*_(.*)$', '\\1',input$ytruncLabel)
+    n <- as.numeric(gsub("^([[:digit:]]*)_.*$", "\\1", input$ytruncLabel))
+    lab <- gsub("^[[:digit:]]*_(.*)$", "\\1", input$ytruncLabel)
     ytrunc_regions$labels[[n]] <- lab
   })
 
   ytruncArgs <- shiny::reactive({
-    if(enabled()){
-      ytrunc = input$truncLimit
-      if(is.null(ytrunc)) {
-        ytrunc = NA
+    if (enabled()) {
+      ytrunc <- input$truncLimit
+      if (is.null(ytrunc)) {
+        ytrunc <- NA
       } else {
-        ytrunc = ytrunc / 100 * yrange()[[2]]
+        ytrunc <- ytrunc / 100 * yrange()[[2]]
       }
     } else {
-      ytrunc = NA
+      ytrunc <- NA
     }
     list(
       y_trunc=ytrunc,
@@ -140,23 +210,23 @@ y_trunc_mod <- function(input, output, session, enabled, yrange) {
       y_trunc_line_col=input$ytrunccolour,
       y_trunc_lwd=input$ytrunclwd,
       y_trunc_cex=input$ytrunccex
-      )
+    )
   })
 
   ytruncScript <- shiny::reactive({
-    if(enabled()){
-      ytrunc = input$truncLimit
-      if(is.null(ytrunc)) {
-        ytrunc = NA
+    if (enabled()) {
+      ytrunc <- input$truncLimit
+      if (is.null(ytrunc)) {
+        ytrunc <- NA
       } else {
-        ytrunc = ytrunc / 100 * yrange()[[2]]
+        ytrunc <- ytrunc / 100 * yrange()[[2]]
       }
     } else {
-      ytrunc = NA
+      ytrunc <- NA
     }
 
     val <- function(x) {
-      if(is.null(x)) {
+      if (is.null(x)) {
         return(NA)
       }
       x
@@ -164,13 +234,14 @@ y_trunc_mod <- function(input, output, session, enabled, yrange) {
 
     col <- function(x) {
       x <- val(x)
-      if(is.na(x)) {
+      if (is.na(x)) {
         return(NA)
       }
       sprintf("'%s'", x)
     }
 
-    sprintf('# Truncation of strong peaks
+    sprintf(
+      "# Truncation of strong peaks
   y_trunc=%s,
   y_trunc_x_points=%s,
   y_trunc_labels=%s,
@@ -180,18 +251,18 @@ y_trunc_mod <- function(input, output, session, enabled, yrange) {
   y_trunc_text_col=%s,
   y_trunc_line_col=%s,
   y_trunc_lwd=%s,
-  y_trunc_cex=%s',
-  val(ytrunc),
-  paste(deparse(ytrunc_regions$regions), collapse=' '),
-  paste(deparse(ytrunc_regions$labels), collapse=' '),
-  val(input$ytruncamp),
-  val(input$ytruncoff),
-  val(input$ytruncsin),
-  col(input$ytrunctextcolour),
-  col(input$ytrunccolour),
-  val(input$ytrunclwd),
-  val(input$ytrunccex)
-  )
+  y_trunc_cex=%s",
+      val(ytrunc),
+      paste(deparse(ytrunc_regions$regions), collapse=" "),
+      paste(deparse(ytrunc_regions$labels), collapse=" "),
+      val(input$ytruncamp),
+      val(input$ytruncoff),
+      val(input$ytruncsin),
+      col(input$ytrunctextcolour),
+      col(input$ytrunccolour),
+      val(input$ytrunclwd),
+      val(input$ytrunccex)
+    )
   })
 
 
@@ -216,5 +287,6 @@ y_trunc_mod <- function(input, output, session, enabled, yrange) {
   #### Return ####
   return(list(
     plotArgs=ytruncArgs,
-    scriptArgs=ytruncScript))
+    scriptArgs=ytruncScript
+  ))
 }
