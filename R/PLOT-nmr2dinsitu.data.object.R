@@ -28,47 +28,46 @@
 #' set_nmr <- plot(data)
 #'
 #' # Add some annotations to the echem plot
-#' time = c(1, 2)
-#' V = Plotting.Utils::nearest(echem, Test_Time.s.=time*3600)$Voltage.V
-#' points(V, time, col=c('red', 'blue'))
+#' time <- c(1, 2)
+#' V <- Plotting.Utils::nearest(echem, Test_Time.s.=time * 3600)$Voltage.V
+#' points(V, time, col=c("red", "blue"))
 #'
 #' # Activate the nmr plot
 #' set_nmr()
 #' # Add annotations to the NMR plot
-#' points(0, 10000, col='green')
-plot.nmr2dinsitu.data.object <-function(nmr, use.default.layout=TRUE, separation=0.1,
-                                        separation.pos=c(4, 2), nmr.func=NULL, echem.func=NULL, ...) {
-
-  if(!requireNamespace("Echem.Data", quietly=TRUE)) {
-    stop('Insitu data processing requires the Echem.Data package')
+#' points(0, 10000, col="green")
+plot.nmr2dinsitu.data.object <- function(nmr, use.default.layout=TRUE, separation=0.1,
+                                         separation.pos=c(4, 2), nmr.func=NULL, echem.func=NULL, ...) {
+  if (!requireNamespace("Echem.Data", quietly=TRUE)) {
+    stop("Insitu data processing requires the Echem.Data package")
   }
 
-  jms.classes::log.debug('Plotting an insitu data object')
+  jms.classes::log.debug("Plotting an insitu data object")
 
-  if(is.null(nmr.func)) nmr.func = getS3method('plot', 'nmr2d.data.object')
-  if(is.null(echem.func)) echem.func = plot_echem_vertical
+  if (is.null(nmr.func)) nmr.func <- getS3method("plot", "nmr2d.data.object")
+  if (is.null(echem.func)) echem.func <- plot_echem_vertical
 
-  echem=attr(nmr,'echem')
-  if(!Echem.Data::is.echem.data.object(echem)) stop('Echem data is invalid')
+  echem <- attr(nmr, "echem")
+  if (!Echem.Data::is.echem.data.object(echem)) stop("Echem data is invalid")
 
-  args=list(...)
-  echem_args=args[names(args) %in% names(formals(echem.func))]
-  NMR_args=args[names(args) %in% names(formals(nmr.func))]
+  args <- list(...)
+  echem_args <- args[names(args) %in% names(formals(echem.func))]
+  NMR_args <- args[names(args) %in% names(formals(nmr.func))]
 
-  margins=par('mai')
+  margins <- par("mai")
 
   # Adjacent horizontal plot width ratio 3:1
-  if(use.default.layout) layout(matrix(c(1, 2), 1, 2), widths=c(3, 1))
+  if (use.default.layout) layout(matrix(c(1, 2), 1, 2), widths=c(3, 1))
 
   set_margins <- function(n) {
-    if(!(is.null(separation) || is.na(separation))) {
-      pos = separation.pos[[n]]
-      if(pos == 1) {
-        mai = c(separation / 2, margins[2:4])
-      } else if(pos == 4) {
-        mai = c(margins[1:3], separation / 2)
+    if (!(is.null(separation) || is.na(separation))) {
+      pos <- separation.pos[[n]]
+      if (pos == 1) {
+        mai <- c(separation / 2, margins[2:4])
+      } else if (pos == 4) {
+        mai <- c(margins[1:3], separation / 2)
       } else {
-        mai=c(margins[1:(pos-1)], separation / 2, margins[(pos+1):4])
+        mai <- c(margins[1:(pos - 1)], separation / 2, margins[(pos + 1):4])
       }
       par(mai=mai)
     }
@@ -77,63 +76,63 @@ plot.nmr2dinsitu.data.object <-function(nmr, use.default.layout=TRUE, separation
   # Set margins for NMR plot (#1)
   set_margins(1)
 
-  NMR_args=append(list(nmr), NMR_args)
+  NMR_args <- append(list(nmr), NMR_args)
   # Plot NMR data and recieve time and offset of first and last scan plotted
-  align=do.call(nmr.func,NMR_args)
+  align <- do.call(nmr.func, NMR_args)
 
-  coordinates = list(
-    usr=par('usr'),
-    plt=par('plt'),
-    fig=par('fig')
+  coordinates <- list(
+    usr=par("usr"),
+    plt=par("plt"),
+    fig=par("fig")
   )
 
   set_nmr <- SetNMRPlotFactory(coordinates)
 
   # Alignment
-  jms.classes::log.debug('Attempting to align echem plot')
-  echem_scan_points = as.numeric(colnames(nmr)[-1])
+  jms.classes::log.debug("Attempting to align echem plot")
+  echem_scan_points <- as.numeric(colnames(nmr)[-1])
   # Range of echem data to plot
-  Y_start=echem_scan_points[[1]]
-  Y_end=echem_scan_points[[length(echem_scan_points)]]
+  Y_start <- echem_scan_points[[1]]
+  Y_end <- echem_scan_points[[length(echem_scan_points)]]
   # Y range of NMR Plot
-  yrange=par('usr')[3:4]
+  yrange <- par("usr")[3:4]
   # Y_start and Y_end in nmr units
-  offset_start=align[[1]]
-  offset_end=align[[2]]
+  offset_start <- align[[1]]
+  offset_end <- align[[2]]
 
-  if(offset_end <= offset_start) {
-    aligned_ylim = NULL
-    jms.classes::log.warn('Could not align echem plot')
+  if (offset_end <= offset_start) {
+    aligned_ylim <- NULL
+    jms.classes::log.warn("Could not align echem plot")
     warning("Could not align NMR and echem data", call.=FALSE)
   } else {
-    total_y_range = (Y_end-Y_start) / ((offset_end - offset_start) / (yrange[[2]] - yrange[[1]]))
-    time_start_as_fraction_of_yrange = (offset_start - yrange[[1]]) / (yrange[[2]] - yrange[[1]])
-    time_zero_in_y = time_start_as_fraction_of_yrange * total_y_range - Y_start
+    total_y_range <- (Y_end - Y_start) / ((offset_end - offset_start) / (yrange[[2]] - yrange[[1]]))
+    time_start_as_fraction_of_yrange <- (offset_start - yrange[[1]]) / (yrange[[2]] - yrange[[1]])
+    time_zero_in_y <- time_start_as_fraction_of_yrange * total_y_range - Y_start
 
     # These are the axis limits for the plot in the units of the echem data
-    aligned_ylim=c(-time_zero_in_y, total_y_range-time_zero_in_y)
+    aligned_ylim <- c(-time_zero_in_y, total_y_range - time_zero_in_y)
   }
 
-  jms.classes::log.debug('Reducing echem data to match NMR scans plotted')
+  jms.classes::log.debug("Reducing echem data to match NMR scans plotted")
   # Restrict echem to region requested
-  echem = echem[echem[,xcol(echem)] >= Y_start / xscale(echem) & echem[,xcol(echem)] <= Y_end / xscale(echem), ]
+  echem <- echem[echem[, xcol(echem)] >= Y_start / xscale(echem) & echem[, xcol(echem)] <= Y_end / xscale(echem), ]
 
-  jms.classes::log.debug('Reduced echem range to: [%s] (%s points)', paste0(range(echem[,xcol(echem)]), collapse=', '), nrow(echem))
+  jms.classes::log.debug("Reduced echem range to: [%s] (%s points)", paste0(range(echem[, xcol(echem)]), collapse=", "), nrow(echem))
 
-  echem_args=append(list(echem), echem_args)
+  echem_args <- append(list(echem), echem_args)
   # Get (last) unique
-  echem_args<-echem_args[length(names(echem_args)) - match(unique(names(echem_args)), rev(names(echem_args))) + 1]
+  echem_args <- echem_args[length(names(echem_args)) - match(unique(names(echem_args)), rev(names(echem_args))) + 1]
 
   # Add ylim
-  echem_args$ylim = aligned_ylim
+  echem_args$ylim <- aligned_ylim
 
   # Set margins for Echem plot (#2)
   set_margins(2)
 
   # Plot echem
-  do.call(echem.func,echem_args)
+  do.call(echem.func, echem_args)
 
-  jms.classes::log.debug('Finished plotting')
+  jms.classes::log.debug("Finished plotting")
 
   invisible(set_nmr)
   # Note we cannot restore par / layout as that would affect later plots
@@ -141,7 +140,7 @@ plot.nmr2dinsitu.data.object <-function(nmr, use.default.layout=TRUE, separation
 
 # Break this out into a separate function so we don't capture the data in the environment
 SetNMRPlotFactory <- function(coordinates) {
-  jms.classes::log.debug('Preparing function to activate NMR plot')
+  jms.classes::log.debug("Preparing function to activate NMR plot")
   # Note this won't work properly for overlapping plots
   function() {
     # We cannot set par(fig) without disrupting the layout. Even if we pass new=TRUE
@@ -150,20 +149,20 @@ SetNMRPlotFactory <- function(coordinates) {
     # This assumes we're not using logarithmic coordinates
 
     # NMR plot Bounds in ndc
-    nmr_ndc = c(
+    nmr_ndc <- c(
       coordinates$plt[1:2] * (coordinates$fig[[2]] - coordinates$fig[[1]]) + coordinates$fig[[1]],
       coordinates$plt[3:4] * (coordinates$fig[[4]] - coordinates$fig[[3]]) + coordinates$fig[[3]]
     )
 
     # Current plot Bounds in ndc
-    current_ndc = c(
-      grconvertX(c(0,1), from='npc', to='ndc'),
-      grconvertY(c(0,1), from='npc', to='ndc')
+    current_ndc <- c(
+      grconvertX(c(0, 1), from="npc", to="ndc"),
+      grconvertY(c(0, 1), from="npc", to="ndc")
     )
 
     # Now we need usr values for the current plot as if it were an extension to the NMR plot.
     # This will mean that user coordinates are correct for the NMR plot.
-    usr = c(
+    usr <- c(
       coordinates$usr[[1]] - (coordinates$usr[[1]] - coordinates$usr[[2]]) / (nmr_ndc[[1]] - nmr_ndc[[2]]) * (nmr_ndc[[1]] - current_ndc[[1]]),
       coordinates$usr[[2]] - (coordinates$usr[[1]] - coordinates$usr[[2]]) / (nmr_ndc[[1]] - nmr_ndc[[2]]) * (nmr_ndc[[2]] - current_ndc[[2]]),
 
@@ -198,41 +197,42 @@ SetNMRPlotFactory <- function(coordinates) {
 #' @inheritParams Plotting.Utils::pretty_axes
 #' @export
 plot_echem_vertical <- function(
-  data, V_range=NULL, ylim=NULL,
-  echemAxes=c(1,4),  echemDiv=c(2,5),
-  xaxismline=-0.8, xaxislabelmline=1.1,
-  yaxismline=-0.8, yaxislabelmline=1.1,
-  upperVTickLimit = NA,
-  lowerVTickLimit = NA,
-  ticklabels=c(T,T,T),  ticksOut=c(T,T),
-  forcedVInterval=NA, forcePrint=FALSE,
-  centreTimeTitle=T, ...) {
+                                data, V_range=NULL, ylim=NULL,
+                                echemAxes=c(1, 4), echemDiv=c(2, 5),
+                                xaxismline=-0.8, xaxislabelmline=1.1,
+                                yaxismline=-0.8, yaxislabelmline=1.1,
+                                upperVTickLimit=NA,
+                                lowerVTickLimit=NA,
+                                ticklabels=c(T, T, T), ticksOut=c(T, T),
+                                forcedVInterval=NA, forcePrint=FALSE,
+                                centreTimeTitle=T, ...) {
+  jms.classes::log.debug("Plotting an echem data object vertically")
 
-  jms.classes::log.debug('Plotting an echem data object vertically')
-
-  if(nrow(data) == 0 || ncol(data) == 0) {
-    jms.classes::log.error('No data available: rows: %s, cols: %s', nrow(data), ncol(data))
-    stop('No echem data to plot!')
+  if (nrow(data) == 0 || ncol(data) == 0) {
+    jms.classes::log.error("No data available: rows: %s, cols: %s", nrow(data), ncol(data))
+    stop("No echem data to plot!")
   }
 
-  if(length(xcol(data)) != 1 || is.na(xcol(data))) {
+  if (length(xcol(data)) != 1 || is.na(xcol(data))) {
     jms.classes::log.error(
-      'xcol is not correct: xcol = [%s]; ycol = [%s]',
-      paste0(xcol(data), collapse=','),
-      paste0(ycol(data), collapse=','))
-    stop('Invalid echem data')
+      "xcol is not correct: xcol = [%s]; ycol = [%s]",
+      paste0(xcol(data), collapse=","),
+      paste0(ycol(data), collapse=",")
+    )
+    stop("Invalid echem data")
   }
 
-  if(length(ycol(data)) != 1 || is.na(ycol(data))) {
+  if (length(ycol(data)) != 1 || is.na(ycol(data))) {
     jms.classes::log.error(
-      'ycol is not correct: xcol = [%s]; ycol = [%s]',
-      paste0(xcol(data), collapse=','),
-      paste0(ycol(data), collapse=','))
-    stop('Invalid echem data')
+      "ycol is not correct: xcol = [%s]; ycol = [%s]",
+      paste0(xcol(data), collapse=","),
+      paste0(ycol(data), collapse=",")
+    )
+    stop("Invalid echem data")
   }
 
   # This is the range we will draw ticks for
-  r <- range(data[,xcol(data)]) * xscale(data)
+  r <- range(data[, xcol(data)]) * xscale(data)
   # Add 1% to ensure we capture the ends
   r <- grDevices::extendrange(r=r, f=0.01)
 
@@ -245,7 +245,7 @@ plot_echem_vertical <- function(
   xscale(data) <- yscale(data)
   yscale(data) <- y
 
-  if(4 %in% echemAxes) {
+  if (4 %in% echemAxes) {
     # Axis on RHS
     y2lab(data) <- xlab(data)
     xlab(data) <- ylab(data)
@@ -258,8 +258,8 @@ plot_echem_vertical <- function(
     y2lab(data) <- NA
   }
 
-  if(is.null(V_range)) {
-    V_range = range(data[,xcol(data)])
+  if (is.null(V_range)) {
+    V_range <- range(data[, xcol(data)])
   }
 
   plot(
