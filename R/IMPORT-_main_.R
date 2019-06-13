@@ -14,42 +14,42 @@
 #' read.nmr("/path/to/file.txt")
 #' read.nmr("/path/to/nmr/expName/expNo")
 #' read.nmr("/path/to/folder/")
-read.nmr <- function(nmrfile, mass=1, nucleus='Unknown Nucleus', acqus=NA, ...) {
-  jms.classes::log.debug('Reading NMR data from %s', nmrfile)
-  acqs=list()
+read.nmr <- function(nmrfile, mass=1, nucleus="Unknown Nucleus", acqus=NA, ...) {
+  jms.classes::log.debug("Reading NMR data from %s", nmrfile)
+  acqs <- list()
 
-  data = read.nmr.guess(nmrfile, ...)
+  data <- read.nmr.guess(nmrfile, ...)
 
-  n = attr(data, 'nuc1')
-  if(!is.null(n)) nucleus = n
+  n <- attr(data, "nuc1")
+  if (!is.null(n)) nucleus <- n
 
-  if(!length(acqs) && !is.na(acqus)) {
-    acqs=read.acqu(acqus)
-    nucleus=acqs$nuc1
+  if (!length(acqs) && !is.na(acqus)) {
+    acqs <- read.acqu(acqus)
+    nucleus <- acqs$nuc1
   } else {
-    acqs$nuc1=nucleus
-    ns = attr(data, 'ns')
-    if(is.null(ns)) ns = 1
-    acqs$ns=ns
+    acqs$nuc1 <- nucleus
+    ns <- attr(data, "ns")
+    if (is.null(ns)) ns <- 1
+    acqs$ns <- ns
   }
-  if(is.na(mass)) mass=1
-  acqs$mass=mass
+  if (is.na(mass)) mass <- 1
+  acqs$mass <- mass
 
-  for(att in names(acqs)) {
-    attr(data,att)<-acqs[[att]]
+  for (att in names(acqs)) {
+    attr(data, att) <- acqs[[att]]
   }
 
-  if(nucleus=='Unknown Nucleus') {
-    axis_label=expression('Chemical Shift / ppm')
+  if (nucleus == "Unknown Nucleus") {
+    axis_label <- expression("Chemical Shift / ppm")
   } else {
-    element=sub('[0-9]*([A-Za-z]*)','\\1',nucleus)
-    mass_number=sub('([0-9]*)[A-Za-z]*','\\1',nucleus)
-    axis_label=bquote(delta~'('^.(mass_number)*.(element)*')'~'/'~ppm)
+    element <- sub("[0-9]*([A-Za-z]*)", "\\1", nucleus)
+    mass_number <- sub("([0-9]*)[A-Za-z]*", "\\1", nucleus)
+    axis_label <- bquote(delta ~ "("^.(mass_number) * .(element) * ")" ~ "/" ~ ppm)
   }
   jms.classes::xlab(data) <- axis_label
 
-  attr(data,'filepath')<-nmrfile
-  attr(data,'filename')<-basename(nmrfile)
+  attr(data, "filepath") <- nmrfile
+  attr(data, "filename") <- basename(nmrfile)
 
   return(data)
 }
