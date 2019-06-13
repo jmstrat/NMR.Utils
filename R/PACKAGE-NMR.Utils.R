@@ -41,8 +41,8 @@
 #' A simple animation of in situ NMR data can be made using \code{\link{save_animation}}, optionally including a fit.
 "_PACKAGE"
 
-.onLoad <- function(libname, pkgname){
-  jms.classes::create_data_type('nmr','ppm','',envir=asNamespace('NMR.Utils'))
-  jms.classes::create_data_type('nmr2d','ppm','',inherits='nmr',envir=asNamespace('NMR.Utils'))
-  jms.classes::create_data_type('nmr2dinsitu','ppm','',inherits=c('nmr2d','nmr'),envir=asNamespace('NMR.Utils'))
+.onLoad <- function(libname, pkgname) {
+  jms.classes::create_data_type("nmr", "ppm", "", envir=asNamespace("NMR.Utils"))
+  jms.classes::create_data_type("nmr2d", "ppm", "", inherits="nmr", envir=asNamespace("NMR.Utils"))
+  jms.classes::create_data_type("nmr2dinsitu", "ppm", "", inherits=c("nmr2d", "nmr"), envir=asNamespace("NMR.Utils"))
 }
