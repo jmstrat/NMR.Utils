@@ -18,5 +18,5 @@ None
 This function is used to export the fit results as a csv file.
 }
 \examples{
-export(fit,"/path/to/file.csv")
+export(fit, "/path/to/file.csv")
 }

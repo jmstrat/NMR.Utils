@@ -22,5 +22,5 @@ A data frame containing the phased NMR data (ppm,intensity1, ...)
 This function phases (complex) NMR data.
 }
 \examples{
-phase(data,45,0,0)
+phase(data, 45, 0, 0)
 }

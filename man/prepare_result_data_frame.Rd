@@ -18,6 +18,6 @@ The fit object
 This function creates an empty data frame to hold the fitting resutls
 }
 \examples{
-prepare_result_data_frame(fit,n)
+prepare_result_data_frame(fit, n)
 }
 \keyword{internal}

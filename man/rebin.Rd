@@ -25,5 +25,5 @@ Rebins the data to ensure a minimum offset between scans
 }
 \examples{
 rebin(data, 10)
-rebin(data, 10, 'average_before')
+rebin(data, 10, "average_before")
 }

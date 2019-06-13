@@ -17,8 +17,8 @@ This function iterates a time remaining indicator. It should not be called manua
 }
 \examples{
 time_remaining_start(10)
-f=time_remaining_start(10)
-for(i in 1:10) {
+f <- time_remaining_start(10)
+for (i in 1:10) {
   Sys.sleep(1)
   f(i)
   Sys.sleep(1)

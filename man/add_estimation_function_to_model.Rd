@@ -22,10 +22,10 @@ It should return a list of parameter estimates (can be a sparse list)
 }
 
 \examples{
-#estimates the height of a peak based on the intensity at its (guessed) centre
-guess_height <- function(n,guess,xy) {
- guess_height=rev(xy[[2]])[findInterval(guess$centre,rev(xy[[1]]))]
- list(height=guess_height)
+# estimates the height of a peak based on the intensity at its (guessed) centre
+guess_height <- function(n, guess, xy) {
+  guess_height <- rev(xy[[2]])[findInterval(guess$centre, rev(xy[[1]]))]
+  list(height=guess_height)
 }
 add_estimation_function_to_model(model, guess_height)
 }

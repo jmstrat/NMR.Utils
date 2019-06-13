@@ -16,6 +16,6 @@ The fit function
 This function creates a function representing the overall fit
 }
 \examples{
-func=get_fit_function(models)
+func <- get_fit_function(models)
 }
 \keyword{internal}

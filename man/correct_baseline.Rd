@@ -18,5 +18,5 @@ An identical data frame containing the baseline corrected data
 Corrects the baseline for NMR Spectra
 }
 \examples{
-correct_baseline(data, method="modpolyfit",degree=1)
+correct_baseline(data, method="modpolyfit", degree=1)
 }

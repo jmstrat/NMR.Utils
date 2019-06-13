@@ -29,6 +29,6 @@ The best coefficients
 This function runs many fits to sample the landscape for local minima.
 }
 \examples{
-fit_initial_brute_force(models,x,y,formula,upper,lower)
+fit_initial_brute_force(models, x, y, formula, upper, lower)
 }
 \keyword{internal}

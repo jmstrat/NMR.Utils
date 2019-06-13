@@ -7,7 +7,7 @@
 add_constraint_to_model(model, parameter, constraint_type, constraint)
 }
 \arguments{
-\item{model}{The model object to add the constraint to}
+\item{model}{The model object for which the the constraint should be added}
 
 \item{parameter}{The name of the parameter for which the constraint will be added}
 
@@ -38,7 +38,7 @@ Values of the constraint parameter are thus:
 }
 
 \examples{
-add_constraint_to_model(model, "height", "range", c(0,1))
+add_constraint_to_model(model, "height", "range", c(0, 1))
 add_constraint_to_model(model, "height", "vary", 0.5)
-add_constraint_to_model(model, "height", "variable_range", c(0.5,0,1))
+add_constraint_to_model(model, "height", "variable_range", c(0.5, 0, 1))
 }

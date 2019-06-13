@@ -18,6 +18,6 @@ list(c(model_index, fitted_model),...)
 This function converts a list of models to a list of functions + model indexes.
 }
 \examples{
-make_fitted_models(models,result_line)
+make_fitted_models(models, result_line)
 }
 \keyword{internal}

@@ -17,8 +17,8 @@ This function starts a time remaining indicator.
 }
 \examples{
 time_remaining_start(10)
-f=time_remaining_start(10)
-for(i in 1:10) {
+f <- time_remaining_start(10)
+for (i in 1:10) {
   Sys.sleep(1)
   f(i)
   Sys.sleep(1)

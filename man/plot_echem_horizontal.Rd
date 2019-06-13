@@ -25,5 +25,5 @@ plot_echem_horizontal(data, V_range, alignment = NA, show_axes = TRUE,
 This function plots in-situ echem data.
 }
 \examples{
-plot_echem_horizontal(data,V_range)
+plot_echem_horizontal(data, V_range)
 }

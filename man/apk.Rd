@@ -41,7 +41,7 @@ A data frame containing the phased NMR data (ppm,intensity)
 This function phases (complex) NMR data.
 }
 \examples{
-apk(data,c(-200,200),c(1000,1300),0,c(-50,50),c(-5,0))
+apk(data, c(-200, 200), c(1000, 1300), 0, c(-50, 50), c(-5, 0))
 apk(data)
-apkpseudo2d(data,c(-200,200),c(1000,1300),0,c(-50,50),c(-5,0))
+apkpseudo2d(data, c(-200, 200), c(1000, 1300), 0, c(-50, 50), c(-5, 0))
 }

@@ -47,12 +47,12 @@ plot(data)
 set_nmr <- plot(data)
 
 # Add some annotations to the echem plot
-time = c(1, 2)
-V = Plotting.Utils::nearest(echem, Test_Time.s.=time*3600)$Voltage.V
-points(V, time, col=c('red', 'blue'))
+time <- c(1, 2)
+V <- Plotting.Utils::nearest(echem, Test_Time.s.=time * 3600)$Voltage.V
+points(V, time, col=c("red", "blue"))
 
 # Activate the nmr plot
 set_nmr()
 # Add annotations to the NMR plot
-points(0, 10000, col='green')
+points(0, 10000, col="green")
 }

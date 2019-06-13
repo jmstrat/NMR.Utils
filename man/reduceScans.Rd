@@ -18,5 +18,5 @@ An idential data frame whose scans are limited to those in scan_range
 Reduces the number of scans in the data frame
 }
 \examples{
-reduceScans(spectra,c(1,50))
+reduceScans(spectra, c(1, 50))
 }

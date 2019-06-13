@@ -18,5 +18,5 @@ An idential data frame whose names correspond to the offsets
 Stores the time offsets in the data frame
 }
 \examples{
-storeOffsets(data,offsets)
+storeOffsets(data, offsets)
 }

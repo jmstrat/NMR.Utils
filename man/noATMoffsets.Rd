@@ -20,5 +20,5 @@ A vector of offsets
 Generates time offsets if spectra were acquired without ATM
 }
 \examples{
-noATMoffsets(spectra,0.5)
+noATMoffsets(spectra, 0.5)
 }

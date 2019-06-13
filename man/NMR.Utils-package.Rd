@@ -57,6 +57,14 @@ using \code{\link[jms.classes]{export}}. A simple plot can be made using \code{p
 A simple animation of in situ NMR data can be made using \code{\link{save_animation}}, optionally including a fit.
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/jmstrat/NMR.Utils}
+  \item Report bugs at \url{https://github.com/jmstrat/NMR.Utils/issues}
+}
+
+}
 \author{
 Josh Stratford
 }

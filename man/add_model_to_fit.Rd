@@ -18,5 +18,5 @@ A fit object
 This function adds a model object to a fit. The model must have all constraints etc. added prior to adding it to a fit.
 }
 \examples{
-add_model_to_fit(fit,model)
+add_model_to_fit(fit, model)
 }
