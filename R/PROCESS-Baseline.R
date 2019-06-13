@@ -6,11 +6,11 @@
 #' @return An identical data frame containing the baseline corrected data
 #' @export
 #' @examples
-#' correct_baseline(data, method="modpolyfit",degree=1)
-correct_baseline <-function(data,...) {
-  #Perform baseline correction
-  base <- baseline::baseline(t(data[,2:ncol(data)]),...)
-  data[,2:ncol(data)]=t(baseline::getCorrected(base))
+#' correct_baseline(data, method="modpolyfit", degree=1)
+correct_baseline <- function(data, ...) {
+  # Perform baseline correction
+  base <- baseline::baseline(t(data[, 2:ncol(data)]), ...)
+  data[, 2:ncol(data)] <- t(baseline::getCorrected(base))
   data
 }
 
@@ -22,6 +22,6 @@ correct_baseline <-function(data,...) {
 #' @export
 #' @examples
 #' analyse_baseline(data)
-analyse_baseline <-function(data) {
-	baseline::baselineGUI(t(data[,2:length(data)]),rev.x=T,labels=data[,1])
+analyse_baseline <- function(data) {
+  baseline::baselineGUI(t(data[, 2:length(data)]), rev.x=T, labels=data[, 1])
 }
