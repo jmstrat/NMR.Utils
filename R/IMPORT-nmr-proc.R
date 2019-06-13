@@ -32,7 +32,7 @@ read.proc <- function(dir) {
   con <- file(path, open="r")
   head0 <- readLines(con)
   close(con)
-  position <- grep("^\$\$", head0)[[1]]
+  position <- grep("^\\$\\$", head0)[[1]]
   proc <- list()
   proc$file <- gsub("^\\$\\$ ", "", head0[[position + 1]])
   proc$date <- as.POSIXct(sub("^\\$\\$ ([^[:space:]]* [^[:space:]]* [^[:space:]]*) .*$", "\\1", head0[[position]]))
