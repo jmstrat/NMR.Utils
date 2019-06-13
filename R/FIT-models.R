@@ -6,18 +6,18 @@
 #' @return A model object
 #' @export
 #' @examples
-#' new_model(pseudoVoigt, height=1e9,centre=-9.95,hwhm=2.1,shape=1)
+#' new_model(pseudoVoigt, height=1e9, centre=-9.95, hwhm=2.1, shape=1)
 new_model <- function(type, ...) {
-  model = list(model=type,constraint_type=list(),constraint=list(), estimation_function=NA,initial_guess=list(...),current_guess=NA,upper=list(),lower=list(), name=NA)
-  model$type_string =deparse(substitute(type))
-  class(model) <- c('nmr.fit.model', 'list')
+  model <- list(model=type, constraint_type=list(), constraint=list(), estimation_function=NA, initial_guess=list(...), current_guess=NA, upper=list(), lower=list(), name=NA)
+  model$type_string <- deparse(substitute(type))
+  class(model) <- c("nmr.fit.model", "list")
   model
 }
 
 #' Add a constraint to a model
 #'
 #' This function adds a constraint to a model. Models can only have one constraint per parameter. Running this function multiple times with the same model and parameter will replace the existing constraint.
-#' @param model The model object to add the constraint to
+#' @param model The model object for which the the constraint should be added
 #' @param parameter The name of the parameter for which the constraint will be added
 #' @param constraint_type The type of constraint to add, one of ("range", "vary", "variable_range") – see details
 #' @param constraint Either c(min, max) value or c(value, min, max) depending on constraint_type – see details
@@ -37,35 +37,35 @@ new_model <- function(type, ...) {
 #' \item variable_range: c(value, min, max)
 #' }
 #' @examples
-#' add_constraint_to_model(model, "height", "range", c(0,1))
+#' add_constraint_to_model(model, "height", "range", c(0, 1))
 #' add_constraint_to_model(model, "height", "vary", 0.5)
-#' add_constraint_to_model(model, "height", "variable_range", c(0.5,0,1))
-add_constraint_to_model <- function(model,parameter, constraint_type,constraint) {
-  constraint_types=c("range","vary","variable_range")
+#' add_constraint_to_model(model, "height", "variable_range", c(0.5, 0, 1))
+add_constraint_to_model <- function(model, parameter, constraint_type, constraint) {
+  constraint_types <- c("range", "vary", "variable_range")
 
-  if(!constraint_type %in% constraint_types) {
-    stop(paste0('Constraint type "',constraint_type, '" unknown.'))
+  if (!constraint_type %in% constraint_types) {
+    stop(paste0('Constraint type "', constraint_type, '" unknown.'))
   }
-  if(!all(is.numeric(constraint))) {
-    stop('Constraint values must be numeric')
-  }
-
-  if(constraint_type=='range') {
-    if(!length(constraint)==2) {
-      stop('Range constraint takes 2 values')
-    }
-  } else if(constraint_type=='vary') {
-    if(!length(constraint)==1) {
-      stop('Range constraint takes 1 value')
-    }
-  } else if(constraint_type=='variable_range') {
-    if(!length(constraint)==3) {
-      stop('Variable range constraint takes 3 values')
-    }
+  if (!all(is.numeric(constraint))) {
+    stop("Constraint values must be numeric")
   }
 
-  model$constraint_type[parameter]=constraint_type
-  model$constraint[parameter]=list(constraint)
+  if (constraint_type == "range") {
+    if (!length(constraint) == 2) {
+      stop("Range constraint takes 2 values")
+    }
+  } else if (constraint_type == "vary") {
+    if (!length(constraint) == 1) {
+      stop("Range constraint takes 1 value")
+    }
+  } else if (constraint_type == "variable_range") {
+    if (!length(constraint) == 3) {
+      stop("Variable range constraint takes 3 values")
+    }
+  }
+
+  model$constraint_type[parameter] <- constraint_type
+  model$constraint[parameter] <- list(constraint)
   return(model)
 }
 
@@ -79,20 +79,20 @@ add_constraint_to_model <- function(model,parameter, constraint_type,constraint)
 #' It should return a list of parameter estimates (can be a sparse list)
 #' @export
 #' @examples
-#' #estimates the height of a peak based on the intensity at its (guessed) centre
-#' guess_height <- function(n,guess,xy) {
-#'  guess_height=rev(xy[[2]])[findInterval(guess$centre,rev(xy[[1]]))]
-#'  list(height=guess_height)
+#' # estimates the height of a peak based on the intensity at its (guessed) centre
+#' guess_height <- function(n, guess, xy) {
+#'   guess_height <- rev(xy[[2]])[findInterval(guess$centre, rev(xy[[1]]))]
+#'   list(height=guess_height)
 #' }
 #' add_estimation_function_to_model(model, guess_height)
 add_estimation_function_to_model <- function(model, estimation_function) {
-  if(!is.function(estimation_function)) {
-    if(exists(func, mode='function')) {
-      estimation_function=call(estimation_function)
+  if (!is.function(estimation_function)) {
+    if (exists(func, mode="function")) {
+      estimation_function <- call(estimation_function)
     } else {
-      stop('The estimation function must be a function.')
+      stop("The estimation function must be a function.")
     }
   }
-  model$estimation_function=estimation_function
+  model$estimation_function <- estimation_function
   return(model)
 }
