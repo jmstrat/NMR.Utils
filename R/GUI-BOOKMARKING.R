@@ -8,7 +8,7 @@ bookmark_migrate <- function(states, version) {
 
 
 get_bookmarked_states <- function() {
-  state_file <- file.path(jms.classes:::config_dir, 'nmr_insitu_gui', 'states')
+  state_file <- file.path(jms.classes:::config_dir, "nmr_insitu_gui", "states")
   available_states <- list(version=bookmark_version)
   if (file.exists(state_file)) {
     available_states <- readRDS(state_file)
@@ -21,7 +21,7 @@ get_bookmarked_states <- function() {
 }
 
 save_bookmarked_states <- function(states) {
-  state_file <- file.path(jms.classes:::config_dir, 'nmr_insitu_gui', 'states')
+  state_file <- file.path(jms.classes:::config_dir, "nmr_insitu_gui", "states")
   saveRDS(states, state_file)
 }
 
@@ -29,35 +29,39 @@ navbarPageSaveLoad <- function(..., id=NULL) {
   ns <- shiny::NS(id)
   navbar <- shiny::navbarPage(..., id=id)
   inputs <- shiny::tagList(
-    shiny::actionButton(ns("save"), label="Save", icon = shiny::icon("save"), class = "btn-link"),
-    shiny::actionButton(ns('load'), label="Load", icon = shiny::icon("folder-open"), class = "btn-link")
+    shiny::actionButton(ns("save"), label="Save", icon=shiny::icon("save"), class="btn-link"),
+    shiny::actionButton(ns("load"), label="Load", icon=shiny::icon("folder-open"), class="btn-link")
   )
-  form <- tags$form(class = "navbar-form navbar-right", inputs)
+  form <- tags$form(class="navbar-form navbar-right", inputs)
   navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
-    navbar[[3]][[1]]$children[[1]], form)
+    navbar[[3]][[1]]$children[[1]], form
+  )
   navbar
 }
 
 # Custom selectize input
-bookmark_selector <- function (inputId, label, choices, selected = NULL)
-{
-  selected <- shiny::restoreInput(id = inputId, default = selected)
+bookmark_selector <- function(inputId, label, choices, selected=NULL) {
+  selected <- shiny::restoreInput(id=inputId, default=selected)
   if (is.null(selected)) {
     selected <- shiny:::firstChoice(choices)
   }
-  else selected <- as.character(selected)
+  else {
+    selected <- as.character(selected)
+  }
 
   choices <- mapply(choices, names(choices), FUN=function(v, n) {
-    sprintf("<option data-data='%s' value=\"%s\"%s>%s</option>",
-            jsonlite::toJSON(v),
-            htmltools::htmlEscape(n),
-            if (n %in% selected) " selected" else "",
-            v$name)
+    sprintf(
+      "<option data-data='%s' value=\"%s\"%s>%s</option>",
+      jsonlite::toJSON(v),
+      htmltools::htmlEscape(n),
+      if (n %in% selected) " selected" else "",
+      v$name
+    )
   })
-  choices <- HTML(paste(choices, collapse = "\n"))
-  selectTag <- tags$select(id = inputId, choices)
-  res <- div(class = "form-group shiny-input-container", shiny:::controlLabel(inputId, label), div(selectTag))
-  shiny:::selectizeIt(inputId, res, options = list(render = I("
+  choices <- HTML(paste(choices, collapse="\n"))
+  selectTag <- tags$select(id=inputId, choices)
+  res <- div(class="form-group shiny-input-container", shiny:::controlLabel(inputId, label), div(selectTag))
+  shiny:::selectizeIt(inputId, res, options=list(render=I("
 {
   option: function(item, escape) {
   console.log(item);
@@ -66,12 +70,10 @@ bookmark_selector <- function (inputId, label, choices, selected = NULL)
               '<span style=\"color: #f4a022;\">' + escape(item.date) + '</span>' +
             '</div>';
   }
-}"
-  )))
+}")))
 }
 
-saveLoadServer <- function(input, output, session, default_name = function() {""}) {
-
+saveLoadServer <- function(input, output, session, default_name=function() {""}) {
   shiny::setBookmarkExclude(c("save", "load", "modal_restore", "modal_restore", "modal_delete"))
 
   states_update_cookie <- shiny::reactiveVal(0)
@@ -82,7 +84,7 @@ saveLoadServer <- function(input, output, session, default_name = function() {""
 
   available_states_clean <- shiny::reactive({
     asts <- available_states()
-    asts[['version']] <- NULL
+    asts[["version"]] <- NULL
     asts
   })
 
@@ -102,17 +104,20 @@ saveLoadServer <- function(input, output, session, default_name = function() {""
   })
 
   output$modal_restore_UI <- shiny::renderUI({
-    if(has_available_states()) {
+    if (has_available_states()) {
       shiny::tagList(
-        shiny::uiOutput(session$ns('modal_restore_state_UI'), inline=T, style='display: inline-block;'),
-        shiny::span(jms.classes::deleteConfirmButton(session$ns('modal_delete')),
-                    style='display: inline-block;vertical-align: top;margin-top:25px'),
+        shiny::uiOutput(session$ns("modal_restore_state_UI"), inline=T, style="display: inline-block;"),
+        shiny::span(jms.classes::deleteConfirmButton(session$ns("modal_delete")),
+          style="display: inline-block;vertical-align: top;margin-top:25px"
+        ),
 
-        shiny::actionButton(session$ns("modal_restore"), label="Restore", icon=shiny::icon("sync-alt"), style='display:block;')
+        shiny::actionButton(session$ns("modal_restore"), label="Restore", icon=shiny::icon("sync-alt"), style="display:block;")
       )
     } else {
-      shiny::span(class = "text-muted",
-                  'No saved states available. Use the "save" button to store the current application state, saved states will then appear here')
+      shiny::span(
+        class="text-muted",
+        'No saved states available. Use the "save" button to store the current application state, saved states will then appear here'
+      )
     }
   })
 
@@ -120,9 +125,9 @@ saveLoadServer <- function(input, output, session, default_name = function() {""
     states_update_cookie(states_update_cookie() + 1) # Force an update
     shiny::showModal(
       shiny::modalDialog(
-        title = "Restore application state",
-        easyClose = TRUE,
-        shiny::uiOutput(session$ns('modal_restore_UI'))
+        title="Restore application state",
+        easyClose=TRUE,
+        shiny::uiOutput(session$ns("modal_restore_UI"))
       )
     )
   })
@@ -130,26 +135,26 @@ saveLoadServer <- function(input, output, session, default_name = function() {""
   shiny::observeEvent(input$save, {
     shiny::showModal(
       shiny::modalDialog(
-        title = "Save application state",
-        easyClose = TRUE,
-        shiny::textInput('._modal_save_name_', "Enter a name to save the current state", value=default_name()),
-        shiny::actionButton('._bookmark_', label="Save", icon=shiny::icon("save"))
+        title="Save application state",
+        easyClose=TRUE,
+        shiny::textInput("._modal_save_name_", "Enter a name to save the current state", value=default_name()),
+        shiny::actionButton("._bookmark_", label="Save", icon=shiny::icon("save"))
       )
     )
   })
 
   shiny::observeEvent(input$modal_delete, {
     id <- input$modal_restore_state
-    if(!is.null(id)) {
-      jms.classes::log.debug('Deleting state %s (%s)', id, input$modal_restore_state)
+    if (!is.null(id)) {
+      jms.classes::log.debug("Deleting state %s (%s)", id, input$modal_restore_state)
       asts <- available_states()
       asts[[id]] <- NULL
       save_bookmarked_states(asts)
       states_update_cookie(states_update_cookie() + 1)
 
-      stateDir <- file.path(jms.classes:::config_dir, 'nmr_insitu_gui', 'store', id)
-      if(dir.exists(stateDir)) {
-        jms.classes::log.debug('Removing %s', stateDir)
+      stateDir <- file.path(jms.classes:::config_dir, "nmr_insitu_gui", "store", id)
+      if (dir.exists(stateDir)) {
+        jms.classes::log.debug("Removing %s", stateDir)
         unlink(stateDir, recursive=TRUE)
       }
     }
@@ -177,9 +182,10 @@ saveLoadServer <- function(input, output, session, default_name = function() {""
 # Versioning?
 # ...
 saveInterface <- function(id, callback) {
-  stateDir <- file.path(jms.classes:::config_dir, 'nmr_insitu_gui', 'store', id)
-  if (!dir.exists(stateDir))
-    dir.create(stateDir, recursive = TRUE)
+  stateDir <- file.path(jms.classes:::config_dir, "nmr_insitu_gui", "store", id)
+  if (!dir.exists(stateDir)) {
+    dir.create(stateDir, recursive=TRUE)
+  }
 
   available_states <- get_bookmarked_states()
 
@@ -196,8 +202,7 @@ saveInterface <- function(id, callback) {
 }
 
 loadInterface <- function(id, callback) {
-  stateDir <- file.path(jms.classes:::config_dir, 'nmr_insitu_gui', 'store', id)
+  stateDir <- file.path(jms.classes:::config_dir, "nmr_insitu_gui", "store", id)
   jms.classes::log.info('Loading state from "%s"', stateDir)
   callback(stateDir)
 }
-
