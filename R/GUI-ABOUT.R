@@ -185,7 +185,13 @@ about_mod_UI <- function(id) {
 
       shiny::h3("Saving"),
       shiny::span("Warning: this is still under active development and has not been thoroughly
-                  tested."),
+                  tested. It shouldn't cause any harm, however, it is possible that it may
+                  fail to save or restore some settings, which you will simply have to re-enter.
+                  i.e. It should \"just work\", but if you've spent hours getting your plot just
+                  right, don't rely on it 100% for now, make sure to export the script or otherwise
+                  note down important values as well. For this reason it is not enabled by default,
+                  however, having now read this disclaimer, there's little reason not to enable it."),
+      shiny::br(),
       shiny::br(),
       shiny::p('Enabling this will add "Save" and "Load" buttons to the navigation bar, which
                allow you to save and restore the current state of the wizard. This is distinct
