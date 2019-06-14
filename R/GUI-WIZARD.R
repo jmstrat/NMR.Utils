@@ -297,7 +297,7 @@ insitu_gui <- function(nmr) {
       shiny::shinyOptions(save.interface=saveInterface, load.interface=loadInterface)
     }
 
-    onBookmarked(function(url) {
+    shiny::onBookmarked(function(url) {
       jms.classes::log.debug("Successfully saved state")
     })
 
