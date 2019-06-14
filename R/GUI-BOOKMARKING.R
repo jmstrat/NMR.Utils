@@ -218,7 +218,7 @@ saveLoadServer <- function(input, output, session, default_name=function() {""})
 
 # To be called with any inputs created via renderUI
 # So that we can ensure they are restored immediately
-setBookmarkSuspendedOutput <- function(..., session = getDefaultReactiveDomain()) {
+setBookmarkSuspendedOutput <- function(..., session = shiny::getDefaultReactiveDomain()) {
   session$userData$bookmarked_suspended_outputs <- c(session$userData$bookmarked_suspended_outputs, sapply(list(...), session$ns))
 }
 
