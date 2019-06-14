@@ -172,6 +172,54 @@ saveLoadServer <- function(input, output, session, default_name=function() {""})
       })
     })
   })
+
+  # N.b. https://github.com/rstudio/shiny/issues/1716
+  # https://github.com/rstudio/shiny/issues/1731
+  shiny::onRestore(function(state) {
+    # Make sure all server functions have run (but no render functions)
+    session$onFlush(function() {
+      elements <- session$userData$bookmarked_suspended_outputs
+      restoreTo <- rep_len(TRUE, length(elements))
+      names(restoreTo) <- elements
+      for (el in elements) {
+        current <- session$outputOptions(el)
+        if (!is.null(current$suspendWhenHidden)) {
+          restoreTo[[el]] <- current$suspendWhenHidden
+        }
+
+        # Already namespaced, so use session not shiny::outputOptions
+        session$outputOptions(el, suspendWhenHidden=FALSE)
+        session$userData$bookmarked_suspended <- restoreTo
+      }
+    })
+  })
+
+  shiny::onRestored(function(state) {
+    elements <- session$userData$bookmarked_suspended_outputs
+    restoreTo <- session$userData$bookmarked_suspended
+    # TODO: surely there must be a neater way to do this ?!
+    # One onFlushed per level of nested renderUI?
+    session$onFlushed(function() {
+      session$onFlushed(function() {
+        session$onFlushed(function() {
+          session$onFlushed(function() {
+            session$onFlushed(function() {
+              # Everything restored, reset things to how they were
+              for (el in elements) {
+                session$outputOptions(el, suspendWhenHidden=restoreTo[[el]])
+              }
+            })
+          })
+        })
+      })
+    })
+  })
+}
+
+# To be called with any inputs created via renderUI
+# So that we can ensure they are restored immediately
+setBookmarkSuspendedOutput <- function(..., session = getDefaultReactiveDomain()) {
+  session$userData$bookmarked_suspended_outputs <- c(session$userData$bookmarked_suspended_outputs, sapply(list(...), session$ns))
 }
 
 # TODO: saving again with the same name -- how best to handle?

@@ -310,24 +310,8 @@ plot(nmrdata[, 1:2], ylim=c(%s, %s), xlim=c(%s, %s), col=cols[[1]], %s)%s",
     )
   })
 
-
-  # N.b. https://github.com/rstudio/shiny/issues/1716
-  # https://github.com/rstudio/shiny/issues/1731
-  shiny::onRestored(function(state) {
-    jms.classes::log.debug("Restoring 1D spectra")
-    shiny::outputOptions(output, "xlim1UI", suspendWhenHidden=FALSE)
-    shiny::outputOptions(output, "xlim2UI", suspendWhenHidden=FALSE)
-    shiny::outputOptions(output, "ylim1UI", suspendWhenHidden=FALSE)
-    shiny::outputOptions(output, "ylim2UI", suspendWhenHidden=FALSE)
-    shiny::outputOptions(output, "selectizeUI", suspendWhenHidden=FALSE)
-    session$onFlushed(function() {
-      shiny::outputOptions(output, "xlim1UI", suspendWhenHidden=TRUE)
-      shiny::outputOptions(output, "xlim2UI", suspendWhenHidden=TRUE)
-      shiny::outputOptions(output, "ylim1UI", suspendWhenHidden=TRUE)
-      shiny::outputOptions(output, "ylim2UI", suspendWhenHidden=TRUE)
-      shiny::outputOptions(output, "selectizeUI", suspendWhenHidden=TRUE)
-    })
-  })
+  #### State saving ####
+  setBookmarkSuspendedOutput("xlim1UI", "xlim2UI", "ylim1UI", "ylim2UI", "selectizeUI")
 
   return(list(
     plotFunc=plotFunc,

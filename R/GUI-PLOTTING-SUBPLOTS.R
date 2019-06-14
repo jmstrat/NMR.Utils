@@ -87,26 +87,7 @@ extra_plot_mod <- function(input, output, session, data, data_name) {
   })
 
   #### State saving ####
-
-  # N.b. https://github.com/rstudio/shiny/issues/1716
-  # https://github.com/rstudio/shiny/issues/1731
-  # Hopefully would be able to get rid of nested onFlushed...
-  shiny::onRestored(function(state) {
-    jms.classes::log.debug("Restoring subplot")
-    shiny::outputOptions(output, "plotTypeSelectorUI", suspendWhenHidden=FALSE)
-    shiny::outputOptions(output, "plotOptionsUI", suspendWhenHidden=FALSE)
-    # Renders plotOptionsUI
-    session$onFlushed(function() {
-      # Renders plot module
-      session$onFlushed(function() {
-        # RenderUI within plot module?
-        session$onFlushed(function() {
-          shiny::outputOptions(output, "plotTypeSelectorUI", suspendWhenHidden=TRUE)
-          shiny::outputOptions(output, "plotOptionsUI", suspendWhenHidden=TRUE)
-        })
-      })
-    })
-  })
+  setBookmarkSuspendedOutput("plotTypeSelectorUI", "plotOptionsUI")
 
   return(selectedPlotParameters)
 }

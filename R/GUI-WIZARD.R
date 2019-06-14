@@ -301,10 +301,6 @@ insitu_gui <- function(nmr) {
       jms.classes::log.debug("Successfully saved state")
     })
 
-    # TODO: ideally we would set suspendWhenHidden = FALSE globally on restored to restore all imports, then reset it
-    # but https://github.com/rstudio/shiny/issues/1716
-    # https://github.com/rstudio/shiny/issues/1731
-
     shiny::callModule(wizard_mod, "wizard", modules)
   }
 

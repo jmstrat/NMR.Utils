@@ -284,6 +284,8 @@ y_trunc_mod <- function(input, output, session, enabled, yrange) {
 
   shiny::setBookmarkExclude(c("addytruncregion", "removeytruncregion"))
 
+  setBookmarkSuspendedOutput("ytruncUI", "ytruncregions")
+
   #### Return ####
   return(list(
     plotArgs=ytruncArgs,
