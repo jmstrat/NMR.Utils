@@ -369,8 +369,8 @@ interactive_import_mod <- function(input, output, session,
             if (!file.exists(echem_file) && requireNamespace("Echem.Database", quietly=TRUE) &&
               !suppressWarnings(is.na(as.numeric(echem_file)))) {
               # A number was entered and the database is available, try to fetch the echem from the database
-              echem <- Echem.Database::echem(as.integer(echem_file))
-              script <- paste0(script, "echem_data = Echem.Database::echem(", as.integer(echem_file), ")\n")
+              echem <- Echem.Database::process.echem(as.integer(echem_file))
+              script <- paste0(script, "echem_data = Echem.Database::process.echem(", as.integer(echem_file), ")\n")
             } else {
               echem <- Echem.Data::read.echem(echem_file)
               script <- paste0(script, "echem_data = read.echem('", echem_file, "')\n")
