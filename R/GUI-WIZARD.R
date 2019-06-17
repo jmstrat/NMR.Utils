@@ -227,7 +227,7 @@ wizard_mod <- function(input, output, session, modules=default_modules) {
 }
 
 
-.wizard_package_deps <- c("shiny", "shinyFiles", "shinyBS", "DT", "colourpicker", "rstudioapi")
+.wizard_package_deps <- c("shiny", "shinyFiles", "DT", "colourpicker", "rstudioapi")
 
 #' Wizard for processing insitu data
 #'
@@ -248,7 +248,6 @@ insitu_gui <- function(nmr) {
   deps$purpose <- "Interactive processing"
   do.call(jms.classes::assert_packages, deps)
 
-  shiny::addResourcePath("sbs", system.file("www", package="shinyBS"))
   shiny::addResourcePath("www", system.file("www", package="jms.classes"))
 
   modules <- default_modules

@@ -591,9 +591,8 @@ interactive_import_mod <- function(input, output, session,
 #' @export
 #' @rdname insitu_gui
 interactiveImport <- function() {
-  jms.classes::assert_packages("shiny", "shinyFiles", "shinyBS", "DT", purpose="Interactive importing")
+  jms.classes::assert_packages("shiny", "shinyFiles", "DT", purpose="Interactive importing")
 
-  shiny::addResourcePath("sbs", system.file("www", package="shinyBS"))
   shiny::addResourcePath("www", system.file("www", package="jms.classes"))
 
   server <- function(input, output, session) {
