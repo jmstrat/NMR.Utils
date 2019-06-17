@@ -377,15 +377,17 @@ about_mod <- function(input, output, session) {
 
   is_outdated <- shiny::reactive({
     jms.classes::log.info("Checking for updates to NMR.Utils")
-    try({
-      res <- remotes::dev_package_deps(system.file(package="NMR.Utils"), dependencies=FALSE)
-      if (any(res$diff < 0)) {
-        jms.classes::log.info("Update available")
-        return(T)
-      } else {
-        jms.classes::log.info("NMR.Utils is up to date")
-        return(F)
-      }
+    shiny::withProgress(message="Checking for updates", value=1, {
+      try({
+        res <- remotes::dev_package_deps(system.file(package="NMR.Utils"), dependencies=FALSE)
+        if (any(res$diff < 0)) {
+          jms.classes::log.info("Update available")
+          return(T)
+        } else {
+          jms.classes::log.info("NMR.Utils is up to date")
+          return(F)
+        }
+      })
     })
   })
 
@@ -415,21 +417,23 @@ about_mod <- function(input, output, session) {
   opt_pkgs <- c("Echem.Data", "Echem.Process", "Echem.Database")
   all_outdated <- shiny::reactive({
     jms.classes::log.info("Checking for updates to NMR.Utils and dependencies")
-    try({
-      deps <- remotes::dev_package_deps(system.file(package="NMR.Utils"), dependencies=TRUE)
+    shiny::withProgress(message="Checking for updates", value=1, {
+      try({
+        deps <- remotes::dev_package_deps(system.file(package="NMR.Utils"), dependencies=TRUE)
 
-      opt_installed <- sapply(opt_pkgs, requireNamespace, package, quietly=TRUE)
-      if (any(opt_installed)) {
-        opt_installed <- opt_pkgs[opt_installed]
-        for (pkg in opt_installed) {
-          deps <- rbind(deps, remotes::dev_package_deps(system.file(package=pkg)))
+        opt_installed <- sapply(opt_pkgs, requireNamespace, package, quietly=TRUE)
+        if (any(opt_installed)) {
+          opt_installed <- opt_pkgs[opt_installed]
+          for (pkg in opt_installed) {
+            deps <- rbind(deps, remotes::dev_package_deps(system.file(package=pkg)))
+          }
         }
-      }
 
-      wiz_extras <- remotes::package_deps(.wizard_package_deps)
-      all <- rbind(deps, wiz_extras)
-      all <- as.data.frame(all)[all$diff < 0, c("package", "installed", "available")]
-      unique(all)
+        wiz_extras <- remotes::package_deps(.wizard_package_deps)
+        all <- rbind(deps, wiz_extras)
+        all <- as.data.frame(all)[all$diff < 0, c("package", "installed", "available")]
+        unique(all)
+      })
     })
   })
 
