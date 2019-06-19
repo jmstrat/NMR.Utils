@@ -493,7 +493,7 @@ interactive_import_mod <- function(input, output, session,
           Plotting.Utils::boxed.labels(
             maxTime - xinch() * 0.1,
             m - yinch() * 0.1,
-            sprintf("%s scans out of range! →", length(outOfRange)),
+            sprintf("%s scans out of range! \u2192", length(outOfRange)),
             col=rgb(1, 0.27, 0, 1), bg=rgb(1, 1, 1, 0.5), border=F, xpd=F, adj=1, xpad=1.05
           )
         }
