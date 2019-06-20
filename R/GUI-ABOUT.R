@@ -344,7 +344,7 @@ about_mod <- function(input, output, session) {
       jms.classes::jms.logging.function(old)
       debug_mode$enabled <- FALSE
     }, session=NULL)
-    jms.classes::jms.logging.threshold("DEBUG")
+    jms.classes::jms.logging.threshold("DEBUG", reset=T)
     jms.classes::jms.enable.logging()
     debug_mode$enabled <- TRUE
     session$reload()
