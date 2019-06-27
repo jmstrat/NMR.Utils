@@ -274,6 +274,7 @@ plot_echem_vertical <- function(
     line=c(xaxismline, yaxismline),
     labline=c(xaxislabelmline, yaxislabelmline),
     forcedInterval=c(forcedVInterval, NA),
+    ticklabels=ticklabels,
     ticksOut=ticksOut,
     forcePrint=forcePrint,
     centreTitlesToLabels=c(F, centreTimeTitle),
