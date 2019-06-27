@@ -162,12 +162,21 @@ SetNMRPlotFactory <- function(coordinates) {
 
     # Now we need usr values for the current plot as if it were an extension to the NMR plot.
     # This will mean that user coordinates are correct for the NMR plot.
-    usr <- c(
-      coordinates$usr[[1]] - (coordinates$usr[[1]] - coordinates$usr[[2]]) / (nmr_ndc[[1]] - nmr_ndc[[2]]) * (nmr_ndc[[1]] - current_ndc[[1]]),
-      coordinates$usr[[2]] - (coordinates$usr[[1]] - coordinates$usr[[2]]) / (nmr_ndc[[1]] - nmr_ndc[[2]]) * (nmr_ndc[[2]] - current_ndc[[2]]),
+    mx = (coordinates$usr[[2]] - coordinates$usr[[1]]) / (nmr_ndc[[2]] - nmr_ndc[[1]])
+    my = (coordinates$usr[[4]] - coordinates$usr[[3]]) / (nmr_ndc[[4]] - nmr_ndc[[3]])
 
-      coordinates$usr[[3]] - (coordinates$usr[[3]] - coordinates$usr[[4]]) / (nmr_ndc[[3]] - nmr_ndc[[4]]) * (nmr_ndc[[3]] - current_ndc[[3]]),
-      coordinates$usr[[4]] - (coordinates$usr[[3]] - coordinates$usr[[4]]) / (nmr_ndc[[3]] - nmr_ndc[[4]]) * (nmr_ndc[[4]] - current_ndc[[4]])
+    # The device bounds in (NMR) usr
+    usr_left = coordinates$usr[[1]] - nmr_ndc[[1]] * mx
+    usr_right = coordinates$usr[[1]] + (1 - nmr_ndc[[1]]) * mx
+    usr_bottom = coordinates$usr[[3]] - nmr_ndc[[3]] * my
+    usr_top = coordinates$usr[[3]] + (1 - nmr_ndc[[3]]) * my
+
+    # The current plot bounds in (NMR) usr
+    usr <- c(
+      current_ndc[[1]] * (usr_right - usr_left) + usr_left,
+      current_ndc[[2]] * (usr_right - usr_left) + usr_left,
+      current_ndc[[3]] * (usr_top - usr_bottom) + usr_bottom,
+      current_ndc[[4]] * (usr_top - usr_bottom) + usr_bottom
     )
 
     par(usr=usr)
