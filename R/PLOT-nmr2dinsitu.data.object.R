@@ -154,10 +154,16 @@ SetNMRPlotFactory <- function(coordinates) {
       coordinates$plt[3:4] * (coordinates$fig[[4]] - coordinates$fig[[3]]) + coordinates$fig[[3]]
     )
 
+    coordinates_cur <- list(
+      plt=par("plt"),
+      fig=par("fig")
+    )
+
     # Current plot Bounds in ndc
+    # N.b. grconvertX / Y give a different answer that seems to be incorrect
     current_ndc <- c(
-      grconvertX(c(0, 1), from="npc", to="ndc"),
-      grconvertY(c(0, 1), from="npc", to="ndc")
+      coordinates_cur$plt[1:2] * (coordinates_cur$fig[[2]] - coordinates_cur$fig[[1]]) + coordinates_cur$fig[[1]],
+      coordinates_cur$plt[3:4] * (coordinates_cur$fig[[4]] - coordinates_cur$fig[[3]]) + coordinates_cur$fig[[3]]
     )
 
     # Now we need usr values for the current plot as if it were an extension to the NMR plot.
