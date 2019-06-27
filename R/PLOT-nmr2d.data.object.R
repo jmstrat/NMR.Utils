@@ -117,7 +117,7 @@ plot.nmr2d.data.object <- function(nmrdata, xlim=NA, ylim=NA, plot_offset="auto"
   }
 
   if (!show_ppm_label) axis_label <- ""
-  ticklabels <- if (!show_ppm_label) F else c(T, F, F)
+  ticklabels <- if (!show_ppm_label) F else T
   Plotting.Utils::pretty_plot(
     xlim=xlim, ylim=ylim, axes=axes, xlab=axis_label,
     line=xaxismline, labline=xaxislabelmline, frac=TRUE,
