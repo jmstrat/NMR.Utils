@@ -213,6 +213,14 @@ plot.nmr2d.data.object <- function(nmrdata, xlim=NA, ylim=NA, plot_offset="auto"
     off <- pos[[(i - 1)]]
     # add offset to intensity
     y <- as.numeric(nmrdata[, i] + off)
+
+    if (shade_under) {
+      shade_y <- y
+      shade_y[shade_y - off < shade_min_intensity] <- NA
+      # add shading
+      polygon(c(x, x[length(x)]), c(shade_y, shade_y[1]), col=shade_col, border=NA)
+    }
+
     # plot scan
     if (plot.colour) {
       cols <- rep_len(col, npoints)
@@ -251,12 +259,6 @@ plot.nmr2d.data.object <- function(nmrdata, xlim=NA, ylim=NA, plot_offset="auto"
       segments(x[1:npoints], y[1:npoints], x[2:(npoints + 1)], y[2:(npoints + 1)], col=cols, lwd=lwd)
     } else {
       lines(x, y, col=col_na, lwd=lwd)
-    }
-    if (shade_under) {
-      shade_y <- y
-      shade_y[shade_y - off < shade_min_intensity] <- NA
-      # add shading
-      polygon(c(x, x[length(x)]), c(shade_y, shade_y[1]), col=shade_col, border=NA)
     }
   }
 
