@@ -152,12 +152,12 @@ wizard_mod <- function(input, output, session, modules=default_modules) {
     script
   })
 
-  i = 0 # Index of modules WITH a server function
+  i <- 0 # Index of modules WITH a server function
   # j = Index of all modules (including those WITHOUT a server function)
   for (j in 1:length(modules)) {
     mod <- modules[[j]]
     if (is.null(mod$server)) next
-    i = i + 1
+    i <- i + 1
     jms.classes::log.debug("Loading %s module", mod$name)
     result <- (function() { # Reactives need their own scope
       mod <- modules[[j]]
@@ -267,14 +267,17 @@ insitu_gui <- function(nmr) {
     )
 
     # TODO:
-    if(!is.nmr2d.data.object(nmr)) {
+    if (!is.nmr2d.data.object(nmr)) {
       # 1D plotting interface...
       modules[[4]] <- list(
-        ui=function(id) {shiny::fluidPage(shiny::h5("1D plotting interface is under construction; use the plot command after exporing the script to manually define the plot."))},
+        ui=function(id) {
+          shiny::fluidPage(
+            shiny::h5("1D plotting interface is under construction; use the plot command after exporting the script to manually define the plot.")
+          )
+        },
         name="Plot"
       )
     }
-
 
     # Remove the phasing tab if we only have real data
     if (!any_complex(nmr)) {

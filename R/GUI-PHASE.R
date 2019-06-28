@@ -342,7 +342,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, embed
       if (is.null(xr) || any(is.na(xr))) {
         return()
       }
-      if(is.null(input$p0) || is.null(input$p1) || is.null(input$pivot)) {
+      if (is.null(input$p0) || is.null(input$p1) || is.null(input$pivot)) {
         return()
       }
       phased <- .single_phase(data()[, c(1, current_scan() + 1)], input$p0, input$p1, input$pivot)
