@@ -189,16 +189,6 @@ interactive_phase_mod <- function(input, output, session, data, data_name, embed
     mat[current_scan(), ]
   })
 
-  p0 <- shiny::reactive({
-    current_parameters()[["p0"]]
-  }) # Maybe this shuld be input$p0 for a proper dependency tree??
-  p1 <- shiny::reactive({
-    current_parameters()[["p1"]]
-  })
-  pivot <- shiny::reactive({
-    current_parameters()[["pivot"]]
-  })
-
   apk0 <- shiny::reactive({
     (1 - input$apk0) * diff(xrange()) * -1 + xrange()[[2]]
   })
@@ -291,15 +281,21 @@ interactive_phase_mod <- function(input, output, session, data, data_name, embed
   })
 
   output$p0_slider <- shiny::renderUI({
-    shiny::sliderInput(session$ns("p0"), "P0", -180, 180, p0(), step=0.01)
+    force(input$scan)
+    initial <- shiny::isolate(current_parameters()[["p0"]])
+    shiny::sliderInput(session$ns("p0"), "P0", -180, 180, initial, step=0.01)
   })
 
   output$p1_slider <- shiny::renderUI({
-    shiny::sliderInput(session$ns("p1"), "P1", -180, 180, p1(), step=0.01)
+    force(input$scan)
+    initial <- shiny::isolate(current_parameters()[["p1"]])
+    shiny::sliderInput(session$ns("p1"), "P1", -180, 180, initial, step=0.01)
   })
 
   output$pivot_slider <- shiny::renderUI({
-    shiny::sliderInput(session$ns("pivot"), "Pivot", xrange()[[2]], xrange()[[1]], pivot(), step=0.01)
+    force(input$scan)
+    initial <- shiny::isolate(current_parameters()[["pivot"]])
+    shiny::sliderInput(session$ns("pivot"), "Pivot", xrange()[[2]], xrange()[[1]], initial, step=0.01)
   })
 
   output$xzoom_slider <- shiny::renderUI({
@@ -330,7 +326,7 @@ interactive_phase_mod <- function(input, output, session, data, data_name, embed
   output$scan_title <- shiny::renderText(sprintf("Scan #%s", current_scan()))
 
   output$phase_params <- shiny::renderText({
-    sprintf("P0: %s; P1: %s; Pivot: %s", p0(), p1(), pivot())
+    sprintf("P0: %s; P1: %s; Pivot: %s", input$p0, input$p1, input$pivot)
   })
 
   output$spectrum <- shiny::renderPlot({
@@ -346,10 +342,13 @@ interactive_phase_mod <- function(input, output, session, data, data_name, embed
       if (is.null(xr) || any(is.na(xr))) {
         return()
       }
-      phased <- .single_phase(data()[, c(1, current_scan() + 1)], p0(), p1(), pivot())
+      if(is.null(input$p0) || is.null(input$p1) || is.null(input$pivot)) {
+        return()
+      }
+      phased <- .single_phase(data()[, c(1, current_scan() + 1)], input$p0, input$p1, input$pivot)
       phased <- makeReal(phased)
       plot(phased, xlim=xr, ylim=yr)
-      abline(v=pivot(), col="red")
+      abline(v=input$pivot, col="red")
 
       if (input$show_apk) {
         apk0 <- apk0()
@@ -372,20 +371,20 @@ interactive_phase_mod <- function(input, output, session, data, data_name, embed
   shiny::observeEvent(input$do_apk, {
     values <- apk_values(
       data()[, c(1, input$scan + 1)],
-      apk0(), apk1(), pivot(),
+      apk0(), apk1(), input$pivot,
       c(-180, 180), c(-180, 180)
     )
     values <- round(values, 2)
     if (!is.null(values[["p0"]])) phased_parameters$phases[current_scan(), "p0"] <- values[["p0"]]
     if (!is.null(values[["p1"]])) phased_parameters$phases[current_scan(), "p1"] <- values[["p1"]]
-    phased_parameters$phases[current_scan(), "pivot"] <- pivot()
+    phased_parameters$phases[current_scan(), "pivot"] <- input$pivot
   })
 
   shiny::observeEvent(input$do_apk_all, {
     shiny::withProgress(message="APK", min=0, max=nscans(), value=1, {
       fun <- function(x) shiny::incProgress(1, detail=paste("scan ", x))
       values <- apkpseudo2d_values(data(),
-        apk0(), apk1(), pivot(),
+        apk0(), apk1(), input$pivot,
         c(-180, 180), c(-180, 180),
         .progress=fun
       )
