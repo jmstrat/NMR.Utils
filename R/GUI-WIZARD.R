@@ -85,7 +85,7 @@ wizard_mod_UI <- function(id, zoomLevel=1.0, modules=default_modules,
   zoom: %1$s; /* Other non-webkit browsers */
   zoom: %s%%; /* Webkit browsers */", zoomLevel, as.numeric(zoomLevel) * 100)
 
-  pageArgs <- list(title,
+  pageArgs <- list(
     id=ns("tabs"),
     shiny::tabPanel("About", about_mod_UI(ns("about")))
   )
@@ -100,6 +100,8 @@ wizard_mod_UI <- function(id, zoomLevel=1.0, modules=default_modules,
   }
 
   pageArgs$selected <- selected
+
+  pageArgs$title <- title
 
   shiny::fluidPage(
     style=style,

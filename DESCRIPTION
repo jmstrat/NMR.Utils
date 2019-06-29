@@ -14,7 +14,7 @@ Imports: jms.classes (>= 1.0.0),
          minpack.lm (>= 1.2-1),
          nls2 (>= 0.2)
 Depends: R (>= 3.2.0)
-License: GNU Affero General Public License v3.0 
+License: GNU Affero General Public License v3.0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
