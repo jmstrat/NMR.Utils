@@ -125,7 +125,7 @@ about_mod_UI <- function(id) {
           shiny::tags$td(
             shiny::a(
               htmltools::HTML("Stratford, J. M.; Allan, P. K.; Grey, C. P. <i>et al.</i>
-                              <i>Chem. Commun.</i> <b>2016</b>, <i>52</i>, 12430–12433."),
+                              <i>Chem. Commun.</i> <b>2016</b>, <i>52</i>, 12430-12433."),
               href="https://dx.doi.org/10.1039/C6CC06990H"
             )
           )
@@ -135,7 +135,7 @@ about_mod_UI <- function(id) {
           shiny::tags$td(
             shiny::a(
               htmltools::HTML("Stratford, J. M.; Mayo, M.; Allan, P. K.; Grey, C. P. <i>et al.</i>
-                              <i>J. Am. Chem. Soc.</i> <b>2017</b>, <i>139</i>, 7273–7286."),
+                              <i>J. Am. Chem. Soc.</i> <b>2017</b>, <i>139</i>, 7273-7286."),
               href="https://dx.doi.org/10.1021/jacs.7b01398"
             )
           )
